@@ -1,1 +1,1 @@
-# concer-tix
+<img src="tix_logo.png" alt="TIX Logo" width="200">
