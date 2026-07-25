@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { label: "Beranda", href: "#", active: true },
@@ -22,6 +23,7 @@ const artistPlaceholders = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [artistIndex, setArtistIndex] = useState(0);
@@ -222,6 +224,7 @@ export default function Navbar() {
           {/* Right actions */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
             <button
+              onClick={() => router.push("/login")}
               style={{
                 backgroundColor: "transparent",
                 border: "1.5px solid #DEE2E6",

@@ -133,3 +133,15 @@ input:focus, button:focus {
   transform: translateY(-4px);
   box-shadow: 0 20px 48px rgba(13,27,62,0.12);
 }
+
+/* Auth modal floating dots animation */
+@keyframes authFloat {
+  0%, 100% { transform: translateY(0px); opacity: 0.6; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+
+.auth-float-dot {
+  animation: authFloat 2s ease-in-out infinite;
+}
+.auth-float-dot:nth-child(2) { animation-delay: 0.3s; }
+.auth-float-dot:nth-child(3) { animation-delay: 0.6s; }
