@@ -1,6 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
+<<<<<<< HEAD
+import Link from "next/link";
+
+=======
 import { useRouter } from "next/navigation";
+>>>>>>> 0cf8937 (update navbar, globals, add login page)
 
 const navLinks = [
   { label: "Beranda", href: "#", active: true },
@@ -223,6 +228,59 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+<<<<<<< HEAD
+            <Link href="/login" style={{ textDecoration: "none" }}>
+              <button
+                style={{
+                  backgroundColor: "transparent",
+                  border: "1.5px solid #DEE2E6",
+                  color: "#495057",
+                  padding: "8px 20px",
+                  borderRadius: "100px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  const b = e.currentTarget as HTMLButtonElement;
+                  b.style.borderColor = "#1ABC9C";
+                  b.style.color = "#1ABC9C";
+                }}
+                onMouseLeave={(e) => {
+                  const b = e.currentTarget as HTMLButtonElement;
+                  b.style.borderColor = "#DEE2E6";
+                  b.style.color = "#495057";
+                }}
+              >
+                Masuk
+              </button>
+            </Link>
+            <Link href="/register" style={{ textDecoration: "none" }}>
+              <button
+                style={{
+                  backgroundColor: "#1ABC9C",
+                  color: "#ffffff",
+                  padding: "8px 22px",
+                  borderRadius: "100px",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  letterSpacing: "-0.01em",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#16A085";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1ABC9C";
+                }}
+              >
+                Daftar
+              </button>
+            </Link>
+=======
             <button
               onClick={() => router.push("/login")}
               style={{
@@ -265,6 +323,7 @@ export default function Navbar() {
             >
               Buat Event
             </button>
+>>>>>>> 0cf8937 (update navbar, globals, add login page)
           </div>
         </div>
       </nav>
