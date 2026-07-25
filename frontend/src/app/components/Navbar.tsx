@@ -1,11 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-<<<<<<< HEAD
-import { useRouter } from "next/navigation";
-=======
 import Link from "next/link";
-
->>>>>>> 24c167157bfac2ac2d7600b9ee897f3d96285ccc
 
 const navLinks = [
   { label: "Beranda", href: "#", active: true },
@@ -28,7 +23,6 @@ const artistPlaceholders = [
 ];
 
 export default function Navbar() {
-  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [artistIndex, setArtistIndex] = useState(0);
@@ -228,50 +222,6 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
-<<<<<<< HEAD
-            <button
-              onClick={() => router.push("/login")}
-              style={{
-                backgroundColor: "transparent",
-                border: "1.5px solid #DEE2E6",
-                color: "#495057",
-                padding: "8px 20px",
-                borderRadius: "100px",
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                const b = e.currentTarget as HTMLButtonElement;
-                b.style.borderColor = "#1ABC9C";
-                b.style.color = "#1ABC9C";
-              }}
-              onMouseLeave={(e) => {
-                const b = e.currentTarget as HTMLButtonElement;
-                b.style.borderColor = "#DEE2E6";
-                b.style.color = "#495057";
-              }}
-            >
-              Masuk
-            </button>
-            <button
-              style={{
-                backgroundColor: "#1ABC9C",
-                color: "#ffffff",
-                padding: "8px 22px",
-                borderRadius: "100px",
-                fontSize: "13px",
-                fontWeight: 700,
-                border: "none",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Buat Event
-            </button>
-=======
             <Link href="/login" style={{ textDecoration: "none" }}>
               <button
                 style={{
@@ -323,7 +273,6 @@ export default function Navbar() {
                 Daftar
               </button>
             </Link>
->>>>>>> 24c167157bfac2ac2d7600b9ee897f3d96285ccc
           </div>
         </div>
       </nav>

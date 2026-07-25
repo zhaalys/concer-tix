@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="id" data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/logo/tix_logo.png?v=3" type="image/png" />
         <link rel="shortcut icon" href="/logo/tix_logo.png?v=3" type="image/png" />
