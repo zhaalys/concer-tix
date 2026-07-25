@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 const cities = [
   { icon: "location_city", name: "DKI Jakarta", count: 126, img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Monas_-_front.jpg/320px-Monas_-_front.jpg", color: "#3B5BDB" },
@@ -13,7 +14,8 @@ function CityCard({ city }: { city: typeof cities[0] }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div
+    <Link
+      href={`/jelajahi?kota=${encodeURIComponent(city.name)}`}
       style={{
         position: "relative",
         borderRadius: "16px",
@@ -21,6 +23,7 @@ function CityCard({ city }: { city: typeof cities[0] }) {
         cursor: "pointer",
         flex: 1,
         minWidth: "160px",
+        textDecoration: "none",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -137,7 +140,7 @@ function CityCard({ city }: { city: typeof cities[0] }) {
           arrow_forward
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -148,13 +151,13 @@ export default function CitiesSection() {
         <div>
           <h2 className="section-heading">Jelajahi Event di Kotamu</h2>
         </div>
-        <a
-          href="#"
+        <Link
+          href="/jelajahi"
           style={{ fontSize: "13px", fontWeight: 600, color: "#3B5BDB", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}
         >
           Semua Kota
           <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>chevron_right</span>
-        </a>
+        </Link>
       </div>
 
       <div style={{ display: "flex", gap: "16px" }}>
@@ -165,3 +168,4 @@ export default function CitiesSection() {
     </section>
   );
 }
+

@@ -103,198 +103,62 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
           zIndex: 1,
         }}
       >
-        {/* Left Side: Brand Visual Hero */}
+        {/* Left Side: Pure 3D Video Visual */}
         <div
           style={{
             flex: "1",
-            background: "linear-gradient(145deg, #064E3B 0%, #083C2F 50%, #0A2E25 100%)",
-            padding: "48px 40px",
-            color: "#ffffff",
-            display: "none",
-            flexDirection: "column",
-            justifyContent: "space-between",
+            backgroundColor: "#000000",
             position: "relative",
             overflow: "hidden",
+            display: "none",
+            minHeight: "560px",
           }}
           className="auth-hero-panel"
         >
-          {/* Overlay pattern & glow */}
-          <div
+          {/* Background 3D Video */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             style={{
               position: "absolute",
               top: 0,
               left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage:
-                "radial-gradient(rgba(26,188,156,0.2) 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-              opacity: 0.6,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: 0,
             }}
-          />
+          >
+            <source src="/vidio_log_res/3d_tix_concer.mp4" type="video/mp4" />
+          </video>
 
-          {/* Top Info */}
-          <div style={{ position: "relative", zIndex: 2 }}>
-            <Link href="/" style={{ textDecoration: "none", display: "inline-block" }}>
+          {/* Minimal Floating Back Button */}
+          <div style={{ position: "absolute", top: "24px", left: "24px", zIndex: 10 }}>
+            <Link href="/" style={{ textDecoration: "none" }}>
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "10px",
-                  backgroundColor: "rgba(255,255,255,0.12)",
+                  gap: "8px",
+                  backgroundColor: "rgba(0,0,0,0.35)",
                   backdropFilter: "blur(12px)",
                   padding: "8px 16px",
                   borderRadius: "100px",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.25)",
                   color: "#ffffff",
                   fontSize: "13px",
                   fontWeight: 600,
+                  transition: "all 0.2s ease",
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                   arrow_back
                 </span>
-                Kembali ke Beranda
+                Beranda
               </div>
             </Link>
-
-            <div style={{ marginTop: "48px" }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  backgroundColor: "rgba(26,188,156,0.25)",
-                  color: "#1ABC9C",
-                  padding: "6px 14px",
-                  borderRadius: "100px",
-                  fontSize: "12px",
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  marginBottom: "16px",
-                  border: "1px solid rgba(26,188,156,0.4)",
-                }}
-              >
-                ✨ PLATFORM TIKET KONSER #1
-              </div>
-              <h2
-                style={{
-                  fontSize: "32px",
-                  fontWeight: 800,
-                  lineHeight: 1.25,
-                  letterSpacing: "-0.02em",
-                  marginBottom: "16px",
-                }}
-              >
-                Rasakan Sensasi Konser Impianmu Bersama <span style={{ color: "#1ABC9C" }}>Concer TIX</span>
-              </h2>
-              <p
-                style={{
-                  fontSize: "15px",
-                  color: "rgba(255,255,255,0.8)",
-                  lineHeight: 1.6,
-                  maxWidth: "420px",
-                }}
-              >
-                Akses ribuan event musik, wahana, dan festival seru di seluruh Indonesia. Transaksi aman, instan, dan 100% e-ticket resmi!
-              </p>
-            </div>
-          </div>
-
-          {/* Middle Floating Feature Cards */}
-          <div
-            style={{
-              position: "relative",
-              zIndex: 2,
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-              margin: "32px 0",
-            }}
-          >
-            {[
-              { icon: "confirmation_number", title: "E-Ticket Instan", desc: "Langsung kirim ke email & WhatsApp kamu" },
-              { icon: "verified_user", title: "Garansi 100% Keamanan", desc: "Sistem pembayaran terenkripsi & resmi" },
-              { icon: "local_offer", title: "Promo & Cashback Harian", desc: "Diskon khusus member Concer TIX" },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "14px",
-                  backgroundColor: "rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(8px)",
-                  padding: "12px 18px",
-                  borderRadius: "16px",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                }}
-              >
-                <div
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    borderRadius: "10px",
-                    backgroundColor: "#1ABC9C",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#ffffff",
-                    flexShrink: 0,
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
-                    {item.icon}
-                  </span>
-                </div>
-                <div>
-                  <h4 style={{ fontSize: "14px", fontWeight: 700, margin: 0, color: "#ffffff" }}>
-                    {item.title}
-                  </h4>
-                  <p style={{ fontSize: "12px", margin: 0, color: "rgba(255,255,255,0.7)" }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom Footer Quote */}
-          <div
-            style={{
-              position: "relative",
-              zIndex: 2,
-              borderTop: "1px solid rgba(255,255,255,0.15)",
-              paddingTop: "20px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#ffffff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: "14px",
-                  color: "#064E3B",
-                }}
-              >
-                TIX
-              </div>
-              <span style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>
-                50,000+ Penikmat Konser
-              </span>
-            </div>
-            <span style={{ fontSize: "13px", color: "#1ABC9C", fontWeight: 700 }}>
-              ★ 4.9/5 Rating
-            </span>
           </div>
         </div>
 

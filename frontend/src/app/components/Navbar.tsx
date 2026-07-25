@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { label: "Beranda", href: "#", active: true },
-  { label: "Jelajahi", href: "#" },
+  { label: "Beranda", href: "/" },
+  { label: "Jelajahi", href: "/jelajahi" },
   { label: "Event Saya", href: "#" },
   { label: "Tentang", href: "#" },
 ];
@@ -23,6 +24,7 @@ const artistPlaceholders = [
 ];
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [artistIndex, setArtistIndex] = useState(0);
@@ -53,10 +55,15 @@ export default function Navbar() {
           gap: "32px",
         }}
       >
-        {["Our Journey", "Biaya", "Tiket Gelang", "FAQ!"].map((item) => (
-          <a
-            key={item}
-            href="#"
+        {[
+          { label: "Our Journey", href: "/our-journey" },
+          { label: "Biaya", href: "/biaya" },
+          { label: "Tiket Gelang", href: "/tiket-gelang" },
+          { label: "FAQ!", href: "#" },
+        ].map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
             style={{
               color: "#ffffff",
               fontSize: "13px",
@@ -65,8 +72,8 @@ export default function Navbar() {
               letterSpacing: "0.02em",
             }}
           >
-            {item}
-          </a>
+            {item.label}
+          </Link>
         ))}
       </div>
 
@@ -96,7 +103,7 @@ export default function Navbar() {
         >
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-            <a href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "8px" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo/tix_logo.png?v=3"
@@ -108,7 +115,7 @@ export default function Navbar() {
                   display: "block",
                 }}
               />
-            </a>
+            </Link>
           </div>
 
           {/* Center: Pill Nav + Search */}
@@ -124,38 +131,42 @@ export default function Navbar() {
                 flexShrink: 0,
               }}
             >
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  style={{
-                    padding: "7px 18px",
-                    borderRadius: "100px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    color: link.active ? "#ffffff" : "#5A6072",
-                    backgroundColor: link.active ? "#1ABC9C" : "transparent",
-                    transition: "all 0.2s ease",
-                    letterSpacing: "-0.01em",
-                    boxShadow: "none",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!link.active) {
-                      e.currentTarget.style.color = "#1A1D2E";
-                      e.currentTarget.style.backgroundColor = "#E9ECEF";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!link.active) {
-                      e.currentTarget.style.color = "#5A6072";
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }
-                  }}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href || (link.href !== "/" && pathname?.startsWith(link.href));
+
+                return (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    style={{
+                      padding: "7px 18px",
+                      borderRadius: "100px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      color: isActive ? "#ffffff" : "#5A6072",
+                      backgroundColor: isActive ? "#1ABC9C" : "transparent",
+                      transition: "all 0.2s ease",
+                      letterSpacing: "-0.01em",
+                      boxShadow: "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.color = "#1A1D2E";
+                        e.currentTarget.style.backgroundColor = "#E9ECEF";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        e.currentTarget.style.color = "#5A6072";
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Search */}
