@@ -8,5 +8,6 @@ ConcerTix is a modern concert ticketing platform application.
 
 ## Contributor
 - [Faishal](https://github.com/zhaalys)
-
-test
+## Tech Stack
+- Frontend: React / Next.js
+- Backend: Node.js / Express
