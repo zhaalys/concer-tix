@@ -15,7 +15,7 @@ const featured = [
   {
     img: "https://lh3.googleusercontent.com/aida/AP1WRLt4twpyinTDPRivMBonQnHMVJA8Vccc2Q-cJg5QcM8INxNurX0H6IsF98zjbWLzQa0rTEyB32rnhHgJxoCvQN8jVqd8rviKchOZavW45QtgNN42f09gsGcbat3jN2ocoMVH0SOumqpgU5S_pMQ90l6o5alxIiPqIPHUGuNo3DwvMXyzPlcwWNuSd8cRtyxgKpozWDPLwZ8gK7kF-gQ0w7xtOpLUFg93wrVC1UqUZyWVXVggse-XYXxrr1MZ",
     label: "Trending",
-    title: "Festival Indie Jakarta OMG",
+    title: "Festival Indie Jakarta",
     desc: "Jelajahi musik indie lokal terbaik",
     date: "1 Agustus 2026",
     price: "Rp 180.000",

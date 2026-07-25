@@ -1,4 +1,15 @@
 <<<<<<< HEAD
+import AuthForm from "../components/AuthForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Masuk - Concer TIX",
+  description: "Masuk ke akun Concer TIX Anda untuk membeli tiket konser dan event favorit.",
+};
+
+export default function LoginPage() {
+  return <AuthForm initialMode="login" />;
+=======
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -724,16 +735,5 @@ function SocialButton({
       {label}
     </button>
   );
-=======
-import AuthForm from "../components/AuthForm";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Masuk - Concer TIX",
-  description: "Masuk ke akun Concer TIX Anda untuk membeli tiket konser dan event favorit.",
-};
-
-export default function LoginPage() {
-  return <AuthForm initialMode="login" />;
->>>>>>> 24c167157bfac2ac2d7600b9ee897f3d96285ccc
+>>>>>>> 0cf8937 (update navbar, globals, add login page)
 }
