@@ -1,11 +1,4 @@
-import Navbar from "./components/Navbar";
-import HeroBanner from "./components/HeroBanner";
-import Categories from "./components/Categories";
-import EventCards from "./components/EventCards";
-import EventSeruGrid from "./components/EventSeruGrid";
-import Banner2 from "./components/Banner2";
-import CitiesGrid from "./components/CitiesGrid";
-import Footer from "./components/Footer";
+import { Navbar, HeroBanner, Categories, EventCards, EventSeruGrid, Banner2, CitiesGrid, Footer } from "@/components";
 
 export default function Home() {
   return (

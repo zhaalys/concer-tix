@@ -1,7 +1,5 @@
 import { Suspense } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import CityExploreViewContent from "../components/CityExploreView";
+import { Navbar, Footer, CityExploreView as CityExploreViewContent } from "@/components";
 
 export const metadata = {
   title: "Jelajahi Event Sesuai Kota - Concer TIX",

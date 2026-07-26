@@ -1,6 +1,4 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import WristbandView from "../components/WristbandView";
+import { Navbar, Footer, WristbandView } from "@/components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

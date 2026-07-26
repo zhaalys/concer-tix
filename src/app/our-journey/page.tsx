@@ -1,6 +1,4 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import OurJourneyView from "../components/OurJourneyView";
+import { Navbar, Footer, OurJourneyView } from "@/components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

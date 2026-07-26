@@ -1,6 +1,4 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import PricingView from "../components/PricingView";
+import { Navbar, Footer, PricingView } from "@/components";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
