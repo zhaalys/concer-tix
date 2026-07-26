@@ -139,7 +139,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 850000,
     date: "11 Sep 2026",
     time: "19:00 WIB",
-    badge: "Selling Fast",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Live Nation Asia",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -156,7 +155,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 225000,
     date: "26 Jul 2026",
     time: "15:00 WITA",
-    badge: "Presale 2",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Boss Creator",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -173,7 +171,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 125000,
     date: "25–26 Jul 2026",
     time: "18:30 WIB",
-    badge: "Limited Seats",
     img: "/image_concer/benner_concer_1.png",
     organizer: "VINDES Media",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -189,7 +186,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 588000,
     date: "14-16 Nov 2026",
     time: "14:00 WITA",
-    badge: "Early Bird",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Plainsong Live",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -206,7 +202,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 450000,
     date: "15 Des 2026",
     time: "13:00 WIB",
-    badge: "Hot Deal",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Ravel Entertainment",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -223,7 +218,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 180000,
     date: "15 Agus 2026",
     time: "16:00 WIB",
-    badge: "Special Event",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Kreatif Bandung",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -239,7 +233,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 320000,
     date: "28 Agus 2026",
     time: "19:30 WIB",
-    badge: "Official Ticket",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Jogja Cultural Fest",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -255,7 +248,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 210000,
     date: "05 Sep 2026",
     time: "18:00 WIB",
-    badge: "New Release",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Surabaya Event Organizer",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -271,7 +263,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 195000,
     date: "19 Sep 2026",
     time: "17:00 WIB",
-    badge: "Presale 1",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Palembang Music Fest",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -287,7 +278,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 260000,
     date: "03 Okt 2026",
     time: "19:00 WITA",
-    badge: "Limited Tickets",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Borneo Live Event",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -303,7 +293,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 175000,
     date: "22 Agus 2026",
     time: "15:00 WIB",
-    badge: "Trending",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Tix Experience",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -319,7 +308,6 @@ export const ALL_EVENTS: EventItem[] = [
     numericPrice: 150000,
     date: "10 Okt 2026",
     time: "14:00 WIB",
-    badge: "Eco Fest",
     img: "/image_concer/benner_concer_1.png",
     organizer: "Malang Creative Community",
     organizerLogo: "/logo/tix_logo.png?v=3",
@@ -980,7 +968,6 @@ export default function CityExploreViewContent() {
               {filteredEvents.map((ev) => (
                 <div
                   key={ev.id}
-                  className="card-hover"
                   onClick={() => {
                     setActiveModalEvent(ev);
                     setTicketQty(1);
@@ -1058,16 +1045,6 @@ export default function CityExploreViewContent() {
 
                   {/* Body content */}
                   <div style={{ padding: "18px", display: "flex", flexDirection: "column", flex: 1 }}>
-                    {/* Location Badge */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "8px" }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: "15px", color: "#1ABC9C" }}>
-                        location_on
-                      </span>
-                      <span style={{ fontSize: "12px", fontWeight: 700, color: "#1ABC9C" }}>
-                        {ev.specificLocation}
-                      </span>
-                    </div>
-
                     {/* Title */}
                     <h4
                       style={{

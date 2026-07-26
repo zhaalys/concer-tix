@@ -1,15 +1,15 @@
 "use client";
 
 const categories = [
-  { icon: "music_note", label: "Musik" },
-  { icon: "gallery_thumbnail", label: "Pameran" },
-  { icon: "attractions", label: "Wahana" },
-  { icon: "theater_comedy", label: "Teater" },
-  { icon: "sports_soccer", label: "Olahraga" },
-  { icon: "map", label: "Wisata" },
-  { icon: "mic", label: "Talkshow" },
-  { icon: "school", label: "Workshop" },
-  { icon: "trophy", label: "Kompetisi" },
+  { icon: "music_note", label: "Pop" },
+  { icon: "graphic_eq", label: "Rock" },
+  { icon: "piano", label: "Jazz" },
+  { icon: "mic", label: "Hip Hop" },
+  { icon: "headphones", label: "EDM" },
+  { icon: "album", label: "Indie" },
+  { icon: "queue_music", label: "R&B" },
+  { icon: "lyrics", label: "Folk" },
+  { icon: "settings_input_component", label: "Metal" },
 ];
 
 export default function Categories() {
