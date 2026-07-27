@@ -1,6 +1,7 @@
 'use client';
 
 import LogoLoop from './LogoLoop';
+import FloatingContact from '@/components/ui/FloatingContact';
 
 const paymentLogos = [
   { src: '/img_payment/qris.png', alt: 'QRIS' },
@@ -53,6 +54,8 @@ export default function OurJourneyView() {
           />
         </div>
       </section>
+
+      <FloatingContact />
     </div>
   );
 }
