@@ -31,7 +31,7 @@ const ALL_EVENTS = [
   { id: "ev-12", title: "Malang Music Camp 2026", city: "jawa_timur", cityLabel: "Jawa Timur", location: "Coban Rondo Outdoor Arena", category: "Indie & Alternative", price: "Rp 150.000", numericPrice: 150000, date: "10 Okt 2026", img: "/image_concer/banner_concer_1.png", organizer: "Malang Creative", isHot: false },
 ];
 
-type EventItem = typeof ALL_EVENTS[0];
+type EventItem = typeof ALL_EVENTS[0] & { badge?: string };
 
 function EventCard({ event }: { event: EventItem }) {
   const isLongTitle = event.title.length > 28;
