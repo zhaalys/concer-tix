@@ -96,9 +96,9 @@ function CityCard({ city }: { city: typeof cities[0] }) {
           >
             {city.name}
           </h3>
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.75)", fontWeight: 500 }}>
-            {city.count}+ Event
-          </p>
+          <span style={{ fontSize: "12px", fontWeight: 700, color: "#868E96", fontWeight: 500 }}>
+            {city.count}+ Events
+          </span>
         </div>
       </div>
 
@@ -127,7 +127,7 @@ function CityCard({ city }: { city: typeof cities[0] }) {
             transition: "color 0.2s",
           }}
         >
-          Lihat Event
+          View Events
         </span>
         <span
           className="material-symbols-outlined"
@@ -149,13 +149,13 @@ export default function CitiesSection() {
     <section style={{ maxWidth: "1320px", margin: "0 auto", padding: "0 32px 64px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
-          <h2 className="section-heading">Jelajahi Event di Kotamu</h2>
+          <h2 className="section-heading">Explore Events in Your City</h2>
         </div>
         <Link
           href="/jelajahi"
           style={{ fontSize: "13px", fontWeight: 600, color: "#3B5BDB", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}
         >
-          Semua Kota
+          All Cities
           <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>chevron_right</span>
         </Link>
       </div>

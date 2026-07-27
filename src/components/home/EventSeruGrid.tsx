@@ -37,7 +37,7 @@ const events = [
     img: "/image_concer/banner_concer_1.png",
     title: "Soundrenaline 2026 Jakarta",
     price: "Rp 450.000",
-    date: "15 Des 2026",
+    date: "15 Dec 2026",
     organizer: "Ravel Entertainment",
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
@@ -45,7 +45,7 @@ const events = [
     img: "/image_concer/banner_concer_1.png",
     title: "Festival Indie Jakarta",
     price: "Rp 180.000",
-    date: "1 Agustus 2026",
+    date: "1 Aug 2026",
     organizer: "Kompas Event",
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
@@ -53,7 +53,7 @@ const events = [
     img: "/image_concer/banner_concer_1.png",
     title: "Ancol Aquathlon 2026",
     price: "Rp 250.000",
-    date: "23 Agustus 2026",
+    date: "23 Aug 2026",
     organizer: "JakLingko",
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
@@ -61,7 +61,7 @@ const events = [
     img: "/image_concer/banner_concer_1.png",
     title: "Home Sweet Loan The Musical",
     price: "Rp 350.000",
-    date: "Setiap Sabtu & Minggu",
+    date: "Every Sat & Sun",
     organizer: "Tix ID",
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
@@ -241,7 +241,7 @@ export default function EventSeruGrid() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
-          <h2 className="section-heading">Event Seru Untukmu</h2>
+          <h2 className="section-heading">Top Events For You</h2>
         </div>
         <a
           href="#"
@@ -255,7 +255,7 @@ export default function EventSeruGrid() {
             gap: "4px",
           }}
         >
-          Lihat Semua
+          See All
           <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>
             chevron_right
           </span>

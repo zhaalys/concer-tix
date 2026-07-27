@@ -4,23 +4,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { label: "Beranda", href: "/" },
-  { label: "Jelajahi", href: "/jelajahi" },
-  { label: "Event Saya", href: "#" },
-  { label: "Tentang", href: "#" },
+  { label: "Home", href: "/" },
+  { label: "Explore", href: "/jelajahi" },
+  { label: "About", href: "#" },
+  { label: "Contact", href: "#" },
 ];
 
 const artistPlaceholders = [
-  "Cari Sheila On 7...",
-  "Cari Coldplay...",
-  "Cari Hindia...",
-  "Cari Bernadya...",
-  "Cari Mahalini...",
-  "Cari Tulus...",
-  "Cari JKT48...",
-  "Cari Bruno Mars...",
-  "Cari Raisa...",
-  "Cari Pamungkas...",
+  "Search Sheila On 7...",
+  "Search Coldplay...",
+  "Search Hindia...",
+  "Search Bernadya...",
+  "Search Mahalini...",
+  "Search Tulus...",
+  "Search JKT48...",
+  "Search Bruno Mars...",
+  "Search Raisa...",
+  "Search Pamungkas...",
 ];
 
 export default function Navbar() {
@@ -57,8 +57,8 @@ export default function Navbar() {
       >
         {[
           { label: "Our Journey", href: "/our-journey" },
-          { label: "Biaya", href: "/biaya" },
-          { label: "Tiket Gelang", href: "/tiket-gelang" },
+          { label: "Pricing", href: "/biaya" },
+          { label: "Wristband Ticket", href: "/tiket-gelang" },
           { label: "FAQ!", href: "#" },
         ].map((item) => (
           <Link
@@ -206,7 +206,7 @@ export default function Navbar() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  Cari <span style={{ fontWeight: 700, color: "#1A1D2E" }}>{artistPlaceholders[artistIndex].replace("Cari ", "").replace("...", "")}</span>...
+                  Search <span style={{ fontWeight: 700, color: "#1A1D2E" }}>{artistPlaceholders[artistIndex].replace("Search ", "").replace("...", "")}</span>...
                 </span>
               )}
               <input
@@ -257,7 +257,7 @@ export default function Navbar() {
                   b.style.color = "#495057";
                 }}
               >
-                Masuk
+                Log In
               </button>
             </Link>
             <Link href="/register" style={{ textDecoration: "none" }}>
@@ -281,7 +281,7 @@ export default function Navbar() {
                   (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#1ABC9C";
                 }}
               >
-                Daftar
+                Sign Up
               </button>
             </Link>
           </div>

@@ -158,7 +158,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Selamat datang kembali!
+            Welcome back!
           </h2>
           <p
             style={{
@@ -172,7 +172,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Silakan masuk untuk melanjutkan ke akun Anda.
+            Please log in to continue to your account.
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
@@ -224,7 +224,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
                       color: "#374151",
                     }}
                   >
-                    Kata Sandi
+                    Password
                   </label>
                   <button
                     type="button"
@@ -238,7 +238,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
                       padding: 0,
                     }}
                   >
-                    Ganti Email
+                    Change Email
                   </button>
                 </div>
                 <input
@@ -291,9 +291,9 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0F766E")}
             >
               {isLoading ? (
-                <span>Memproses...</span>
+                <span>Processing...</span>
               ) : (
-                <span>{step === "email" ? "Lanjutkan" : "Masuk ke Akun"}</span>
+                <span>{step === "email" ? "Continue" : "Log In"}</span>
               )}
             </button>
           </form>

@@ -23,7 +23,7 @@ export default function CitiesGrid() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
-          <h2 className="section-heading">Temukan Event Menarik di Kotamu!</h2>
+          <h2 className="section-heading">Find Exciting Events Near You!</h2>
         </div>
         <Link
           href="/jelajahi"
@@ -37,7 +37,7 @@ export default function CitiesGrid() {
             gap: "4px",
           }}
         >
-          Lihat Semua Kota
+          See All Cities
           <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>
             chevron_right
           </span>

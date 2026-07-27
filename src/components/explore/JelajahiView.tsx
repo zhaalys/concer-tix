@@ -2,33 +2,33 @@
 
 import { useState, useMemo } from "react";
 
-const CATEGORIES = ["Semua", "Konser Musik", "Festival", "Seni & Budaya", "Pop & Rock", "Indie & Alternative"];
+const CATEGORIES = ["All", "Music Concert", "Festival", "Arts & Culture", "Pop & Rock", "Indie & Alternative"];
 
 const CITIES = [
-  { id: "semua", name: "Semua Kota" },
+  { id: "semua", name: "All Cities" },
   { id: "jabodetabek", name: "Jabodetabek" },
-  { id: "jawa_barat", name: "Jawa Barat" },
-  { id: "jawa_tengah", name: "Jawa Tengah & DIY" },
-  { id: "jawa_timur", name: "Jawa Timur" },
+  { id: "jawa_barat", name: "West Java" },
+  { id: "jawa_tengah", name: "Central Java & DIY" },
+  { id: "jawa_timur", name: "East Java" },
   { id: "bali", name: "Bali" },
   { id: "sumatera", name: "Sumatera" },
   { id: "kalimantan", name: "Kalimantan" },
-  { id: "indonesia_timur", name: "Indonesia Timur" },
+  { id: "indonesia_timur", name: "Eastern Indonesia" },
 ];
 
 const ALL_EVENTS = [
-  { id: "ev-1", title: "Hillsong Worship Nights Asia Tour 2026", city: "jabodetabek", cityLabel: "Jabodetabek", location: "GBK Basketball Hall, Jakarta", category: "Konser Musik", price: "Rp 850.000", numericPrice: 850000, date: "11 Sep 2026", img: "/image_concer/banner_concer_1.png", organizer: "Live Nation Asia", isHot: true },
-  { id: "ev-2", title: "Latihan Pestapora Makassar", city: "indonesia_timur", cityLabel: "Indonesia Timur", location: "Celebes Convention Center", category: "Festival", price: "Rp 225.000", numericPrice: 225000, date: "26 Jul 2026", img: "/image_concer/banner_concer_1.png", organizer: "Boss Creator", isHot: true },
+  { id: "ev-1", title: "Hillsong Worship Nights Asia Tour 2026", city: "jabodetabek", cityLabel: "Jabodetabek", location: "GBK Basketball Hall, Jakarta", category: "Music Concert", price: "Rp 850.000", numericPrice: 850000, date: "11 Sep 2026", img: "/image_concer/banner_concer_1.png", organizer: "Live Nation Asia", isHot: true },
+  { id: "ev-2", title: "Pestapora Makassar 2026", city: "indonesia_timur", cityLabel: "Eastern Indonesia", location: "Celebes Convention Center", category: "Festival", price: "Rp 225.000", numericPrice: 225000, date: "26 Jul 2026", img: "/image_concer/banner_concer_1.png", organizer: "Boss Creator", isHot: true },
   { id: "ev-3", title: "VIXTAPE KONEKT Showcase Band", city: "jabodetabek", cityLabel: "Jabodetabek", location: "Bengkel Space SCBD, Jakarta", category: "Indie & Alternative", price: "Rp 125.000", numericPrice: 125000, date: "25–26 Jul 2026", img: "/image_concer/banner_concer_1.png", organizer: "VINDES Media", isHot: false },
   { id: "ev-4", title: "Joyland Sessions 2026 Bali", city: "bali", cityLabel: "Bali", location: "Peninsula Island Nusa Dua", category: "Festival", price: "Rp 588.000", numericPrice: 588000, date: "14-16 Nov 2026", img: "/image_concer/banner_concer_1.png", organizer: "Plainsong Live", isHot: true },
-  { id: "ev-5", title: "Soundrenaline 2026 Jakarta", city: "jabodetabek", cityLabel: "Jabodetabek", location: "Ancol Circuit Carnival", category: "Festival", price: "Rp 450.000", numericPrice: 450000, date: "15 Des 2026", img: "/image_concer/banner_concer_1.png", organizer: "Ravel Entertainment", isHot: true },
-  { id: "ev-6", title: "Bandung Indie Nation Fest 2026", city: "jawa_barat", cityLabel: "Jawa Barat", location: "Gedung Sate Open Park, Bandung", category: "Indie & Alternative", price: "Rp 180.000", numericPrice: 180000, date: "15 Agus 2026", img: "/image_concer/banner_concer_1.png", organizer: "Kreatif Bandung", isHot: false },
-  { id: "ev-7", title: "Jogja Jazz & Heritage Night", city: "jawa_tengah", cityLabel: "Jawa Tengah & DIY", location: "Candi Prambanan, Yogyakarta", category: "Seni & Budaya", price: "Rp 320.000", numericPrice: 320000, date: "28 Agus 2026", img: "/image_concer/banner_concer_1.png", organizer: "Jogja Cultural Fest", isHot: false },
-  { id: "ev-8", title: "Surabaya Pop Sound Wave", city: "jawa_timur", cityLabel: "Jawa Timur", location: "Grand City Exhibition Hall", category: "Pop & Rock", price: "Rp 210.000", numericPrice: 210000, date: "05 Sep 2026", img: "/image_concer/banner_concer_1.png", organizer: "Surabaya Event Org", isHot: false },
+  { id: "ev-5", title: "Soundrenaline 2026 Jakarta", city: "jabodetabek", cityLabel: "Jabodetabek", location: "Ancol Circuit Carnival", category: "Festival", price: "Rp 450.000", numericPrice: 450000, date: "15 Dec 2026", img: "/image_concer/banner_concer_1.png", organizer: "Ravel Entertainment", isHot: true },
+  { id: "ev-6", title: "Bandung Indie Nation Fest 2026", city: "jawa_barat", cityLabel: "West Java", location: "Gedung Sate Open Park, Bandung", category: "Indie & Alternative", price: "Rp 180.000", numericPrice: 180000, date: "15 Aug 2026", img: "/image_concer/banner_concer_1.png", organizer: "Kreatif Bandung", isHot: false },
+  { id: "ev-7", title: "Jogja Jazz & Heritage Night", city: "jawa_tengah", cityLabel: "Central Java & DIY", location: "Candi Prambanan, Yogyakarta", category: "Arts & Culture", price: "Rp 320.000", numericPrice: 320000, date: "28 Aug 2026", img: "/image_concer/banner_concer_1.png", organizer: "Jogja Cultural Fest", isHot: false },
+  { id: "ev-8", title: "Surabaya Pop Sound Wave", city: "jawa_timur", cityLabel: "East Java", location: "Grand City Exhibition Hall", category: "Pop & Rock", price: "Rp 210.000", numericPrice: 210000, date: "05 Sep 2026", img: "/image_concer/banner_concer_1.png", organizer: "Surabaya Event Org", isHot: false },
   { id: "ev-9", title: "Sumatera Rockfest Palembang", city: "sumatera", cityLabel: "Sumatera", location: "PTC Open Stage, Palembang", category: "Pop & Rock", price: "Rp 195.000", numericPrice: 195000, date: "19 Sep 2026", img: "/image_concer/banner_concer_1.png", organizer: "Palembang Music Fest", isHot: false },
-  { id: "ev-10", title: "Borneo Music Tour Balikpapan", city: "kalimantan", cityLabel: "Kalimantan", location: "BSCC Dome Balikpapan", category: "Konser Musik", price: "Rp 260.000", numericPrice: 260000, date: "03 Okt 2026", img: "/image_concer/banner_concer_1.png", organizer: "Borneo Live Event", isHot: false },
-  { id: "ev-11", title: "Ancol Summer Beach Party", city: "jabodetabek", cityLabel: "Jabodetabek", location: "Symphony of the Sea, Ancol", category: "Festival", price: "Rp 175.000", numericPrice: 175000, date: "22 Agus 2026", img: "/image_concer/banner_concer_1.png", organizer: "Tix Experience", isHot: true },
-  { id: "ev-12", title: "Malang Music Camp 2026", city: "jawa_timur", cityLabel: "Jawa Timur", location: "Coban Rondo Outdoor Arena", category: "Indie & Alternative", price: "Rp 150.000", numericPrice: 150000, date: "10 Okt 2026", img: "/image_concer/banner_concer_1.png", organizer: "Malang Creative", isHot: false },
+  { id: "ev-10", title: "Borneo Music Tour Balikpapan", city: "kalimantan", cityLabel: "Kalimantan", location: "BSCC Dome Balikpapan", category: "Music Concert", price: "Rp 260.000", numericPrice: 260000, date: "03 Oct 2026", img: "/image_concer/banner_concer_1.png", organizer: "Borneo Live Event", isHot: false },
+  { id: "ev-11", title: "Ancol Summer Beach Party", city: "jabodetabek", cityLabel: "Jabodetabek", location: "Symphony of the Sea, Ancol", category: "Festival", price: "Rp 175.000", numericPrice: 175000, date: "22 Aug 2026", img: "/image_concer/banner_concer_1.png", organizer: "Tix Experience", isHot: true },
+  { id: "ev-12", title: "Malang Music Camp 2026", city: "jawa_timur", cityLabel: "East Java", location: "Coban Rondo Outdoor Arena", category: "Indie & Alternative", price: "Rp 150.000", numericPrice: 150000, date: "10 Oct 2026", img: "/image_concer/banner_concer_1.png", organizer: "Malang Creative", isHot: false },
 ];
 
 type EventItem = typeof ALL_EVENTS[0] & { badge?: string };
@@ -175,14 +175,14 @@ function EventCard({ event }: { event: EventItem }) {
 
 export default function JelajahiView() {
   const [selectedCity, setSelectedCity] = useState("semua");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"terpopuler" | "harga_rendah" | "harga_tinggi">("terpopuler");
+  const [sortBy, setSortBy] = useState<"popular" | "price_low" | "price_high">("popular");
 
   const filteredEvents = useMemo(() => {
     return ALL_EVENTS.filter((ev) => {
       if (selectedCity !== "semua" && ev.city !== selectedCity) return false;
-      if (selectedCategory !== "Semua" && ev.category !== selectedCategory) return false;
+      if (selectedCategory !== "All" && ev.category !== selectedCategory) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         if (
@@ -195,8 +195,8 @@ export default function JelajahiView() {
       }
       return true;
     }).sort((a, b) => {
-      if (sortBy === "harga_rendah") return a.numericPrice - b.numericPrice;
-      if (sortBy === "harga_tinggi") return b.numericPrice - a.numericPrice;
+      if (sortBy === "price_low") return a.numericPrice - b.numericPrice;
+      if (sortBy === "price_high") return b.numericPrice - a.numericPrice;
       return (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0);
     });
   }, [selectedCity, selectedCategory, searchQuery, sortBy]);
@@ -260,9 +260,9 @@ export default function JelajahiView() {
                 outline: "none",
               }}
             >
-              <option value="terpopuler">Urutkan: Terpopuler</option>
-              <option value="harga_rendah">Urutkan: Harga Terendah</option>
-              <option value="harga_tinggi">Urutkan: Harga Tertinggi</option>
+              <option value="popular">Sort: Most Popular</option>
+              <option value="price_low">Sort: Lowest Price</option>
+              <option value="price_high">Sort: Highest Price</option>
             </select>
           </div>
         </section>
@@ -281,12 +281,12 @@ export default function JelajahiView() {
               <span className="material-symbols-outlined" style={{ fontSize: "48px", color: "#CED4DA", display: "block", marginBottom: "16px" }}>
                 search_off
               </span>
-              <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#1A1D2E", marginBottom: "8px" }}>Tidak ada event ditemukan</h3>
-              <p style={{ fontSize: "14px", color: "#5A6072" }}>Coba ubah filter atau kata kunci pencarian</p>
+              <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#1A1D2E", marginBottom: "8px" }}>No events found</h3>
+              <p style={{ fontSize: "14px", color: "#5A6072" }}>Try changing the filter or search keyword</p>
               <button
                 onClick={() => {
                   setSelectedCity("semua");
-                  setSelectedCategory("Semua");
+                  setSelectedCategory("All");
                   setSearchQuery("");
                 }}
                 style={{

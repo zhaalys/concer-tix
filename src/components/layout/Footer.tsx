@@ -1,9 +1,9 @@
 "use client";
 
 const footerLinks = {
-  "Tentang LOKET": ["About Us", "Terms & Conditions", "Privacy Policy", "Careers"],
-  "Event Creator": ["Biaya", "Kerjasama Kami", "Buku Panduan", "LOKET Creator"],
-  Dukungan: ["Contact Support", "Syarat Ketentuan", "Kebijakan Privasi", "Cookie Policy"],
+  "About LOKET": ["About Us", "Terms & Conditions", "Privacy Policy", "Careers"],
+  "Event Creator": ["Pricing", "Partner With Us", "Creator Guide", "LOKET Creator"],
+  Support: ["Contact Support", "Terms & Conditions", "Privacy Policy", "Cookie Policy"],
 };
 
 export default function Footer() {
@@ -47,8 +47,8 @@ export default function Footer() {
               marginBottom: "24px",
             }}
           >
-            Beli tiket konser, festival, sport event, dan event seru lainnya dengan mudah di Concer
-            TIX. #PASTIBISA beli tiket event &amp; wahana idaman!
+            Buy concert tickets, festival passes, sports events, and other exciting events easily on Concer
+            TIX. #GETTICKETS for your favorite events &amp; experiences!
           </p>
           <div style={{ display: "flex", gap: "16px" }}>
             {["public", "alternate_email", "share"].map((icon) => (
@@ -134,7 +134,7 @@ export default function Footer() {
               letterSpacing: "0.01em",
             }}
           >
-            Metode Pembayaran
+            Payment Methods
           </h5>
           <div
             style={{
