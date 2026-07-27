@@ -21,3 +21,5 @@ export { default as OurJourneyView } from "./journey/OurJourneyView";
 export { default as WristbandView } from "./wristband/WristbandView";
 
 export { default as AboutView } from "./about/AboutView";
+
+export { default as FAQView } from "./faq/FAQView";

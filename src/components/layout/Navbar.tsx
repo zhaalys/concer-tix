@@ -57,9 +57,9 @@ export default function Navbar() {
       >
         {[
           { label: "Our Journey", href: "/our-journey" },
-          { label: "Pricing", href: "/biaya" },
-          { label: "Wristband Ticket", href: "/tiket-gelang" },
-          { label: "FAQ!", href: "#" },
+          { label: "Pricing", href: "/pricing" },
+          { label: "Wristband Ticket", href: "/wristband" },
+          { label: "FAQ!", href: "/faq" },
         ].map((item) => (
           <Link
             key={item.label}

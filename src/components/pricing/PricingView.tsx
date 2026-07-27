@@ -15,7 +15,7 @@ export default function PricingView() {
         <div style={{ borderRadius: "20px", overflow: "hidden" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/banner/banner_4.png"
+            src="/banner/banner_5.png"
             alt="Pricing - Concer TIX"
             style={{ width: "100%", height: "auto", display: "block" }}
           />

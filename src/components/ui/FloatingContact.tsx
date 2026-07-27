@@ -16,9 +16,9 @@ export default function FloatingContact() {
         gap: "10px",
         backgroundColor: "#33D6D4",
         borderRadius: "120px 0 0 120px",
-        padding: "28px 36px 28px 32px",
+        padding: "28px 36px 28px 40px",
         textDecoration: "none",
-        minWidth: "130px",
+        minWidth: "200px",
         cursor: "pointer",
       }}
     >
