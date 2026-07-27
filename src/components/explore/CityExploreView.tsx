@@ -445,7 +445,7 @@ export default function CityExploreViewContent() {
             <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
               chevron_right
             </span>
-            <span style={{ color: "#1ABC9C", fontWeight: 600 }}>Jelajahi Kota</span>
+            <span style={{ color: "#1ABC9C", fontWeight: 600 }}>Explore Cities</span>
             {currentCityObj && (
               <>
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
@@ -502,7 +502,7 @@ export default function CityExploreViewContent() {
               >
                 {currentCityObj ? (
                   <>
-                    Jelajahi Event di <span style={{ color: "#1ABC9C" }}>{currentCityObj.name}</span>
+                    Explore Events in <span style={{ color: "#1ABC9C" }}>{currentCityObj.name}</span>
                   </>
                 ) : (
                   <>

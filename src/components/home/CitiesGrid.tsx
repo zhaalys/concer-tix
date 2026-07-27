@@ -26,7 +26,7 @@ export default function CitiesGrid() {
           <h2 className="section-heading">Find Exciting Events Near You!</h2>
         </div>
         <Link
-          href="/jelajahi"
+          href="/explore"
           style={{
             fontSize: "13px",
             fontWeight: 600,
@@ -56,7 +56,7 @@ export default function CitiesGrid() {
         {cities.map((city, i) => (
           <Link
             key={i}
-            href={`/jelajahi?kota=${encodeURIComponent(city.name)}`}
+            href={`/explore?kota=${encodeURIComponent(city.name)}`}
             style={{
               flexShrink: 0,
               width: "150px",

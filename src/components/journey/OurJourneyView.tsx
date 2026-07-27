@@ -697,7 +697,7 @@ export default function OurJourneyView() {
           </p>
 
           <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
-            <Link href="/jelajahi" style={{ textDecoration: "none" }}>
+            <Link href="/explore" style={{ textDecoration: "none" }}>
               <button
                 style={{
                   backgroundColor: "#1ABC9C",
@@ -714,7 +714,7 @@ export default function OurJourneyView() {
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#16A085")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1ABC9C")}
               >
-                Jelajahi Semua Event
+                Explore All Events
               </button>
             </Link>
             <Link href="/register" style={{ textDecoration: "none" }}>

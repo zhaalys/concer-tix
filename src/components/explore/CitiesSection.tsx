@@ -15,7 +15,7 @@ function CityCard({ city }: { city: typeof cities[0] }) {
 
   return (
     <Link
-      href={`/jelajahi?kota=${encodeURIComponent(city.name)}`}
+      href={`/explore?kota=${encodeURIComponent(city.name)}`}
       style={{
         position: "relative",
         borderRadius: "16px",
@@ -152,7 +152,7 @@ export default function CitiesSection() {
           <h2 className="section-heading">Explore Events in Your City</h2>
         </div>
         <Link
-          href="/jelajahi"
+          href="/explore"
           style={{ fontSize: "13px", fontWeight: 600, color: "#3B5BDB", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }}
         >
           All Cities

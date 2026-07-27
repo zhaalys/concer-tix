@@ -2,11 +2,11 @@ import { Navbar, Footer, JelajahiView } from "@/components";
 import { Suspense } from "react";
 
 export const metadata = {
-  title: "Jelajahi Event Sesuai Kota - Concer TIX",
-  description: "Cari dan temukan tiket konser musik, festival, dan pertunjukan seni terbaik sesuai kota pilihanmu di Indonesia.",
+  title: "Explore Events by City - Concer TIX",
+  description: "Find the best concert, festival, and arts event tickets by city across Indonesia.",
 };
 
-export default function JelajahiPage() {
+export default function ExplorePage() {
   return (
     <>
       <Navbar />

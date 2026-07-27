@@ -19,3 +19,5 @@ export { default as PricingView } from "./pricing/PricingView";
 export { default as OurJourneyView } from "./journey/OurJourneyView";
 
 export { default as WristbandView } from "./wristband/WristbandView";
+
+export { default as AboutView } from "./about/AboutView";
