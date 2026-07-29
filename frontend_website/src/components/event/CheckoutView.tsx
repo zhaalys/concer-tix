@@ -42,8 +42,8 @@ function Stepper({ current }: { current: number }) {
             <div style={{
               width: "34px", height: "34px", borderRadius: "50%",
               backgroundColor: "#ffffff",
-              border: i <= current ? "1px solid #0E9375" : "1px solid #D0D0D0",
-              color: i <= current ? "#0E9375" : "#D0D0D0",
+              border: i <= current ? "1px solid #000000" : "1px solid #D0D0D0",
+              color: i <= current ? "#000000" : "#D0D0D0",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: "13px", fontWeight: 600, flexShrink: 0,
             }}>
@@ -53,12 +53,12 @@ function Stepper({ current }: { current: number }) {
             </div>
             <span style={{
               fontSize: "13px", fontWeight: i === current ? 700 : 500,
-              color: i === current ? "#1A1D2E" : i < current ? "#1A1D2E" : "#868E96",
+              color: i === current ? "#000000" : i < current ? "#000000" : "#868E96",
               whiteSpace: "nowrap",
             }}>{step}</span>
           </div>
           {i < STEPS.length - 1 && (
-            <span style={{ fontSize: "16px", color: i < current ? "#0E9375" : "#CED4DA", margin: "0 16px", fontWeight: 400 }}>›</span>
+            <span style={{ fontSize: "16px", color: i < current ? "#000000" : "#D0D0D0", margin: "0 16px", fontWeight: 400 }}>›</span>
           )}
         </div>
       ))}
@@ -73,43 +73,36 @@ function Step1({ event, onNext }: { event: EventData; onNext: (cat: typeof TICKE
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
       <div>
-        {/* Event banner */}
-        <div style={{ borderRadius: "12px", overflow: "hidden", marginBottom: "24px", border: "1px solid #F1F3F5" }}>
+        <div style={{ borderRadius: "12px", overflow: "hidden", marginBottom: "24px", border: "1px solid #EBEBEB" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={event.img} alt={event.title} style={{ width: "100%", aspectRatio: "16/6", objectFit: "cover", display: "block" }} />
         </div>
 
-        {/* Kategori Tiket */}
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          <p style={{ fontSize: "14px", fontWeight: 700, color: "#1A1D2E", marginBottom: "4px" }}>Kategori Tiket</p>
+          <p style={{ fontSize: "14px", fontWeight: 700, color: "#000000", marginBottom: "4px" }}>Kategori Tiket</p>
           {TICKET_CATEGORIES.map((cat) => (
-            <div key={cat.id} style={{
-              backgroundColor: "#fff", borderRadius: "12px",
-              border: selected === cat.id ? "2px solid #0E9375" : "1.5px solid #E9ECEF",
-              overflow: "hidden",
+            <div key={cat.id} onClick={cat.status === "on_sale" ? () => setSelected(cat.id) : undefined} style={{
+              backgroundColor: "#fff",
+              border: selected === cat.id ? "1.5px solid #000000" : "1px solid #EBEBEB",
+              borderRadius: "8px",
+              cursor: cat.status === "on_sale" ? "pointer" : "default",
             }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
-                <span style={{ fontSize: "14px", fontWeight: 600, color: "#1A1D2E" }}>{cat.label}</span>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "#000000" }}>{cat.label}</span>
               </div>
-              <div style={{ borderTop: "1px dashed #E9ECEF", margin: "0 20px" }} />
+              <div style={{ borderTop: "1px solid #EBEBEB", margin: "0 20px" }} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px" }}>
-                <span style={{ fontSize: "15px", fontWeight: 700, color: "#1A1D2E" }}>Rp{cat.price.toLocaleString("id-ID")}</span>
+                <span style={{ fontSize: "15px", fontWeight: 700, color: "#000000" }}>Rp{cat.price.toLocaleString("id-ID")}</span>
                 {cat.status === "on_sale" ? (
-                  <button
-                    onClick={() => setSelected(cat.id)}
-                    style={{
-                      padding: "8px 22px", borderRadius: "8px", border: "none",
-                      backgroundColor: selected === cat.id ? "#0E9375" : "#1A1D2E",
-                      color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer",
-                    }}
-                  >
-                    {selected === cat.id ? "Dipilih" : "Pilih Tiket"}
-                  </button>
-                ) : (
                   <span style={{
-                    fontSize: "11px", fontWeight: 700, padding: "4px 12px", borderRadius: "100px",
-                    backgroundColor: "#FFF0F0", color: "#E03131",
-                  }}>Sold Out</span>
+                    fontSize: "13px", fontWeight: 500,
+                    color: selected === cat.id ? "#000000" : "#9B9B9B",
+                    borderBottom: selected === cat.id ? "1px solid #000000" : "1px solid #D0D0D0",
+                  }}>
+                    {selected === cat.id ? "Dipilih" : "Pilih Tiket"}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: "11px", fontWeight: 600, color: "#BDBDBD" }}>Sold Out</span>
                 )}
               </div>
             </div>
@@ -117,11 +110,10 @@ function Step1({ event, onNext }: { event: EventData; onNext: (cat: typeof TICKE
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div style={{ position: "sticky", top: "24px", backgroundColor: "#fff", borderRadius: "12px", border: "1px solid #F1F3F5", padding: "20px" }}>
+      <div style={{ position: "sticky", top: "24px", border: "1px solid #EBEBEB", borderRadius: "8px", padding: "20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-          <span style={{ fontSize: "12px", color: "#868E96" }}>Harga mulai dari</span>
-          <span style={{ fontSize: "15px", fontWeight: 800, color: "#1A1D2E" }}>
+          <span style={{ fontSize: "12px", color: "#9B9B9B" }}>Harga mulai dari</span>
+          <span style={{ fontSize: "15px", fontWeight: 700, color: "#000000" }}>
             {cat ? `Rp${cat.price.toLocaleString("id-ID")}` : event.price}
           </span>
         </div>
@@ -129,11 +121,12 @@ function Step1({ event, onNext }: { event: EventData; onNext: (cat: typeof TICKE
           onClick={() => cat && onNext(cat)}
           disabled={!selected}
           style={{
-            width: "100%", padding: "11px",
+            width: "100%", padding: "10px 0",
             backgroundColor: selected ? "#0E9375" : "#CED4DA",
-            color: "#fff", border: "none", borderRadius: "8px",
-            fontSize: "13px", fontWeight: 700,
-            cursor: selected ? "pointer" : "not-allowed",
+            color: "#ffffff",
+            border: "none",
+            fontSize: "13px", fontWeight: 600,
+            cursor: selected ? "pointer" : "default",
           }}
         >
           Beli Sekarang
@@ -160,78 +153,73 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
-        {/* Timer */}
-        <div style={{ display: "flex", alignItems: "center", backgroundColor: "#F5A623", borderRadius: "10px", overflow: "hidden" }}>
-          <div style={{ padding: "14px 20px", backgroundColor: "rgba(0,0,0,0.1)", fontSize: "16px", fontWeight: 800, color: "#fff", letterSpacing: "0.05em", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", backgroundColor: "#F5A623", borderRadius: "6px", overflow: "hidden" }}>
+          <div style={{ padding: "12px 18px", backgroundColor: "rgba(0,0,0,0.1)", fontSize: "15px", fontWeight: 800, color: "#fff", letterSpacing: "0.05em", fontFamily: "monospace", flexShrink: 0 }}>
             {mins}:{secs}
           </div>
-          <div style={{ width: "1px", alignSelf: "stretch", backgroundColor: "rgba(255,255,255,0.4)", margin: "0 4px" }} />
-          <div style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 600, color: "#fff" }}>
+          <div style={{ padding: "12px 18px", fontSize: "13px", fontWeight: 600, color: "#fff" }}>
             Batas Waktu Tersisa
           </div>
         </div>
-        {/* Data Pemesan */}
-        <div style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1px solid #F1F3F5", padding: "20px" }}>
+
+        <div style={{ border: "1px solid #EBEBEB", borderRadius: "8px", padding: "20px" }}>
           <div style={{ marginBottom: "16px" }}>
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1D2E" }}>Data Pemesan</span>
+            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000000" }}>Data Pemesan</span>
           </div>
-          <p style={{ fontSize: "11px", color: "#868E96", marginBottom: "16px" }}>Nama Lengkap *</p>
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "16px" }}>Nama Lengkap *</p>
           <input type="text" placeholder="Masukkan nama lengkap Anda" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1.5px solid #E9ECEF", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
-          <p style={{ fontSize: "11px", color: "#868E96", marginBottom: "8px" }}>Tipe Identitas *</p>
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Tipe Identitas *</p>
           <select value={form.idType} onChange={(e) => setForm({ ...form, idType: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1.5px solid #E9ECEF", fontSize: "13px", marginBottom: "12px", outline: "none" }}>
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }}>
             <option value="">Pilih tipe identitas Anda</option>
             <option value="ktp">KTP</option>
             <option value="sim">SIM</option>
             <option value="passport">Passport</option>
           </select>
-          <p style={{ fontSize: "11px", color: "#868E96", marginBottom: "8px" }}>Nomor Identitas *</p>
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Nomor Identitas *</p>
           <input type="text" placeholder="Masukkan nomor identitas Anda" value={form.idNo} onChange={(e) => setForm({ ...form, idNo: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1.5px solid #E9ECEF", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
-          <p style={{ fontSize: "11px", color: "#868E96", marginBottom: "8px" }}>Email *</p>
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Email *</p>
           <input type="email" placeholder="Masukkan email Anda" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1.5px solid #E9ECEF", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
-          <p style={{ fontSize: "11px", color: "#868E96", marginBottom: "8px" }}>No. WhatsApp *</p>
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>No. WhatsApp *</p>
           <input type="tel" placeholder="+62" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1.5px solid #E9ECEF", fontSize: "13px", outline: "none" }} />
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", outline: "none" }} />
         </div>
 
-        {/* Detail Tiket */}
-        <div style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1px solid #F1F3F5", padding: "20px" }}>
+        <div style={{ border: "1px solid #EBEBEB", borderRadius: "8px", padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-            <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1D2E" }}>Detail Tiket - 1</span>
-            <span style={{ fontSize: "12px", fontWeight: 600, color: "#000000", backgroundColor: "transparent", padding: "4px 10px", borderRadius: "6px" }}>{category.label}</span>
+            <span style={{ fontSize: "14px", fontWeight: 700, color: "#000000" }}>Detail Tiket - 1</span>
+            <span style={{ fontSize: "12px", fontWeight: 600, color: "#000000", padding: "4px 10px" }}>{category.label}</span>
           </div>
-          {/* Form tiket — similar structure */}
-          <p style={{ fontSize: "11px", color: "#868E96", marginBottom: "8px" }}>Nama Lengkap *</p>
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Nama Lengkap *</p>
           <input type="text" placeholder="Masukkan nama lengkap Anda" value={ticketForm.nama} onChange={(e) => setTicketForm({ ...ticketForm, nama: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", borderRadius: "8px", border: "1.5px solid #E9ECEF", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
         </div>
       </div>
 
-      {/* Sidebar */}
       <div style={{ position: "sticky", top: "24px" }}>
-        <div style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1px solid #F1F3F5", padding: "16px", marginBottom: "12px" }}>
-          <p style={{ fontSize: "12px", fontWeight: 600, color: "#1A1D2E", marginBottom: "10px" }}>Rincian Pesanan</p>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#495057", marginBottom: "6px" }}>
+        <div style={{ border: "1px solid #EBEBEB", borderRadius: "8px", padding: "16px", marginBottom: "12px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#000000", marginBottom: "10px" }}>Rincian Pesanan</p>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#6B6B6B", marginBottom: "6px" }}>
             <span>{category.label} x1</span>
             <span>Rp{category.price.toLocaleString("id-ID")}</span>
           </div>
-          <div style={{ borderTop: "1px solid #F1F3F5", paddingTop: "8px", marginTop: "8px" }}>
+          <div style={{ borderTop: "1px solid #EBEBEB", paddingTop: "8px", marginTop: "8px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "4px" }}>
-              <span style={{ color: "#868E96" }}>Subtotal</span>
-              <span style={{ fontWeight: 700, color: "#1A1D2E" }}>Rp{category.price.toLocaleString("id-ID")}</span>
+              <span style={{ color: "#9B9B9B" }}>Subtotal</span>
+              <span style={{ fontWeight: 700, color: "#000000" }}>Rp{category.price.toLocaleString("id-ID")}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
-              <span style={{ color: "#868E96" }}>Total Bayar</span>
+              <span style={{ color: "#9B9B9B" }}>Total Bayar</span>
               <span style={{ fontWeight: 800, color: "#000000" }}>Rp{category.price.toLocaleString("id-ID")}</span>
             </div>
           </div>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button onClick={onBack} style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid #E9ECEF", backgroundColor: "#fff", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}> Kembali</button>
-          <button onClick={() => onNext({ nama: form.nama, email: form.email })} style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "none", backgroundColor: "#0E9375", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer" }}>Lanjutkan</button>
+          <button onClick={onBack} style={{ flex: 1, padding: "10px 0", border: "1px solid #EBEBEB", backgroundColor: "transparent", fontSize: "13px", fontWeight: 500, cursor: "pointer", color: "#9B9B9B" }}> Kembali</button>
+          <button onClick={() => onNext({ nama: form.nama, email: form.email })} style={{ flex: 1, padding: "10px 0", border: "1.5px solid #000000", backgroundColor: "transparent", color: "#000000", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>Lanjutkan</button>
         </div>
       </div>
     </div>
@@ -304,7 +292,7 @@ function Step3({ category, form, onSuccess, onBack }: {
         )}
         {Object.entries(groupedMethods).map(([group, methods]) => (
           <div key={group} style={{ marginBottom: "20px" }}>
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#495057", marginBottom: "10px" }}>{group}</p>
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#000000", marginBottom: "10px" }}>{group}</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
               {methods.map((m) => (
                 <button
@@ -312,48 +300,48 @@ function Step3({ category, form, onSuccess, onBack }: {
                   onClick={() => setSelected(m.id)}
                   style={{
                     display: "flex", alignItems: "center", gap: "10px", padding: "12px",
-                    borderRadius: "10px",
-                    border: selected === m.id ? "2px solid #0E9375" : "1.5px solid #E9ECEF",
-                    backgroundColor: selected === m.id ? "#F0FBF8" : "#fff",
+                    border: selected === m.id ? "1.5px solid #000000" : "1px solid #EBEBEB",
+                    backgroundColor: "#fff", borderRadius: "8px",
                     cursor: "pointer", justifyContent: "flex-start",
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={m.img} alt={m.label} style={{ width: "32px", height: "32px", objectFit: "contain" }} />
-                  <span style={{ fontSize: "12px", fontWeight: selected === m.id ? 700 : 600, color: selected === m.id ? "#0E9375" : "#1A1D2E" }}>{m.label}</span>
+                  <span style={{ fontSize: "12px", fontWeight: selected === m.id ? 700 : 500, color: selected === m.id ? "#000000" : "#6B6B6B" }}>{m.label}</span>
                 </button>
               ))}
             </div>
           </div>
         ))}
-        <p style={{ fontSize: "12px", color: "#868E96", marginTop: "8px" }}>
+        <p style={{ fontSize: "12px", color: "#BDBDBD", marginTop: "8px" }}>
           Semua metode pembayaran tersedia melalui Midtrans Snap.
         </p>
       </div>
 
-      {/* Sidebar */}
       <div style={{ position: "sticky", top: "24px" }}>
-        <div style={{ backgroundColor: "#fff", borderRadius: "12px", border: "1px solid #F1F3F5", padding: "16px", marginBottom: "12px" }}>
-          <p style={{ fontSize: "12px", color: "#868E96", marginBottom: "4px" }}>Total Bayar</p>
+        <div style={{ border: "1px solid #EBEBEB", borderRadius: "8px", padding: "16px", marginBottom: "12px" }}>
+          <p style={{ fontSize: "12px", color: "#9B9B9B", marginBottom: "4px" }}>Total Bayar</p>
           <p style={{ fontSize: "20px", fontWeight: 800, color: "#000000" }}>Rp{category.price.toLocaleString("id-ID")}</p>
           {selectedMethod && (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px", padding: "8px 10px", backgroundColor: "#F0FBF8", borderRadius: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px", padding: "8px 10px", border: "1px solid #EBEBEB", borderRadius: "6px" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={selectedMethod.img} alt={selectedMethod.label} style={{ width: "24px", height: "24px", objectFit: "contain" }} />
-              <span style={{ fontSize: "12px", fontWeight: 600, color: "#0E9375" }}>{selectedMethod.label}</span>
+              <span style={{ fontSize: "12px", fontWeight: 600, color: "#000000" }}>{selectedMethod.label}</span>
             </div>
           )}
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button onClick={onBack} style={{ flex: 1, padding: "10px", borderRadius: "8px", border: "1.5px solid #E9ECEF", backgroundColor: "#fff", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}> Kembali</button>
+          <button onClick={onBack} style={{ flex: 1, padding: "10px 0", border: "1px solid #EBEBEB", backgroundColor: "transparent", fontSize: "13px", fontWeight: 500, cursor: "pointer", color: "#9B9B9B" }}> Kembali</button>
           <button
             onClick={handlePay}
             disabled={loading || !selected}
             style={{
-              flex: 2, padding: "10px", borderRadius: "8px", border: "none",
-              backgroundColor: loading || !selected ? "#CED4DA" : "#0E9375",
-              color: "#fff", fontSize: "13px", fontWeight: 700,
-              cursor: loading || !selected ? "not-allowed" : "pointer",
+              flex: 2, padding: "10px 0",
+              border: loading || !selected ? "1px solid #EBEBEB" : "1.5px solid #000000",
+              backgroundColor: "transparent",
+              color: loading || !selected ? "#D0D0D0" : "#000000",
+              fontSize: "13px", fontWeight: 600,
+              cursor: loading || !selected ? "default" : "pointer",
             }}
           >
             {loading ? "Memproses..." : "Bayar Sekarang"}
@@ -376,7 +364,6 @@ function Step4({ event, category, snapResult, onViewTicket }: { event: EventData
   return (
     <div style={{ minHeight: "60vh", backgroundColor: "#ffffff" }}>
       {mobile ? (
-        /* Mobile: stack layout */
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "32px 24px", gap: "16px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -415,9 +402,9 @@ function Step4({ event, category, snapResult, onViewTicket }: { event: EventData
             onClick={onViewTicket}
             style={{
               padding: "8px 20px",
-              backgroundColor: "#000000", color: "#ffffff",
-              border: "none", borderRadius: "3px",
-              fontSize: "10px", fontWeight: 500, cursor: "pointer",
+              backgroundColor: "transparent", color: "#000000",
+              border: "1.5px solid #000000",
+              fontSize: "10px", fontWeight: 600, cursor: "pointer",
               letterSpacing: "0.04em",
             }}
           >
@@ -425,7 +412,6 @@ function Step4({ event, category, snapResult, onViewTicket }: { event: EventData
           </button>
         </div>
       ) : (
-        /* Desktop: overlay layout */
         <div style={{ position: "relative", maxWidth: "1000px", width: "100%", margin: "0 auto" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -466,9 +452,9 @@ function Step4({ event, category, snapResult, onViewTicket }: { event: EventData
             <button
               onClick={onViewTicket}
               style={{
-                padding: "7px 20px", backgroundColor: "#000000", color: "#ffffff",
-                border: "none", borderRadius: "3px",
-                fontSize: "10px", fontWeight: 500, cursor: "pointer", whiteSpace: "nowrap",
+                padding: "7px 20px", backgroundColor: "transparent", color: "#000000",
+                border: "1.5px solid #000000",
+                fontSize: "10px", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
                 letterSpacing: "0.04em",
               }}
             >
@@ -489,7 +475,6 @@ export default function CheckoutView({ event }: { event: EventData }) {
   const router = useRouter();
 
   const handleSuccess = (result: SnapResult, category: typeof TICKET_CATEGORIES[0], form: { nama: string; email: string }) => {
-    // Save ticket to store
     addTicket({
       ticketCode: generateTicketCode(),
       orderId: String(result.order_id || ""),
