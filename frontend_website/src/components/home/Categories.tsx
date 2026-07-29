@@ -1,15 +1,17 @@
 "use client";
 
+import Link from "next/link";
+
 const categories = [
-  { icon: "music_note", label: "Pop" },
-  { icon: "graphic_eq", label: "Rock" },
-  { icon: "piano", label: "Jazz" },
-  { icon: "mic", label: "Hip Hop" },
-  { icon: "headphones", label: "EDM" },
-  { icon: "album", label: "Indie" },
-  { icon: "queue_music", label: "R&B" },
-  { icon: "lyrics", label: "Folk" },
-  { icon: "settings_input_component", label: "Metal" },
+  { icon: "music_note", label: "Pop", query: "Pop & Rock" },
+  { icon: "graphic_eq", label: "Rock", query: "Pop & Rock" },
+  { icon: "piano", label: "Jazz", query: "Arts & Culture" },
+  { icon: "mic", label: "Hip Hop", query: "Music Concert" },
+  { icon: "headphones", label: "EDM", query: "Festival" },
+  { icon: "album", label: "Indie", query: "Indie & Alternative" },
+  { icon: "queue_music", label: "R&B", query: "Music Concert" },
+  { icon: "lyrics", label: "Folk", query: "Arts & Culture" },
+  { icon: "settings_input_component", label: "Metal", query: "Pop & Rock" },
 ];
 
 export default function Categories() {
@@ -21,7 +23,6 @@ export default function Categories() {
         padding: "30px 45px 40px",
       }}
     >
-      {/* Category circle list */}
       <div
         style={{
           display: "flex",
@@ -43,7 +44,8 @@ export default function Categories() {
 
 function CategoryCircleItem({ cat }: { cat: typeof categories[0] }) {
   return (
-    <button
+    <Link
+      href={`/explore?genre=${encodeURIComponent(cat.label)}&category=${encodeURIComponent(cat.query)}`}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -54,24 +56,19 @@ function CategoryCircleItem({ cat }: { cat: typeof categories[0] }) {
         cursor: "pointer",
         flexShrink: 0,
         padding: "4px",
+        textDecoration: "none",
       }}
     >
-      {/* White Circle Icon */}
-      <div
+      <span
+        className="material-symbols-outlined"
+        style={{
+          fontSize: "35px",
+          color: "#1ABC9C",
+          fontVariationSettings: "'FILL' 1",
+        }}
       >
-        <span
-          className="material-symbols-outlined"
-          style={{
-            fontSize: "35px",
-            color: "#1ABC9C",
-            fontVariationSettings: "'FILL' 1",
-          }}
-        >
-          {cat.icon}
-        </span>
-      </div>
-
-      {/* Label Text */}
+        {cat.icon}
+      </span>
       <span
         style={{
           fontSize: "13px",
@@ -82,6 +79,6 @@ function CategoryCircleItem({ cat }: { cat: typeof categories[0] }) {
       >
         {cat.label}
       </span>
-    </button>
+    </Link>
   );
 }

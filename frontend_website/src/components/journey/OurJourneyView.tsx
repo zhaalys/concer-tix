@@ -32,6 +32,26 @@ export default function OurJourneyView() {
           gap: '16px',
         }}
       >
+        {/* Merchandise1 */}
+        <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/image_merchandise/merchandise1.png"
+            alt="Concer TIX Merchandise"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        </div>
+
+        {/* Lanyard1 */}
+        <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/image_merchandise/lanyard1.png"
+            alt="Concer TIX Lanyard"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        </div>
+
         {/* Payment logo loop */}
         <div style={{ padding: '28px 0' }}>
           <LogoLoop
@@ -50,6 +70,16 @@ export default function OurJourneyView() {
           <img
             src="/image_merchandise/merchandise.png"
             alt="Concer TIX Merchandise"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        </div>
+
+        {/* Lanyard */}
+        <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/image_merchandise/lanyard.png"
+            alt="Concer TIX Lanyard"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
         </div>

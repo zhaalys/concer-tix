@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Explore", href: "/explore" },
+  { label: "My Tickets", href: "/my-tickets" },
   { label: "About", href: "/about" },
-  { label: "Contact", href: "#" },
 ];
 
 const artistPlaceholders = [

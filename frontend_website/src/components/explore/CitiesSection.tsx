@@ -96,7 +96,7 @@ function CityCard({ city }: { city: typeof cities[0] }) {
           >
             {city.name}
           </h3>
-          <span style={{ fontSize: "12px", fontWeight: 700, color: "#868E96", fontWeight: 500 }}>
+          <span style={{ fontSize: "12px", fontWeight: 500, color: "#868E96" }}>
             {city.count}+ Events
           </span>
         </div>

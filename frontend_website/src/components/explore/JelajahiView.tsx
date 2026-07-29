@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const CATEGORIES = ["All", "Music Concert", "Festival", "Arts & Culture", "Pop & Rock", "Indie & Alternative"];
 
@@ -38,6 +39,12 @@ function EventCard({ event }: { event: EventItem }) {
   const isLongTitle = event.title.length > 28;
 
   return (
+    <Link
+      href={`/event/${event.id}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "none" }}
+    >
     <div
       style={{
         backgroundColor: "#ffffff",
@@ -171,14 +178,16 @@ function EventCard({ event }: { event: EventItem }) {
         </div>
       </div>
     </div>
+    </Link>
   );
 }
 
 export default function JelajahiView() {
   const searchParams = useSearchParams();
   const kotaParam = searchParams.get("kota") || "";
+  const genreParam = searchParams.get("genre") || "";
+  const categoryParam = searchParams.get("category") || "";
 
-  // Map URL param (Indonesian city names from CitiesGrid) to city id
   const resolveInitialCity = () => {
     if (!kotaParam) return "semua";
     const lower = kotaParam.toLowerCase();
@@ -196,7 +205,7 @@ export default function JelajahiView() {
   };
 
   const [selectedCity, setSelectedCity] = useState(resolveInitialCity);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam || "All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"popular" | "price_low" | "price_high">("popular");
 
