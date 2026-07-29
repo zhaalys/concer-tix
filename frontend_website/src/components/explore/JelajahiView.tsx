@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 
 const CATEGORIES = ["All", "Music Concert", "Festival", "Arts & Culture", "Pop & Rock", "Indie & Alternative"];
 
 const CITIES = [
-  { id: "semua", name: "All Cities" },
-  { id: "jabodetabek", name: "Jabodetabek" },
-  { id: "jawa_barat", name: "West Java" },
-  { id: "jawa_tengah", name: "Central Java & DIY" },
-  { id: "jawa_timur", name: "East Java" },
-  { id: "bali", name: "Bali" },
-  { id: "sumatera", name: "Sumatera" },
-  { id: "kalimantan", name: "Kalimantan" },
-  { id: "indonesia_timur", name: "Eastern Indonesia" },
+  { id: "semua", name: "All Cities", img: null, label: "" },
+  { id: "jabodetabek", name: "Jabodetabek", img: "/image_kota/jabodetabek.png", label: "DKI Jakarta & Sekitar" },
+  { id: "jawa_barat", name: "West Java", img: "/image_kota/jawa_barat.png", label: "Bandung, Bogor, Cirebon" },
+  { id: "jawa_tengah", name: "Central Java & DIY", img: "/image_kota/jawa_tengah.png", label: "Yogyakarta, Semarang, Solo" },
+  { id: "jawa_timur", name: "East Java", img: "/image_kota/jawa_timur.png", label: "Surabaya, Malang, Banyuwangi" },
+  { id: "bali", name: "Bali", img: null, label: "Denpasar, Kuta, Ubud" },
+  { id: "sumatera", name: "Sumatera", img: "/image_kota/sumatera.png", label: "Medan, Palembang, Padang" },
+  { id: "kalimantan", name: "Kalimantan", img: "/image_kota/kalimantan.png", label: "Balikpapan, Samarinda, Pontianak" },
+  { id: "indonesia_timur", name: "Eastern Indonesia", img: "/image_kota/indonesia_timur.png", label: "Makassar, Manado, Ambon" },
 ];
 
 const ALL_EVENTS = [
@@ -174,10 +175,32 @@ function EventCard({ event }: { event: EventItem }) {
 }
 
 export default function JelajahiView() {
-  const [selectedCity, setSelectedCity] = useState("semua");
+  const searchParams = useSearchParams();
+  const kotaParam = searchParams.get("kota") || "";
+
+  // Map URL param (Indonesian city names from CitiesGrid) to city id
+  const resolveInitialCity = () => {
+    if (!kotaParam) return "semua";
+    const lower = kotaParam.toLowerCase();
+    const match = CITIES.find(
+      (c) => c.id === lower || c.name.toLowerCase() === lower ||
+        (lower === "jabodetabek" && c.id === "jabodetabek") ||
+        (lower === "jawa barat" && c.id === "jawa_barat") ||
+        (lower === "jawa tengah" && c.id === "jawa_tengah") ||
+        (lower === "jawa timur" && c.id === "jawa_timur") ||
+        (lower === "sumatera" && c.id === "sumatera") ||
+        (lower === "kalimantan" && c.id === "kalimantan") ||
+        (lower === "indonesia timur" && c.id === "indonesia_timur")
+    );
+    return match ? match.id : "semua";
+  };
+
+  const [selectedCity, setSelectedCity] = useState(resolveInitialCity);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"popular" | "price_low" | "price_high">("popular");
+
+  const currentCityData = useMemo(() => CITIES.find((c) => c.id === selectedCity) ?? CITIES[0], [selectedCity]);
 
   const filteredEvents = useMemo(() => {
     return ALL_EVENTS.filter((ev) => {
@@ -202,7 +225,7 @@ export default function JelajahiView() {
   }, [selectedCity, selectedCategory, searchQuery, sortBy]);
 
   return (
-    <div style={{ backgroundColor: "#F4F6FB", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
       <style>{`
         @keyframes cardTitleTicker {
           0% { transform: translateX(0); }
@@ -212,15 +235,42 @@ export default function JelajahiView() {
 
       <div style={{ maxWidth: "1320px", margin: "0 auto", padding: "40px 32px 80px" }}>
 
-
-
+        {/* City Header — tampil kalau ada kota dipilih */}
+        {selectedCity !== "semua" && currentCityData && (
+          <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "32px", padding: "20px 0" }}>
+            {currentCityData.img && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={currentCityData.img}
+                alt={currentCityData.name}
+                style={{
+                  width: "120px",
+                  height: "80px",
+                  objectFit: "cover",
+                  borderRadius: "12px",
+                  flexShrink: 0,
+                }}
+              />
+            )}
+            <div>
+              <h1 style={{ fontSize: "26px", fontWeight: 800, color: "#1A1D2E", letterSpacing: "-0.02em", margin: 0 }}>
+                {currentCityData.name}
+              </h1>
+              {currentCityData.label && (
+                <p style={{ fontSize: "13px", color: "#868E96", margin: "4px 0 0", fontWeight: 500 }}>
+                  {currentCityData.label}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
         <section style={{ marginBottom: "28px" }}>
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              backgroundColor: "#F4F6FB",
+              backgroundColor: "#ffffff",
               padding: "10px 0",
             }}
           >
