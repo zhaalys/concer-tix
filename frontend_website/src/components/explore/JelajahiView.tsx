@@ -187,6 +187,7 @@ export default function JelajahiView() {
   const kotaParam = searchParams.get("kota") || "";
   const genreParam = searchParams.get("genre") || "";
   const categoryParam = searchParams.get("category") || "";
+  const queryParam = searchParams.get("q") || "";
 
   const resolveInitialCity = () => {
     if (!kotaParam) return "semua";
@@ -206,7 +207,6 @@ export default function JelajahiView() {
 
   const [selectedCity, setSelectedCity] = useState(resolveInitialCity);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "All");
-  const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"popular" | "price_low" | "price_high">("popular");
 
   const currentCityData = useMemo(() => CITIES.find((c) => c.id === selectedCity) ?? CITIES[0], [selectedCity]);
@@ -215,8 +215,8 @@ export default function JelajahiView() {
     return ALL_EVENTS.filter((ev) => {
       if (selectedCity !== "semua" && ev.city !== selectedCity) return false;
       if (selectedCategory !== "All" && ev.category !== selectedCategory) return false;
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
+      if (queryParam.trim()) {
+        const q = queryParam.toLowerCase();
         if (
           !ev.title.toLowerCase().includes(q) &&
           !ev.location.toLowerCase().includes(q) &&
@@ -231,7 +231,7 @@ export default function JelajahiView() {
       if (sortBy === "price_high") return b.numericPrice - a.numericPrice;
       return (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0);
     });
-  }, [selectedCity, selectedCategory, searchQuery, sortBy]);
+  }, [selectedCity, selectedCategory, queryParam, sortBy]);
 
   return (
     <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
@@ -330,38 +330,11 @@ export default function JelajahiView() {
           {filteredEvents.length === 0 ? (
             <div
               style={{
-                backgroundColor: "#ffffff",
-                borderRadius: "20px",
-                border: "1px solid #E9ECEF",
-                padding: "64px 32px",
+                padding: "80px 32px",
                 textAlign: "center",
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: "48px", color: "#CED4DA", display: "block", marginBottom: "16px" }}>
-                search_off
-              </span>
-              <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#1A1D2E", marginBottom: "8px" }}>No events found</h3>
-              <p style={{ fontSize: "14px", color: "#5A6072" }}>Try changing the filter or search keyword</p>
-              <button
-                onClick={() => {
-                  setSelectedCity("semua");
-                  setSelectedCategory("All");
-                  setSearchQuery("");
-                }}
-                style={{
-                  marginTop: "20px",
-                  padding: "10px 24px",
-                  backgroundColor: "#1ABC9C",
-                  color: "#ffffff",
-                  borderRadius: "10px",
-                  border: "none",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                Reset Filter
-              </button>
+              <p style={{ fontSize: "15px", fontWeight: 500, color: "#868E96", margin: 0 }}>No results</p>
             </div>
           ) : (
             <div

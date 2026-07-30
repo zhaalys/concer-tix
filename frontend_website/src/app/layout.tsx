@@ -3,6 +3,7 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Script from "next/script";
+import FloatingContactWrapper from "@/components/ui/FloatingContactWrapper";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -47,6 +48,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <FloatingContactWrapper />
       </body>
     </html>
   );

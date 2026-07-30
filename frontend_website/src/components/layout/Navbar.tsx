@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -27,7 +27,9 @@ export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const [artistIndex, setArtistIndex] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -41,6 +43,25 @@ export default function Navbar() {
     }, 2200);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (pathname === "/explore" && typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      setSearchValue(params.get("q") || "");
+    }
+  }, [pathname]);
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => {
+    const q = searchValue.trim();
+    if (!q && pathname !== "/explore") return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const url = q ? `/explore?q=${encodeURIComponent(q)}` : "/explore";
+      router.replace(url);
+    }, 150);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [searchValue]);
 
   return (
     <>
@@ -193,7 +214,7 @@ export default function Navbar() {
                 search
               </span>
               <style>{`.artist-search::placeholder { color: transparent; }`}</style>
-              {!searchFocused && (
+              {!searchFocused && !searchValue && (
                 <span
                   style={{
                     position: "absolute",
@@ -212,6 +233,8 @@ export default function Navbar() {
               <input
                 className="artist-search"
                 type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
                 style={{

@@ -6,9 +6,6 @@ export default function MyTicketsView({ tickets }: { tickets: TicketData[] }) {
   return (
     <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
       <div style={{ maxWidth: "720px", margin: "0 auto", padding: "64px 32px 80px" }}>
-        <h1 style={{ fontSize: "26px", fontWeight: 700, color: "#000000", marginBottom: "40px", letterSpacing: "-0.02em" }}>
-          My Tickets
-        </h1>
 
         {tickets.length === 0 ? (
           <div style={{ padding: "48px 0" }}>
@@ -61,6 +58,58 @@ export default function MyTicketsView({ tickets }: { tickets: TicketData[] }) {
                     }}>
                       View E-Ticket
                     </span>
+                  </div>
+                </div>
+
+                {/* Map */}
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ticket.eventLocation)}`, "_blank");
+                  }}
+                  style={{ textDecoration: "none", display: "block", marginTop: "12px", cursor: "pointer" }}
+                >
+                  <div
+                    style={{
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      border: "1px solid #EBEBEB",
+                      position: "relative",
+                    }}
+                  >
+                    <iframe
+                      src={`https://www.google.com/maps?q=${encodeURIComponent(ticket.eventLocation)}&output=embed`}
+                      width="100%"
+                      height="120"
+                      style={{ border: 0, display: "block", pointerEvents: "none" }}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Event Location"
+                    />
+                    <div
+                      style={{
+                        position: "absolute", inset: 0,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}
+                    >
+                      <span
+                        style={{
+                          backgroundColor: "#ffffff",
+                          padding: "5px 12px",
+                          borderRadius: "6px",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "#1A1D2E",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>open_in_new</span>
+                        Buka Google Maps
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

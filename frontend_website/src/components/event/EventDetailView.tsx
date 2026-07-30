@@ -37,6 +37,25 @@ export default function EventDetailView({ event }: { event: EventData }) {
               <span style={{ fontSize: "14px", fontWeight: 700, color: "#1A1D2E" }}>{event.organizer}</span>
             </div>
 
+            {/* Location */}
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#0E9375", fontVariationSettings: "'FILL' 1" }}>
+                location_on
+              </span>
+              <div>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "#1A1D2E" }}>{event.location}</span>
+                <span style={{ fontSize: "12px", color: "#868E96", marginLeft: "8px" }}>{event.cityLabel}</span>
+              </div>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "#ADB5BD", marginLeft: "auto" }}>
+                open_in_new
+              </span>
+            </a>
+
             {/* Social Media */}
             <div style={{ display: "flex", gap: "8px", marginBottom: "28px" }}>
               <span style={{ fontSize: "12px", color: "#868E96", fontWeight: 500, alignSelf: "center" }}>Media Sosial</span>
@@ -155,7 +174,6 @@ export default function EventDetailView({ event }: { event: EventData }) {
               {[
                 { icon: "calendar_month", text: event.date },
                 { icon: "schedule", text: event.time },
-                { icon: "location_on", text: event.location },
               ].map((row) => (
                 <div key={row.icon} style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "10px" }}>
                   <span className="material-symbols-outlined"
@@ -165,6 +183,62 @@ export default function EventDetailView({ event }: { event: EventData }) {
                   <span style={{ fontSize: "13px", color: "#495057", fontWeight: 400, lineHeight: 1.5 }}>{row.text}</span>
                 </div>
               ))}
+
+              {/* Map */}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textDecoration: "none", display: "block", marginTop: "12px" }}
+              >
+                <div
+                  style={{
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    border: "1px solid #E9ECEF",
+                    position: "relative",
+                    cursor: "pointer",
+                  }}
+                >
+                  <iframe
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(event.location)}&output=embed`}
+                    width="100%"
+                    height="160"
+                    style={{ border: 0, display: "block", pointerEvents: "none" }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Event Location"
+                  />
+                  <div
+                    style={{
+                      position: "absolute", inset: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      backgroundColor: "rgba(0,0,0,0.03)",
+                      transition: "background 0.2s",
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.07)"}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(0,0,0,0.03)"}
+                  >
+                    <span
+                      style={{
+                        backgroundColor: "#ffffff",
+                        padding: "6px 14px",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        color: "#1A1D2E",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>open_in_new</span>
+                      Buka Google Maps
+                    </span>
+                  </div>
+                </div>
+              </a>
             </div>
 
             {/* Harga + Beli Tiket */}

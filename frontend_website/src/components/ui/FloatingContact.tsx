@@ -3,7 +3,9 @@
 export default function FloatingContact() {
   return (
     <a
-      href="#"
+      href="https://wa.me/6281316936289"
+      target="_blank"
+      rel="noopener noreferrer"
       style={{
         position: "fixed",
         bottom: "40px",
