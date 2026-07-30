@@ -1,4 +1,5 @@
-import { Navbar, HeroBanner, Categories, EventCards, EventSeruGrid, Banner2, CitiesGrid, Footer } from "@/components";
+import { Navbar, HeroBanner, EventCards, EventSeruGrid, Banner2, CitiesGrid, Footer } from "@/components";
+import IconScroll from "@/components/home/IconScroll";
 
 export default function Home() {
   return (
@@ -11,7 +12,7 @@ export default function Home() {
         }}
       >
         <HeroBanner />
-        <Categories />
+        <IconScroll />
         <EventCards />
         <Banner2 />
         <EventSeruGrid />

@@ -3,15 +3,15 @@
 import Link from "next/link";
 
 const categories = [
-  { icon: "music_note", label: "Pop", query: "Pop & Rock" },
-  { icon: "graphic_eq", label: "Rock", query: "Pop & Rock" },
-  { icon: "piano", label: "Jazz", query: "Arts & Culture" },
-  { icon: "mic", label: "Hip Hop", query: "Music Concert" },
-  { icon: "headphones", label: "EDM", query: "Festival" },
-  { icon: "album", label: "Indie", query: "Indie & Alternative" },
-  { icon: "queue_music", label: "R&B", query: "Music Concert" },
-  { icon: "lyrics", label: "Folk", query: "Arts & Culture" },
-  { icon: "settings_input_component", label: "Metal", query: "Pop & Rock" },
+  { img: "/icon/pop.png", label: "Pop", query: "Pop & Rock" },
+  { img: "/icon/rock.png", label: "Rock", query: "Pop & Rock" },
+  { img: "/icon/jazz.png", label: "Jazz", query: "Arts & Culture" },
+  { img: "/icon/hiphop.png", label: "Hip Hop", query: "Music Concert" },
+  { img: "/icon/edm.png", label: "EDM", query: "Festival" },
+  { img: "/icon/indie.png", label: "Indie", query: "Indie & Alternative" },
+  { img: "/icon/rnb.png", label: "R&B", query: "Music Concert" },
+  { img: "/icon/folk.png", label: "Folk", query: "Arts & Culture" },
+  { img: "/icon/metal.png", label: "Metal", query: "Pop & Rock" },
 ];
 
 export default function Categories() {
@@ -59,26 +59,12 @@ function CategoryCircleItem({ cat }: { cat: typeof categories[0] }) {
         textDecoration: "none",
       }}
     >
-      <span
-        className="material-symbols-outlined"
-        style={{
-          fontSize: "35px",
-          color: "#1ABC9C",
-          fontVariationSettings: "'FILL' 1",
-        }}
-      >
-        {cat.icon}
-      </span>
-      <span
-        style={{
-          fontSize: "13px",
-          fontWeight: 600,
-          color: "#2D3748",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {cat.label}
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={cat.img}
+        alt={cat.label}
+        style={{ width: "40px", height: "40px", objectFit: "contain" }}
+      />
     </Link>
   );
 }

@@ -48,7 +48,6 @@ export const ALL_EVENTS: EventData[] = [
     ],
     facilities: [
       { icon: "fastfood", label: "Food Court" },
-      { icon: "info", label: "Event Information" },
       { icon: "medical_services", label: "Medis" },
       { icon: "shopping_bag", label: "Merchandise" },
       { icon: "wc", label: "Mushola" },
@@ -84,7 +83,6 @@ export const ALL_EVENTS: EventData[] = [
     ],
     facilities: [
       { icon: "fastfood", label: "Food Court" },
-      { icon: "info", label: "Pusat Informasi" },
       { icon: "medical_services", label: "Medis" },
       { icon: "shopping_bag", label: "Merchandise" },
       { icon: "local_parking", label: "Area Parkir" },
@@ -148,7 +146,6 @@ export const ALL_EVENTS: EventData[] = [
     ],
     facilities: [
       { icon: "fastfood", label: "Food Court" },
-      { icon: "info", label: "Event Information" },
       { icon: "medical_services", label: "Medis" },
       { icon: "shopping_bag", label: "Merchandise" },
       { icon: "local_parking", label: "Area Parkir" },
@@ -182,7 +179,6 @@ export const ALL_EVENTS: EventData[] = [
     ],
     facilities: [
       { icon: "fastfood", label: "Food Court" },
-      { icon: "info", label: "Pusat Informasi" },
       { icon: "medical_services", label: "Medis" },
       { icon: "shopping_bag", label: "Merchandise" },
       { icon: "local_parking", label: "Area Parkir" },
@@ -244,7 +240,6 @@ export const ALL_EVENTS: EventData[] = [
     ],
     facilities: [
       { icon: "fastfood", label: "Food Court" },
-      { icon: "info", label: "Pusat Informasi" },
       { icon: "medical_services", label: "Medis" },
       { icon: "local_parking", label: "Area Parkir" },
     ],

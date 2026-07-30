@@ -139,19 +139,35 @@ export default function EventDetailView({ event }: { event: EventData }) {
 
             {activeTab === "facilities" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
-                {event.facilities.map((f) => (
+                {event.facilities.map((f) => {
+                  const iconMap: Record<string, string> = {
+                    fastfood: "fastfood",
+                    local_parking: "localparking",
+                    shopping_bag: "merch",
+                    medical_services: "poskesehatan",
+                  };
+                  const iconFile = iconMap[f.icon];
+                  return (
                   <div key={f.label} style={{
                     display: "flex", alignItems: "center", gap: "10px",
-                    backgroundColor: "#F8FAFB", borderRadius: "10px", padding: "12px 14px",
-                    border: "1px solid #F1F3F5",
                   }}>
-                    <span className="material-symbols-outlined"
-                      style={{ fontSize: "20px", color: "#0E9375", fontVariationSettings: "'FILL' 1" }}>
-                      {f.icon}
-                    </span>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: "#1A1D2E" }}>{f.label}</span>
+                    {iconFile ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`/icon/${iconFile}.png`}
+                        alt={f.label}
+                        style={{ width: "36px", height: "36px", objectFit: "contain", flexShrink: 0 }}
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined"
+                        style={{ fontSize: "28px", color: "#0E9375", fontVariationSettings: "'FILL' 1" }}>
+                        {f.icon}
+                      </span>
+                    )}
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#1A1D2E" }}>{f.label}</span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
