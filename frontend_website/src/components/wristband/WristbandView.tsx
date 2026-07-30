@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import FloatingContact from "@/components/ui/FloatingContact";
 
 
@@ -33,6 +34,7 @@ const BENEFITS = [
 ];
 
 export default function WristbandView() {
+  const router = useRouter();
   const [selectedVariant, setSelectedVariant] = useState(0);
   const [selectedThumb, setSelectedThumb] = useState(0);
   const [qty, setQty] = useState("");
@@ -215,6 +217,11 @@ export default function WristbandView() {
 
             {/* CTA */}
             <button
+              onClick={() => {
+                const q = parseInt(qty) || 1;
+                const v = selectedVariant === 0 ? "without_qr" : "with_qr";
+                router.push(`/wristband/order?variant=${v}&qty=${q}`);
+              }}
               style={{
                 width: "100%",
                 padding: "8px",

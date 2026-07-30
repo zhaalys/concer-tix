@@ -1,7 +1,10 @@
 "use client";
 
+"use client";
+
 const events = [
   {
+    id: "ev-1",
     img: "/image_concer/banner_concer_1.png",
     title: "Hillsong Worship Nights Asia Tour 2024",
     price: "Rp 850.000",
@@ -10,6 +13,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-2",
     img: "/image_concer/banner_concer_1.png",
     title: "Latihan Pestapora Makassar",
     price: "Rp 225.000",
@@ -18,6 +22,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-3",
     img: "/image_concer/banner_concer_1.png",
     title: "VIXTAPE KONEKT Showcase",
     price: "Rp 125.000",
@@ -26,6 +31,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-4",
     img: "/image_concer/banner_concer_1.png",
     title: "Joyland Sessions 2026",
     price: "Rp 588.000",
@@ -34,6 +40,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-5",
     img: "/image_concer/banner_concer_1.png",
     title: "Soundrenaline 2026 Jakarta",
     price: "Rp 450.000",
@@ -42,6 +49,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-11",
     img: "/image_concer/banner_concer_1.png",
     title: "Festival Indie Jakarta",
     price: "Rp 180.000",
@@ -50,6 +58,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-7",
     img: "/image_concer/banner_concer_1.png",
     title: "Ancol Aquathlon 2026",
     price: "Rp 250.000",
@@ -58,6 +67,7 @@ const events = [
     organizerLogo: "/logo/tix_logo.png?v=3",
   },
   {
+    id: "ev-8",
     img: "/image_concer/banner_concer_1.png",
     title: "Home Sweet Loan The Musical",
     price: "Rp 350.000",
@@ -72,6 +82,7 @@ function EventCard({ event }: { event: (typeof events)[0] }) {
 
   return (
     <div
+      onClick={() => window.open(`/event/${event.id}`, "_blank")}
       style={{
         backgroundColor: "#ffffff",
         borderRadius: "16px",

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { EventData } from "@/lib/eventsData";
-import { addTicket, generateTicketCode } from "@/lib/ticketStore";
+import { supabase } from "@/lib/supabase";
 
 interface SnapResult {
   order_id?: string;
@@ -136,9 +136,24 @@ function Step1({ event, onNext }: { event: EventData; onNext: (cat: typeof TICKE
   );
 }
 
-function Step2({ event, category, onNext, onBack }: { event: EventData; category: typeof TICKET_CATEGORIES[0]; onNext: (form: { nama: string; email: string }) => void; onBack: () => void }) {
-  const [form, setForm] = useState({ nama: "", idType: "", idNo: "", email: "", whatsapp: "" });
-  const [ticketForm, setTicketForm] = useState({ nama: "", idType: "", idNo: "", email: "", jenisKelamin: "", usia: "", domisili: "" });
+function formatPhone(phone: string): string {
+  let p = phone.replace(/\D/g, "");
+  if (p.startsWith("08")) p = "628" + p.slice(1);
+  else if (p.startsWith("8")) p = "62" + p;
+  else if (p.startsWith("62") && !p.startsWith("628")) p = "628" + p.slice(2);
+  else if (!p.startsWith("628")) p = "628" + p;
+  return p;
+}
+
+const ID_MAX_LENGTHS: Record<string, number> = {
+  ktp: 16,
+  sim: 12,
+  passport: 9,
+};
+
+function Step2({ event, category, onNext, onBack }: { event: EventData; category: typeof TICKET_CATEGORIES[0]; onNext: (form: { nama: string; email: string; whatsapp: string; idType: string; idNo: string; ticketNama: string; gender: string; age: string; domicile: string }) => void; onBack: () => void }) {
+  const [form, setForm] = useState({ nama: "", email: "", whatsapp: "" });
+  const [ticketForm, setTicketForm] = useState({ nama: "", idType: "", idNo: "", gender: "", age: "", domicile: "" });
   const [timeLeft, setTimeLeft] = useState(600);
 
   useEffect(() => {
@@ -148,6 +163,14 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
 
   const mins = String(Math.floor(timeLeft / 60)).padStart(2, "0");
   const secs = String(timeLeft % 60).padStart(2, "0");
+
+  const idMaxLength = ticketForm.idType ? ID_MAX_LENGTHS[ticketForm.idType] : undefined;
+  const idNoValid = !ticketForm.idType || (ticketForm.idNo.length <= (ID_MAX_LENGTHS[ticketForm.idType] || 999));
+
+  const waDigits = form.whatsapp.replace(/\D/g, "").replace(/^62/, "").replace(/^0/, "");
+  const waValid = waDigits.length >= 8 && waDigits.length <= 15;
+
+  const canSubmit = form.nama.trim() && form.email.trim() && form.whatsapp.trim() && waValid && ticketForm.nama.trim() && ticketForm.idType && ticketForm.idNo.trim() && idNoValid;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
@@ -167,25 +190,15 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
             <span style={{ fontSize: "14px", fontWeight: 700, color: "#000000" }}>Data Pemesan</span>
           </div>
           <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "16px" }}>Nama Lengkap *</p>
-          <input type="text" placeholder="Masukkan nama lengkap Anda" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
-          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Tipe Identitas *</p>
-          <select value={form.idType} onChange={(e) => setForm({ ...form, idType: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }}>
-            <option value="">Pilih tipe identitas Anda</option>
-            <option value="ktp">KTP</option>
-            <option value="sim">SIM</option>
-            <option value="passport">Passport</option>
-          </select>
-          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Nomor Identitas *</p>
-          <input type="text" placeholder="Masukkan nomor identitas Anda" value={form.idNo} onChange={(e) => setForm({ ...form, idNo: e.target.value })}
+          <input type="text" placeholder="Nama pemesan" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })}
             style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
           <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Email *</p>
           <input type="email" placeholder="Masukkan email Anda" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
             style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
           <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>No. WhatsApp *</p>
-          <input type="tel" placeholder="+62" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+          <input type="tel" placeholder="08xxxxxxxxx" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
             style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", outline: "none" }} />
+          {waValid && <p style={{ fontSize: "10px", color: "#1ABC9C", margin: "4px 0 0" }}>Format: {formatPhone(form.whatsapp)}</p>}
         </div>
 
         <div style={{ border: "1px solid #EBEBEB", borderRadius: "8px", padding: "20px" }}>
@@ -194,8 +207,95 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
             <span style={{ fontSize: "12px", fontWeight: 600, color: "#000000", padding: "4px 10px" }}>{category.label}</span>
           </div>
           <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Nama Lengkap *</p>
-          <input type="text" placeholder="Masukkan nama lengkap Anda" value={ticketForm.nama} onChange={(e) => setTicketForm({ ...ticketForm, nama: e.target.value })}
+          <input type="text" placeholder="Nama sesuai KTP/SIM/Passport" value={ticketForm.nama} onChange={(e) => setTicketForm({ ...ticketForm, nama: e.target.value })}
             style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Tipe Identitas *</p>
+          <select value={ticketForm.idType} onChange={(e) => { setTicketForm({ ...ticketForm, idType: e.target.value, idNo: "" }); }}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }}>
+            <option value="">Pilih tipe identitas</option>
+            <option value="ktp">KTP (maks 16 digit)</option>
+            <option value="sim">SIM (maks 12 digit)</option>
+            <option value="passport">Passport (maks 9 digit)</option>
+          </select>
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Nomor Identitas * {idMaxLength ? `(maks ${idMaxLength} digit)` : ""}</p>
+          <input type="text" placeholder={ticketForm.idType === "ktp" ? "16 digit" : ticketForm.idType === "sim" ? "12 digit" : "9 digit"} value={ticketForm.idNo} onChange={(e) => { const val = e.target.value.replace(/\D/g, "").slice(0, idMaxLength); setTicketForm({ ...ticketForm, idNo: val }); }}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Jenis Kelamin</p>
+          <select value={ticketForm.gender} onChange={(e) => setTicketForm({ ...ticketForm, gender: e.target.value })}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }}>
+            <option value="">Pilih jenis kelamin</option>
+            <option value="male">Laki-laki</option>
+            <option value="female">Perempuan</option>
+          </select>
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Usia</p>
+          <input type="number" placeholder="Usia" value={ticketForm.age} onChange={(e) => setTicketForm({ ...ticketForm, age: e.target.value.replace(/\D/g, "") })}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Domisili</p>
+          <select value={ticketForm.domicile} onChange={(e) => setTicketForm({ ...ticketForm, domicile: e.target.value })}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", outline: "none" }}>
+            <option value="">Pilih kota domisili</option>
+            <option value="Ambon">Ambon</option>
+            <option value="Balikpapan">Balikpapan</option>
+            <option value="Banda Aceh">Banda Aceh</option>
+            <option value="Bandar Lampung">Bandar Lampung</option>
+            <option value="Bandung">Bandung</option>
+            <option value="Banjarmasin">Banjarmasin</option>
+            <option value="Batam">Batam</option>
+            <option value="Batu">Batu</option>
+            <option value="Bekasi">Bekasi</option>
+            <option value="Bogor">Bogor</option>
+            <option value="Bontang">Bontang</option>
+            <option value="Cilegon">Cilegon</option>
+            <option value="Cimahi">Cimahi</option>
+            <option value="Cirebon">Cirebon</option>
+            <option value="Denpasar">Denpasar</option>
+            <option value="Depok">Depok</option>
+            <option value="Gorontalo">Gorontalo</option>
+            <option value="Jakarta">Jakarta</option>
+            <option value="Jambi">Jambi</option>
+            <option value="Jayapura">Jayapura</option>
+            <option value="Kediri">Kediri</option>
+            <option value="Kendari">Kendari</option>
+            <option value="Kupang">Kupang</option>
+            <option value="Lubuklinggau">Lubuklinggau</option>
+            <option value="Madiun">Madiun</option>
+            <option value="Magelang">Magelang</option>
+            <option value="Makassar">Makassar</option>
+            <option value="Malang">Malang</option>
+            <option value="Manado">Manado</option>
+            <option value="Mataram">Mataram</option>
+            <option value="Medan">Medan</option>
+            <option value="Mojokerto">Mojokerto</option>
+            <option value="Padang">Padang</option>
+            <option value="Palangkaraya">Palangkaraya</option>
+            <option value="Palembang">Palembang</option>
+            <option value="Palopo">Palopo</option>
+            <option value="Palu">Palu</option>
+            <option value="Pangkalpinang">Pangkalpinang</option>
+            <option value="Parepare">Parepare</option>
+            <option value="Pekalongan">Pekalongan</option>
+            <option value="Pekanbaru">Pekanbaru</option>
+            <option value="Pematangsiantar">Pematangsiantar</option>
+            <option value="Pontianak">Pontianak</option>
+            <option value="Prabumulih">Prabumulih</option>
+            <option value="Probolinggo">Probolinggo</option>
+            <option value="Salatiga">Salatiga</option>
+            <option value="Samarinda">Samarinda</option>
+            <option value="Semarang">Semarang</option>
+            <option value="Serang">Serang</option>
+            <option value="Sibolga">Sibolga</option>
+            <option value="Sidoarjo">Sidoarjo</option>
+            <option value="Sukabumi">Sukabumi</option>
+            <option value="Surabaya">Surabaya</option>
+            <option value="Surakarta">Surakarta</option>
+            <option value="Tangerang">Tangerang</option>
+            <option value="Tanjungpinang">Tanjungpinang</option>
+            <option value="Tasikmalaya">Tasikmalaya</option>
+            <option value="Tebingtinggi">Tebingtinggi</option>
+            <option value="Tegal">Tegal</option>
+            <option value="Ternate">Ternate</option>
+            <option value="Yogyakarta">Yogyakarta</option>
+          </select>
         </div>
       </div>
 
@@ -219,16 +319,19 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button onClick={onBack} style={{ flex: 1, padding: "10px 0", border: "1px solid #EBEBEB", backgroundColor: "transparent", fontSize: "13px", fontWeight: 500, cursor: "pointer", color: "#9B9B9B" }}> Kembali</button>
-          <button onClick={() => onNext({ nama: form.nama, email: form.email })} style={{ flex: 1, padding: "10px 0", border: "1.5px solid #000000", backgroundColor: "transparent", color: "#000000", fontSize: "13px", fontWeight: 600, cursor: "pointer" }}>Lanjutkan</button>
+          <button onClick={() => onNext({ nama: form.nama, email: form.email, whatsapp: formatPhone(form.whatsapp), idType: ticketForm.idType, idNo: ticketForm.idNo, ticketNama: ticketForm.nama, gender: ticketForm.gender, age: ticketForm.age, domicile: ticketForm.domicile })}
+            disabled={!canSubmit}
+            style={{ flex: 1, padding: "10px 0", border: "1.5px solid #000000", backgroundColor: !canSubmit ? "#F5F5F5" : "transparent", color: !canSubmit ? "#D0D0D0" : "#000000", fontSize: "13px", fontWeight: 600, cursor: !canSubmit ? "default" : "pointer" }}>Lanjutkan</button>
         </div>
       </div>
     </div>
   );
 }
 
-function Step3({ category, form, onSuccess, onBack }: {
+function Step3({ category, form, orderCode, onSuccess, onBack }: {
   category: typeof TICKET_CATEGORIES[0];
-  form: { nama: string; email: string };
+  form: { nama: string; email: string; whatsapp: string; idType: string; idNo: string; ticketNama: string; gender: string; age: string; domicile: string };
+  orderCode: string;
   onSuccess: (result: SnapResult) => void;
   onBack: () => void;
 }) {
@@ -243,29 +346,30 @@ function Step3({ category, form, onSuccess, onBack }: {
     setLoading(true);
     setError(null);
     try {
-      const orderId = `ORDER-${Date.now()}`;
-      const res = await fetch(
+      if (!orderCode) throw new Error("Pesanan belum dibuat. Silakan kembali.");
+
+      const payRes = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/payment/token`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            orderId,
+            orderId: `${orderCode}-${Date.now()}`,
             amount: category.price,
             name: form.nama || "Guest",
-            email: form.email || "guest@example.com",
+            email: (form.email || "guest@example.com").trim(),
             category: { id: category.id, label: category.label },
             enabledPayments: [selectedMethod.snapKey],
           }),
         }
       );
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
+      const payData = await payRes.json();
+      if (!payData.success) throw new Error(payData.message);
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).snap.pay(data.token, {
-        onSuccess: (result: SnapResult) => onSuccess({ ...result, status: "success" }),
-        onPending: (result: SnapResult) => onSuccess({ ...result, status: "pending" }),
+      (window as any).snap.pay(payData.token, {
+        onSuccess: (result: SnapResult) => onSuccess({ ...result, status: "success", order_code: orderCode }),
+        onPending: (result: SnapResult) => onSuccess({ ...result, status: "pending", order_code: orderCode }),
         onError: (result: SnapResult) => { setError("Pembayaran gagal. Silakan coba lagi."); console.error(result); },
         onClose: () => setLoading(false),
       });
@@ -471,26 +575,76 @@ export default function CheckoutView({ event }: { event: EventData }) {
   const [step, setStep] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<typeof TICKET_CATEGORIES[0] | null>(null);
   const [snapResult, setSnapResult] = useState<SnapResult | null>(null);
-  const [orderForm, setOrderForm] = useState({ nama: "", email: "" });
+  const [orderCode, setOrderCode] = useState("");
+  const [pendingOrderCode, setPendingOrderCode] = useState("");
+  const [orderForm, setOrderForm] = useState({ nama: "", email: "", whatsapp: "", idType: "", idNo: "", ticketNama: "", gender: "", age: "", domicile: "" });
   const router = useRouter();
 
-  const handleSuccess = (result: SnapResult, category: typeof TICKET_CATEGORIES[0], form: { nama: string; email: string }) => {
-    addTicket({
-      ticketCode: generateTicketCode(),
-      orderId: String(result.order_id || ""),
-      eventTitle: event.title,
-      eventDate: event.date,
-      eventTime: event.time,
-      eventLocation: event.location,
-      category: category.label,
-      price: category.price,
-      holderName: form.nama || "Guest",
-      email: form.email || "guest@example.com",
-      purchasedAt: new Date().toLocaleString("id-ID"),
-      paymentMethod: String(result.payment_type || "").replace(/_/g, " "),
-      status: result.status === "pending" ? "pending" : "success",
-    });
+  const handleStep2Next = async (form: typeof orderForm) => {
+    setOrderForm(form);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const { data: events } = await supabase
+        .from("events")
+        .select("slug")
+        .eq("title", event.title)
+        .limit(1);
+      const slug = events?.[0]?.slug;
+      if (!slug) return;
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            event_slug: slug,
+            category: selectedCategory!.label,
+            unit_price: selectedCategory!.price,
+            quantity: 1,
+            full_name: form.ticketNama,
+            email: form.email,
+            whatsapp: form.whatsapp,
+            identity_type: form.idType || undefined,
+            identity_number: form.idNo || undefined,
+            booker_name: form.nama || undefined,
+            gender: form.gender || undefined,
+            age: form.age ? parseInt(form.age, 10) : undefined,
+            domicile: form.domicile || undefined,
+          }),
+        }
+      );
+      const json = await res.json();
+      if (json.success) {
+        setPendingOrderCode(json.data.order_code);
+      }
+    } catch {
+      // order creation failed silently, user can retry on pay
+    }
+    setStep(2);
+  };
+
+  const handleSuccess = async (result: SnapResult, category: typeof TICKET_CATEGORIES[0], form: { nama: string; email: string }) => {
+    const code = pendingOrderCode || (result as any).order_code || "";
+    setOrderCode(code);
     setSnapResult(result);
+    if (code) {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders/${code}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: result.status === "pending" ? "pending" : "paid",
+            payment_method: String(result.payment_type || "").replace(/_/g, " "),
+            payment_token: result.order_id,
+          }),
+        }
+      );
+    }
     setStep(3);
   };
 
@@ -503,7 +657,7 @@ export default function CheckoutView({ event }: { event: EventData }) {
           <Step2
             event={event}
             category={selectedCategory}
-            onNext={(form) => { setOrderForm(form); setStep(2); }}
+            onNext={(form) => { handleStep2Next(form); }}
             onBack={() => setStep(0)}
           />
         )}
@@ -511,6 +665,7 @@ export default function CheckoutView({ event }: { event: EventData }) {
           <Step3
             category={selectedCategory}
             form={orderForm}
+            orderCode={pendingOrderCode}
             onSuccess={(result) => handleSuccess(result, selectedCategory, orderForm)}
             onBack={() => setStep(1)}
           />
@@ -520,7 +675,7 @@ export default function CheckoutView({ event }: { event: EventData }) {
             event={event}
             category={selectedCategory}
             snapResult={snapResult}
-            onViewTicket={() => router.push("/my-tickets")}
+            onViewTicket={() => router.push(orderCode ? `/my-tickets/${orderCode}` : "/my-tickets")}
           />
         )}
       </div>

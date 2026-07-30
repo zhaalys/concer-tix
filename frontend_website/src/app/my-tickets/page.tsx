@@ -1,6 +1,5 @@
 import { Navbar, Footer } from "@/components";
 import MyTicketsView from "@/components/ticket/MyTicketsView";
-import { getTickets } from "@/lib/ticketStore";
 
 export const metadata = {
   title: "My Tickets - Concer TIX",
@@ -8,13 +7,10 @@ export const metadata = {
 };
 
 export default function MyTicketsPage() {
-  const tickets = getTickets();
   return (
     <>
       <Navbar />
-      <main>
-        <MyTicketsView tickets={tickets} />
-      </main>
+      <MyTicketsView />
       <Footer />
     </>
   );

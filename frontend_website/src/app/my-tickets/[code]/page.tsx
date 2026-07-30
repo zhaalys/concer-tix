@@ -1,18 +1,30 @@
-import ETicketPage from "@/components/ticket/ETicketPage";
-import { getTickets } from "@/lib/ticketStore";
+import NotaView from "@/components/ticket/NotaView";
 import { notFound } from "next/navigation";
+
+async function getOrder(code: string) {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/orders/${encodeURIComponent(code)}`,
+      { cache: "no-store" }
+    );
+    const json = await res.json();
+    return json.success ? json.data : null;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  const ticket = getTickets().find((t) => t.ticketCode === code);
-  if (!ticket) return { title: "E-Tiket - Concer TIX" };
-  return { title: `E-Ticket: ${ticket.eventTitle} - Concer TIX` };
+  const order = await getOrder(decodeURIComponent(code));
+  if (!order) return { title: "Invoice - Concer TIX" };
+  return { title: `Invoice: ${order.event?.title || "Event"} - Concer TIX` };
 }
 
-export default async function ETicketRoute({ params }: { params: Promise<{ code: string }> }) {
+export default async function InvoiceRoute({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  const ticket = getTickets().find((t) => t.ticketCode === decodeURIComponent(code));
-  if (!ticket) notFound();
+  const order = await getOrder(decodeURIComponent(code));
+  if (!order) notFound();
 
-  return <ETicketPage ticket={ticket} />;
+  return <NotaView order={order} />;
 }
