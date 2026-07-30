@@ -93,6 +93,10 @@ export default function FAQView() {
     <div style={{ backgroundColor: "#F7F9FB", minHeight: "100vh" }}>
       <div style={{ maxWidth: "800px", margin: "0 auto", padding: "64px 32px 100px" }}>
 
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/banner/banner_5.png" alt=""
+          style={{ width: "100%", height: "auto", display: "block", marginBottom: "28px", borderRadius: "8px" }} />
+
         <h1
           style={{
             fontSize: "20px",
