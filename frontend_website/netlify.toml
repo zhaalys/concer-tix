@@ -1,5 +1,5 @@
 [build]
-  command = "node scripts/prepare-api.js && npm run build"
+  command = "npm run build"
 
 [functions]
   node_bundler = "esbuild"
