@@ -43,3 +43,6 @@ next-env.d.ts
 # netlify generated backend copy (dibuat oleh scripts/prepare-api.js)
 frontend_website/netlify/functions/api/backend/
 
+
+# Local Netlify folder
+.netlify
