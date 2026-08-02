@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { EventData } from "@/lib/eventsData";
+import { FACILITY_ICON_IMAGES } from "@/lib/facilities";
+
+const EventMap = dynamic(() => import("@/components/event/EventMap"), { ssr: false });
+
+function hasCoords(mapUrl?: string): boolean {
+  const [a, b] = (mapUrl || "").split(",").map((s) => parseFloat(s.trim()));
+  return !Number.isNaN(a) && !Number.isNaN(b) && !!a && !!b;
+}
 
 export default function EventDetailView({ event }: { event: EventData }) {
   const [activeTab, setActiveTab] = useState<"description" | "terms" | "facilities">("description");
@@ -140,13 +149,7 @@ export default function EventDetailView({ event }: { event: EventData }) {
             {activeTab === "facilities" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
                 {event.facilities.map((f) => {
-                  const iconMap: Record<string, string> = {
-                    fastfood: "fastfood",
-                    local_parking: "localparking",
-                    shopping_bag: "merch",
-                    medical_services: "poskesehatan",
-                  };
-                  const iconFile = iconMap[f.icon];
+                  const iconFile = FACILITY_ICON_IMAGES[f.icon];
                   return (
                   <div key={f.label} style={{
                     display: "flex", alignItems: "center", gap: "10px",
@@ -154,7 +157,7 @@ export default function EventDetailView({ event }: { event: EventData }) {
                     {iconFile ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={`/icon/${iconFile}.png`}
+                        src={iconFile}
                         alt={f.label}
                         style={{ width: "36px", height: "36px", objectFit: "contain", flexShrink: 0 }}
                       />
@@ -201,6 +204,20 @@ export default function EventDetailView({ event }: { event: EventData }) {
               ))}
 
               {/* Map */}
+              {hasCoords(event.mapUrl) ? (
+                <div style={{ marginTop: "12px" }}>
+                  <EventMap mapUrl={event.mapUrl || ""} location={`${event.location}`} />
+                  <a
+                    href={`https://www.google.com/maps?q=${encodeURIComponent(event.mapUrl || "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "5px", marginTop: "8px", fontSize: "12.5px", fontWeight: 600, color: "#0E9375", textDecoration: "none" }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "15px" }}>open_in_new</span>
+                    Buka Google Maps
+                  </a>
+                </div>
+              ) : (
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
                 target="_blank"
@@ -255,6 +272,7 @@ export default function EventDetailView({ event }: { event: EventData }) {
                   </div>
                 </div>
               </a>
+              )}
             </div>
 
             {/* Harga + Beli Tiket */}

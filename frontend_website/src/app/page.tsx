@@ -1,6 +1,8 @@
 import { Navbar, HeroBanner, EventCards, EventSeruGrid, Banner2, CitiesGrid, Footer } from "@/components";
 import IconScroll from "@/components/home/IconScroll";
 
+export const revalidate = 60;
+
 export default function Home() {
   return (
     <>

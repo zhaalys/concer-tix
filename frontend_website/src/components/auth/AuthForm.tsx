@@ -26,11 +26,22 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
       return;
     }
     setIsLoading(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setIsLoading(false);
     if (signInError) {
       setError(signInError.message === "Invalid login credentials" ? "Email atau password salah" : signInError.message);
       return;
+    }
+    if (data?.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      if (profile?.role === "admin" || profile?.role === "super_admin") {
+        router.push("/admin");
+        return;
+      }
     }
     router.push("/");
   };

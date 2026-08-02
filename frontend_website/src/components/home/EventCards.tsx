@@ -1,11 +1,20 @@
-"use client";
-
 import Link from "next/link";
-import { ALL_EVENTS } from "@/lib/eventsData";
+import { getAllEvents } from "@/lib/events";
+import type { EventData } from "@/lib/eventsData";
 
-const events = ALL_EVENTS.slice(0, 5);
+async function getEvents(): Promise<EventData[]> {
+  try {
+    const events = await getAllEvents();
+    return events
+      .slice()
+      .sort((a, b) => (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0))
+      .slice(0, 5);
+  } catch {
+    return [];
+  }
+}
 
-function EventCard({ event }: { event: typeof events[0] }) {
+function EventCard({ event }: { event: EventData }) {
   const isLongTitle = event.title.length > 24;
 
   return (
@@ -22,7 +31,7 @@ function EventCard({ event }: { event: typeof events[0] }) {
           flexDirection: "column",
         }}
       >
-        <div style={{ overflow: "hidden" }}>
+        <div style={{ overflow: "hidden", position: "relative" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={event.img}
@@ -76,7 +85,9 @@ function EventCard({ event }: { event: typeof events[0] }) {
   );
 }
 
-export default function EventCards() {
+export default async function EventCards() {
+  const events = await getEvents();
+
   return (
     <section style={{ maxWidth: "1320px", margin: "0 auto", padding: "8px 32px 48px" }}>
       <style>{`
@@ -93,6 +104,9 @@ export default function EventCards() {
         </Link>
       </div>
 
+      {events.length === 0 ? (
+        <p style={{ fontSize: "14px", color: "#6C757D", padding: "12px 0" }}>Belum ada event untuk ditampilkan.</p>
+      ) : (
       <div
         style={{ display: "flex", gap: "20px", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", paddingBottom: "8px" }}
         className="hide-scrollbar"
@@ -103,6 +117,7 @@ export default function EventCards() {
           </div>
         ))}
       </div>
+      )}
     </section>
   );
 }

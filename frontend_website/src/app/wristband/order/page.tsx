@@ -56,7 +56,17 @@ function OrderForm() {
 
   const total = qty * UNIT_PRICE;
   const variantLabel = variant === "with_qr" ? "With QR" : "Without QR";
-  const canSubmit = name.trim() && whatsapp.trim() && address.trim();
+
+  const phoneDigits = whatsapp.replace(/\D/g, "");
+  const phoneValid = phoneDigits.startsWith("62") && phoneDigits.length >= 10 && phoneDigits.length <= 15;
+  const canSubmit = name.trim() && phoneValid && address.trim();
+
+  const handleWhatsapp = (raw: string) => {
+    let digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62")) digits = digits.slice(2);
+    else if (digits.startsWith("0")) digits = digits.slice(1);
+    setWhatsapp(digits ? `+62 ${digits.slice(0, 13)}` : "");
+  };
 
   const updateStatus = async (orderCode: string, status: string, result: SnapResult) => {
     await fetch(
@@ -312,9 +322,14 @@ function OrderForm() {
           <p style={{ fontSize: "12px", color: "#A0A0A0", margin: "0 0 4px" }}>Nama Lengkap</p>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. John Doe"
             style={{ width: "100%", padding: "8px 10px", border: "1px solid #DDDDDD", borderRadius: "4px", fontSize: "13px", color: "#37352F", marginBottom: "16px", outline: "none" }} />
-          <p style={{ fontSize: "12px", color: "#A0A0A0", margin: "0 0 4px" }}>No. WhatsApp</p>
-          <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="08xxxxxxxxx"
-            style={{ width: "100%", padding: "8px 10px", border: "1px solid #DDDDDD", borderRadius: "4px", fontSize: "13px", color: "#37352F", marginBottom: "16px", outline: "none" }} />
+          <p style={{ fontSize: "12px", color: "#A0A0A0", margin: "0 0 4px" }}>No. WhatsApp *</p>
+          <input value={whatsapp} onChange={(e) => handleWhatsapp(e.target.value)} placeholder="+62 8xxxxxxxxx" required
+            style={{ width: "100%", padding: "8px 10px", border: `1px solid ${whatsapp && !phoneValid ? "#E5484D" : "#DDDDDD"}`, borderRadius: "4px", fontSize: "13px", color: "#37352F", marginBottom: whatsapp && !phoneValid ? "4px" : "16px", outline: "none" }} />
+          {whatsapp && !phoneValid ? (
+            <p style={{ fontSize: "11px", color: "#E5484D", margin: "0 0 12px" }}>Nomor tidak valid, minimal 10 digit setelah +62</p>
+          ) : phoneValid ? (
+            <p style={{ fontSize: "11px", color: "#1ABC9C", margin: "0 0 12px" }}>Tersimpan sebagai {formatPhone(whatsapp)}</p>
+          ) : null}
           <p style={{ fontSize: "12px", color: "#A0A0A0", margin: "0 0 4px" }}>Alamat Pengiriman</p>
           <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="e.g. Jl. Merdeka No. 1, Jakarta"
             rows={3}

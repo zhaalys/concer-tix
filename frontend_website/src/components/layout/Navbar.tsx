@@ -33,6 +33,7 @@ export default function Navbar() {
   const [artistIndex, setArtistIndex] = useState(0);
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -57,11 +58,29 @@ export default function Navbar() {
       const { data } = await supabase.auth.getSession();
       setUser(data?.session?.user ?? null);
       setAvatarError(false);
+      if (data?.session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.session.user.id)
+          .maybeSingle();
+        setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
+      }
     };
     init();
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       setAvatarError(false);
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .maybeSingle();
+        setIsAdmin(profile?.role === "admin" || profile?.role === "super_admin");
+      } else {
+        setIsAdmin(false);
+      }
     });
     return () => listener?.subscription.unsubscribe();
   }, []);
@@ -296,6 +315,32 @@ export default function Navbar() {
           {/* Right actions (desktop) */}
           {!isMobile && <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
             {user ? (
+              <>
+                {isAdmin && (
+                  <Link href="/admin" style={{ textDecoration: "none" }}>
+                    <button
+                      style={{
+                        backgroundColor: "#EFEFEF",
+                        color: "#37352F",
+                        border: "none",
+                        padding: "8px 16px",
+                        borderRadius: "8px",
+                        fontSize: "12.5px",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E3E3E3")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#EFEFEF")}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>dashboard</span>
+                      Admin Panel
+                    </button>
+                  </Link>
+                )}
               <Link href="/profile" style={{ textDecoration: "none" }}>
                 {(() => {
                   const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture;
@@ -313,6 +358,7 @@ export default function Navbar() {
                   );
                 })()}
               </Link>
+              </>
             ) : (
               <>
                 <Link href="/login" style={{ textDecoration: "none" }}>

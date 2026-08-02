@@ -13,13 +13,14 @@ interface SnapResult {
   [key: string]: unknown;
 }
 
-const STEPS = ["Pilih Kategori", "Detail Pesanan", "Metode Pembayaran", "Pembayaran"];
+interface TicketCategory {
+  id: string;
+  label: string;
+  price: number;
+  status: "on_sale" | "sold_out";
+}
 
-const TICKET_CATEGORIES = [
-  { id: "reguler", label: "Reguler", price: 120000, status: "on_sale" },
-  { id: "presale", label: "Presale", price: 98000, status: "sold_out" },
-  { id: "vip", label: "VIP", price: 350000, status: "on_sale" },
-];
+const STEPS = ["Pilih Kategori", "Detail Pesanan", "Metode Pembayaran", "Pembayaran"];
 
 const PAYMENT_METHODS = [
   { id: "bca_va", label: "BCA Virtual Account", img: "/img_payment/bca.png", group: "Bank Transfer", snapKey: "bca_va" },
@@ -66,21 +67,43 @@ function Stepper({ current }: { current: number }) {
   );
 }
 
-function Step1({ event, onNext }: { event: EventData; onNext: (cat: typeof TICKET_CATEGORIES[0]) => void }) {
+function Step1({ event, onNext }: { event: EventData; onNext: (cat: TicketCategory) => void }) {
   const [selected, setSelected] = useState<string | null>(null);
-  const cat = TICKET_CATEGORIES.find((c) => c.id === selected);
+  const categories: TicketCategory[] = (event.tickets || []).map((t) => ({
+    id: t.id || t.label,
+    label: t.label,
+    price: t.price,
+    status: t.remaining > 0 ? "on_sale" : "sold_out",
+  }));
+  const cat = categories.find((c) => c.id === selected);
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
       <div>
-        <div style={{ borderRadius: "12px", overflow: "hidden", marginBottom: "24px", border: "1px solid #EBEBEB" }}>
+        <div style={{ borderRadius: "12px", overflow: "hidden", marginBottom: "20px", border: "1px solid #EBEBEB" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={event.img} alt={event.title} style={{ width: "100%", aspectRatio: "16/6", objectFit: "cover", display: "block" }} />
+          <img src={event.stageImage || "/stage/stage.png"} alt="Denah panggung & area penonton" style={{ width: "100%", height: "auto", objectFit: "contain", display: "block" }} />
         </div>
+
+        {event.stages && event.stages.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginBottom: "24px" }}>
+            <span style={{ fontSize: "12px", color: "#9B9B9B" }}>Area penonton:</span>
+            {event.stages.map((s) => (
+              <span key={s} style={{ fontSize: "12px", fontWeight: 600, color: "#1A1D2E", padding: "4px 12px", borderRadius: 999, border: "1px solid #EBEBEB", background: "#fff" }}>
+                {s}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <p style={{ fontSize: "14px", fontWeight: 700, color: "#000000", marginBottom: "4px" }}>Kategori Tiket</p>
-          {TICKET_CATEGORIES.map((cat) => (
+          {categories.length === 0 && (
+            <div style={{ padding: "24px 20px", border: "1px solid #EBEBEB", borderRadius: "8px", fontSize: "13px", color: "#9B9B9B" }}>
+              Tiket untuk event ini belum tersedia. Silakan hubungi penyelenggara.
+            </div>
+          )}
+          {categories.map((cat) => (
             <div key={cat.id} onClick={cat.status === "on_sale" ? () => setSelected(cat.id) : undefined} style={{
               backgroundColor: "#fff",
               border: selected === cat.id ? "1.5px solid #000000" : "1px solid #EBEBEB",
@@ -145,13 +168,15 @@ function formatPhone(phone: string): string {
   return p;
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const ID_MAX_LENGTHS: Record<string, number> = {
   ktp: 16,
   sim: 12,
   passport: 9,
 };
 
-function Step2({ event, category, onNext, onBack }: { event: EventData; category: typeof TICKET_CATEGORIES[0]; onNext: (form: { nama: string; email: string; whatsapp: string; idType: string; idNo: string; ticketNama: string; gender: string; age: string; domicile: string }) => void; onBack: () => void }) {
+function Step2({ event, category, onNext, onBack }: { event: EventData; category: TicketCategory; onNext: (form: { nama: string; email: string; whatsapp: string; idType: string; idNo: string; ticketNama: string; gender: string; age: string; domicile: string }) => void; onBack: () => void }) {
   const [form, setForm] = useState({ nama: "", email: "", whatsapp: "" });
   const [ticketForm, setTicketForm] = useState({ nama: "", idType: "", idNo: "", gender: "", age: "", domicile: "" });
   const [timeLeft, setTimeLeft] = useState(600);
@@ -167,10 +192,19 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
   const idMaxLength = ticketForm.idType ? ID_MAX_LENGTHS[ticketForm.idType] : undefined;
   const idNoValid = !ticketForm.idType || (ticketForm.idNo.length <= (ID_MAX_LENGTHS[ticketForm.idType] || 999));
 
-  const waDigits = form.whatsapp.replace(/\D/g, "").replace(/^62/, "").replace(/^0/, "");
-  const waValid = waDigits.length >= 8 && waDigits.length <= 15;
+  const emailValid = EMAIL_RE.test(form.email.trim());
 
-  const canSubmit = form.nama.trim() && form.email.trim() && form.whatsapp.trim() && waValid && ticketForm.nama.trim() && ticketForm.idType && ticketForm.idNo.trim() && idNoValid;
+  const phoneDigits = form.whatsapp.replace(/\D/g, "");
+  const phoneValid = phoneDigits.startsWith("62") && phoneDigits.length >= 10 && phoneDigits.length <= 15;
+
+  const handleWhatsapp = (raw: string) => {
+    let digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("62")) digits = digits.slice(2);
+    else if (digits.startsWith("0")) digits = digits.slice(1);
+    setForm((f) => ({ ...f, whatsapp: digits ? `+62 ${digits.slice(0, 13)}` : "" }));
+  };
+
+  const canSubmit = form.nama.trim() && emailValid && phoneValid && ticketForm.nama.trim() && ticketForm.idType && ticketForm.idNo.trim() && idNoValid;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
@@ -193,12 +227,19 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
           <input type="text" placeholder="Nama pemesan" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })}
             style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
           <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>Email *</p>
-          <input type="email" placeholder="Masukkan email Anda" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", marginBottom: "12px", outline: "none" }} />
+          <input type="email" required placeholder="Masukkan email Anda" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+            style={{ width: "100%", padding: "9px 12px", border: `1px solid ${form.email && !emailValid ? "#E5484D" : "#EBEBEB"}`, fontSize: "13px", marginBottom: form.email && !emailValid ? "4px" : "12px", outline: "none" }} />
+          {form.email && !emailValid && (
+            <p style={{ fontSize: "10px", color: "#E5484D", margin: "0 0 8px" }}>Email tidak valid, contoh: nama@email.com</p>
+          )}
           <p style={{ fontSize: "11px", color: "#9B9B9B", marginBottom: "8px" }}>No. WhatsApp *</p>
-          <input type="tel" placeholder="08xxxxxxxxx" value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-            style={{ width: "100%", padding: "9px 12px", border: "1px solid #EBEBEB", fontSize: "13px", outline: "none" }} />
-          {waValid && <p style={{ fontSize: "10px", color: "#1ABC9C", margin: "4px 0 0" }}>Format: {formatPhone(form.whatsapp)}</p>}
+          <input type="tel" required inputMode="tel" placeholder="+62 8xxxxxxxxx" value={form.whatsapp} onChange={(e) => handleWhatsapp(e.target.value)}
+            style={{ width: "100%", padding: "9px 12px", border: `1px solid ${form.whatsapp && !phoneValid ? "#E5484D" : "#EBEBEB"}`, fontSize: "13px", marginBottom: form.whatsapp && !phoneValid ? "4px" : "12px", outline: "none" }} />
+          {form.whatsapp && !phoneValid ? (
+            <p style={{ fontSize: "10px", color: "#E5484D", margin: "0 0 8px" }}>Nomor tidak valid, minimal 10 digit setelah +62</p>
+          ) : phoneValid ? (
+            <p style={{ fontSize: "10px", color: "#1ABC9C", margin: "0 0 8px" }}>Tersimpan sebagai {formatPhone(form.whatsapp)}</p>
+          ) : null}
         </div>
 
         <div style={{ border: "1px solid #EBEBEB", borderRadius: "8px", padding: "20px" }}>
@@ -329,7 +370,7 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
 }
 
 function Step3({ category, form, orderCode, onSuccess, onBack }: {
-  category: typeof TICKET_CATEGORIES[0];
+  category: TicketCategory;
   form: { nama: string; email: string; whatsapp: string; idType: string; idNo: string; ticketNama: string; gender: string; age: string; domicile: string };
   orderCode: string;
   onSuccess: (result: SnapResult) => void;
@@ -456,7 +497,7 @@ function Step3({ category, form, orderCode, onSuccess, onBack }: {
   );
 }
 
-function Step4({ event, category, snapResult, onViewTicket }: { event: EventData; category: typeof TICKET_CATEGORIES[0]; snapResult: SnapResult; onViewTicket: () => void }) {
+function Step4({ event, category, snapResult, onViewTicket }: { event: EventData; category: TicketCategory; snapResult: SnapResult; onViewTicket: () => void }) {
   const [mobile, setMobile] = useState(false);
   useEffect(() => {
     setMobile(window.innerWidth < 768);
@@ -573,7 +614,7 @@ function Step4({ event, category, snapResult, onViewTicket }: { event: EventData
 
 export default function CheckoutView({ event }: { event: EventData }) {
   const [step, setStep] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<typeof TICKET_CATEGORIES[0] | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<TicketCategory | null>(null);
   const [snapResult, setSnapResult] = useState<SnapResult | null>(null);
   const [orderCode, setOrderCode] = useState("");
   const [pendingOrderCode, setPendingOrderCode] = useState("");
@@ -627,7 +668,7 @@ export default function CheckoutView({ event }: { event: EventData }) {
     setStep(2);
   };
 
-  const handleSuccess = async (result: SnapResult, category: typeof TICKET_CATEGORIES[0], form: { nama: string; email: string }) => {
+  const handleSuccess = async (result: SnapResult, category: TicketCategory, form: { nama: string; email: string }) => {
     const code = pendingOrderCode || (result as any).order_code || "";
     setOrderCode(code);
     setSnapResult(result);

@@ -1,15 +1,18 @@
 import { Navbar, Footer } from "@/components";
 import EventDetailView from "@/components/event/EventDetailView";
-import { ALL_EVENTS } from "@/lib/eventsData";
+import { getAllEvents, getEventBySlug } from "@/lib/events";
 import { notFound } from "next/navigation";
 
-export function generateStaticParams() {
-  return ALL_EVENTS.map((e) => ({ id: e.id }));
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const events = await getAllEvents();
+  return events.map((e) => ({ id: e.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const event = ALL_EVENTS.find((e) => e.id === id);
+  const event = await getEventBySlug(id);
   if (!event) return { title: "Event Not Found" };
   return {
     title: `${event.title} - Concer TIX`,
@@ -19,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const event = ALL_EVENTS.find((e) => e.id === id);
+  const event = await getEventBySlug(id);
   if (!event) notFound();
 
   return (
