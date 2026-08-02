@@ -43,7 +43,7 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
         return;
       }
     }
-    router.push("/");
+    router.push(getNext() || "/");
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -60,7 +60,8 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
       setError(signUpError.message);
       return;
     }
-    router.push("/login?check_email=true");
+    const next = getNext();
+    router.push(next ? `/login?check_email=true&next=${encodeURIComponent(next)}` : "/login?check_email=true");
   };
 
   const handleGoogleLogin = async () => {
@@ -68,6 +69,12 @@ export default function AuthForm({ initialMode = "login" }: AuthFormProps) {
   };
 
   const isLogin = step === "password" || step === "email";
+
+  const getNext = () => {
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next");
+    return next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  };
 
   return (
     <div

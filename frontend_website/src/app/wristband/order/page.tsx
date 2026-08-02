@@ -50,9 +50,13 @@ function OrderForm() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setUserId(session.user.id);
+      if (session?.user) {
+        setUserId(session.user.id);
+      } else {
+        router.replace(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      }
     });
-  }, []);
+  }, [router]);
 
   const total = qty * UNIT_PRICE;
   const variantLabel = variant === "with_qr" ? "With QR" : "Without QR";

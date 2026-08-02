@@ -8,9 +8,14 @@ const coreApi = new midtransClient.CoreApi({
 });
 
 exports.midtransNotification = async (req, res, next) => {
+  let notification;
   try {
-    const notification = await coreApi.transaction.notification(req.body);
+    notification = await coreApi.transaction.notification(req.body);
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
 
+  try {
     const rawOrderId = notification.order_id;
     const orderId = rawOrderId.replace(/\.retry\.\d+$/, "");
     const transactionStatus = notification.transaction_status;

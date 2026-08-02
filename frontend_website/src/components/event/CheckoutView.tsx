@@ -621,11 +621,27 @@ export default function CheckoutView({ event }: { event: EventData }) {
   const [orderForm, setOrderForm] = useState({ nama: "", email: "", whatsapp: "", idType: "", idNo: "", ticketNama: "", gender: "", age: "", domicile: "" });
   const router = useRouter();
 
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      if (!data.session?.user) {
+        router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [router]);
+
   const handleStep2Next = async (form: typeof orderForm) => {
     setOrderForm(form);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return;
+      if (!session?.user) {
+        router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+        return;
+      }
 
       const { data: events } = await supabase
         .from("events")
