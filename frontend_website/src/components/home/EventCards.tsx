@@ -89,8 +89,25 @@ export default async function EventCards() {
   const events = await getEvents();
 
   return (
-    <section style={{ maxWidth: "1320px", margin: "0 auto", padding: "8px 32px 48px" }}>
+    <section className="event-cards-section">
       <style>{`
+        .event-cards-section {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 8px 32px 48px;
+        }
+        .event-card-item {
+          width: 295px;
+          flex-shrink: 0;
+        }
+        @media (max-width: 767px) {
+          .event-cards-section {
+            padding: 8px 16px 32px !important;
+          }
+          .event-card-item {
+            width: 260px !important;
+          }
+        }
         @keyframes cardTitleTicker {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -112,7 +129,7 @@ export default async function EventCards() {
         className="hide-scrollbar"
       >
         {events.map((ev) => (
-          <div key={ev.id} style={{ width: "295px", flexShrink: 0 }}>
+          <div key={ev.id} className="event-card-item">
             <EventCard event={ev} />
           </div>
         ))}

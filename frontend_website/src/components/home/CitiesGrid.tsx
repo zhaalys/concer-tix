@@ -13,13 +13,37 @@ const cities = [
 
 export default function CitiesGrid() {
   return (
-    <section
-      style={{
-        maxWidth: "1320px",
-        margin: "0 auto",
-        padding: "30px 32px 50px",
-      }}
-    >
+    <section className="cities-grid-section">
+      <style>{`
+        .cities-grid-section {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 30px 32px 50px;
+        }
+        .city-grid-item {
+          flex-shrink: 0;
+          width: 150px;
+        }
+        .city-grid-img {
+          width: 150px;
+          height: 100px;
+          object-fit: cover;
+          border-radius: 12px;
+          display: block;
+        }
+        @media (max-width: 767px) {
+          .cities-grid-section {
+            padding: 16px 16px 36px !important;
+          }
+          .city-grid-item {
+            width: 125px !important;
+          }
+          .city-grid-img {
+            width: 125px !important;
+            height: 84px !important;
+          }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
         <div>
@@ -48,7 +72,7 @@ export default function CitiesGrid() {
       <div
         style={{
           display: "flex",
-          gap: "20px",
+          gap: "16px",
           overflowX: "auto",
         }}
         className="hide-scrollbar"
@@ -57,9 +81,8 @@ export default function CitiesGrid() {
           <Link
             key={i}
             href={`/explore?kota=${encodeURIComponent(city.name)}`}
+            className="city-grid-item"
             style={{
-              flexShrink: 0,
-              width: "150px",
               cursor: "pointer",
               textAlign: "center",
               textDecoration: "none",
@@ -70,13 +93,7 @@ export default function CitiesGrid() {
             <img
               src={city.img}
               alt={city.name}
-              style={{
-                width: "150px",
-                height: "100px",
-                objectFit: "cover",
-                borderRadius: "12px",
-                display: "block",
-              }}
+              className="city-grid-img"
             />
             <span
               style={{

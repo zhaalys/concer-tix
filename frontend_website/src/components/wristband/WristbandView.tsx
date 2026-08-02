@@ -53,7 +53,31 @@ export default function WristbandView() {
   return (
     <>
     <div style={{ backgroundColor: "#F7F9FB", minHeight: "100vh" }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "48px 32px 80px" }}>
+      <style>{`
+        .wristband-wrap {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 48px 32px 80px;
+        }
+        .wristband-product-grid {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr;
+          gap: 48px;
+          align-items: start;
+        }
+        @media (max-width: 991px) {
+          .wristband-product-grid {
+            grid-template-columns: 1fr;
+            gap: 28px;
+          }
+        }
+        @media (max-width: 767px) {
+          .wristband-wrap {
+            padding: 20px 16px 80px !important;
+          }
+        }
+      `}</style>
+      <div className="wristband-wrap">
 
         {/* banner_4 */}
         <div style={{ borderRadius: "20px", overflow: "hidden", marginBottom: "48px" }}>
@@ -66,7 +90,7 @@ export default function WristbandView() {
         </div>
 
         {/* Top product section */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "48px", alignItems: "start" }}>
+        <div className="wristband-product-grid">
 
           {/* Left: thumbnails + main image */}
           <div style={{ display: "flex", gap: "16px" }}>

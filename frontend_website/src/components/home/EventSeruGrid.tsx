@@ -1,6 +1,6 @@
 "use client";
 
-"use client";
+import { useState, useEffect } from "react";
 
 const events = [
   {
@@ -110,7 +110,7 @@ function EventCard({ event }: { event: (typeof events)[0] }) {
       </div>
 
       {/* Content */}
-      <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
+      <div style={{ padding: "12px 12px", display: "flex", flexDirection: "column", flex: 1 }}>
         {/* Title */}
         <div style={{ overflow: "hidden", width: "100%", marginBottom: "10px" }}>
           {isLongTitle ? (
@@ -235,15 +235,34 @@ function EventCard({ event }: { event: (typeof events)[0] }) {
 }
 
 export default function EventSeruGrid() {
+  const [gridCols, setGridCols] = useState(4);
+  useEffect(() => {
+    const updateCols = () => {
+      const w = window.innerWidth;
+      if (w < 768) setGridCols(2);
+      else if (w < 1024) setGridCols(2);
+      else setGridCols(4);
+    };
+    updateCols();
+    window.addEventListener("resize", updateCols);
+    return () => window.removeEventListener("resize", updateCols);
+  }, []);
+
+  const isMobile = gridCols === 2;
+
   return (
-    <section
-      style={{
-        maxWidth: "1320px",
-        margin: "0 auto",
-        padding: "8px 32px 48px",
-      }}
-    >
+    <section className="event-seru-section">
       <style>{`
+        .event-seru-section {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 8px 32px 48px;
+        }
+        @media (max-width: 767px) {
+          .event-seru-section {
+            padding: 8px 12px 32px !important;
+          }
+        }
         @keyframes cardTitleTicker {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -255,7 +274,7 @@ export default function EventSeruGrid() {
           <h2 className="section-heading">Top Events For You</h2>
         </div>
         <a
-          href="#"
+          href="/explore"
           style={{
             fontSize: "13px",
             fontWeight: 600,
@@ -273,13 +292,12 @@ export default function EventSeruGrid() {
         </a>
       </div>
 
-      {/* Grid 4x2 */}
+      {/* Responsive Grid */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gridTemplateRows: "repeat(2, auto)",
-          gap: "20px",
+          gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+          gap: isMobile ? "10px" : "20px",
         }}
       >
         {events.map((ev, i) => (

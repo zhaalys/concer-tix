@@ -269,3 +269,135 @@ input:focus, button:focus {
     @apply font-sans;
   }
 }
+
+/* Mobile responsive enhancements */
+@media (max-width: 767px) {
+  .section-heading {
+    font-size: 18px !important;
+  }
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS auto-zoom on input focus */
+  }
+}
+
+/* ─── Global Mobile Reset ─────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+img, video {
+  max-width: 100%;
+}
+
+/* Scrollbar hide utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Event Grid: 2-column on tablet + mobile ──────────────────── */
+.jelajahi-grid,
+.city-events-grid,
+.event-seru-grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* Tablet breakpoint */
+@media (max-width: 991px) {
+  .jelajahi-grid,
+  .city-events-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  .event-seru-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 767px) {
+  /* All event grids → 2 columns */
+  .jelajahi-grid,
+  .city-events-grid,
+  .event-seru-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  /* Section wrappers → tighter padding */
+  .jelajahi-wrap,
+  .city-content-wrap {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .event-seru-section {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Top bar hidden on mobile */
+  .top-bar {
+    display: none !important;
+  }
+
+  /* Event card body compact */
+  .event-card-body {
+    padding: 10px 10px !important;
+  }
+  .event-card-title {
+    font-size: 12px !important;
+  }
+  .event-card-price {
+    font-size: 13px !important;
+  }
+  .event-card-date,
+  .event-card-organizer {
+    font-size: 10px !important;
+  }
+
+  /* Section headings */
+  .section-heading {
+    font-size: 17px !important;
+  }
+
+  /* Inputs / selects — prevent iOS auto-zoom */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Checkout + event detail grids → single column */
+  .checkout-step-grid,
+  .event-detail-grid,
+  .wristband-product-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+}
+
+/* iPad / tablet range (768px – 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .jelajahi-grid,
+  .city-events-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+  }
+  .event-seru-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+  }
+  .checkout-step-grid,
+  .event-detail-grid {
+    grid-template-columns: 1fr 280px !important;
+  }
+}
+

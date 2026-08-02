@@ -40,7 +40,27 @@ export default function HeroBanner() {
   };
 
   return (
-    <section style={{ padding: "48px 32px 32px", maxWidth: "1320px", margin: "0 auto" }}>
+    <section className="hero-banner-section">
+      <style>{`
+        .hero-banner-section {
+          padding: 48px 32px 32px;
+          max-width: 1320px;
+          margin: 0 auto;
+        }
+        .hero-slide-container {
+          position: relative;
+          width: 100%;
+          height: clamp(240px, 34vw, 480px);
+        }
+        @media (max-width: 767px) {
+          .hero-banner-section {
+            padding: 16px 16px 20px !important;
+          }
+          .hero-slide-container {
+            height: clamp(170px, 45vw, 240px) !important;
+          }
+        }
+      `}</style>
       <div
         style={{
           position: "relative",
@@ -52,7 +72,7 @@ export default function HeroBanner() {
         }}
       >
         {/* Slides */}
-        <div style={{ position: "relative", width: "100%", height: "clamp(240px, 34vw, 480px)" }}>
+        <div className="hero-slide-container">
           {slides.map((slide, idx) => (
             <div
               key={slide.img}

@@ -14,29 +14,47 @@ export default function Footer() {
         borderTop: "1px solid #c3c5d7",
       }}
     >
-      <div
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto",
-          padding: "48px 32px",
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr",
-          gap: "24px",
-        }}
-      >
+      <style>{`
+        .footer-grid {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 48px 32px;
+          display: grid;
+          grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+          gap: 24px;
+        }
+        .footer-logo {
+          height: 80px;
+          width: auto;
+          object-fit: contain;
+          display: block;
+          margin-bottom: 1px;
+        }
+        @media (max-width: 991px) {
+          .footer-grid {
+            grid-template-columns: 1fr 1fr;
+            padding: 32px 20px;
+          }
+        }
+        @media (max-width: 576px) {
+          .footer-grid {
+            grid-template-columns: 1fr;
+            padding: 32px 16px;
+            gap: 32px;
+          }
+          .footer-logo {
+            height: 56px;
+          }
+        }
+      `}</style>
+      <div className="footer-grid">
         {/* Brand column */}
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo/tix_logo.png?v=3"
             alt="Concer TIX Logo"
-            style={{
-              height: "100px",
-              width: "auto",
-              objectFit: "contain",
-              display: "block",
-              marginBottom: "1px",
-            }}
+            className="footer-logo"
           />
           <p
             style={{

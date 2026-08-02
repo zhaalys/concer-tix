@@ -28,14 +28,40 @@ export default function AboutView() {
 
   return (
     <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
+      <style>{`
+        .about-section {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 48px 32px 0;
+        }
+        .about-desc-section {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 48px 32px 32px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .about-loop-section {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 0 32px 80px;
+          overflow: hidden;
+        }
+        @media (max-width: 767px) {
+          .about-section {
+            padding: 20px 16px 0 !important;
+          }
+          .about-desc-section {
+            padding: 24px 16px 24px !important;
+          }
+          .about-loop-section {
+            padding: 0 0 60px !important;
+          }
+        }
+      `}</style>
       {/* Banner Image */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "48px 32px 0",
-        }}
-      >
+      <section className="about-section">
         <div
           style={{
             borderRadius: "20px",
@@ -56,16 +82,7 @@ export default function AboutView() {
       </section>
 
       {/* Description */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "48px 32px 32px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
+      <section className="about-desc-section">
         <p style={{ fontSize: "15px", color: "#495057", lineHeight: "1.75", margin: 0 }}>
           Concer TIX is a Ticket Management Service (TMS) platform built to support every kind of live event: concerts, festivals, sports, and more. We make it effortless for organizers to create, market, sell, and distribute tickets with full transparency and control.
         </p>
@@ -80,14 +97,7 @@ export default function AboutView() {
       </section>
 
       {/* Looping Lanyard */}
-      <section
-        style={{
-          maxWidth: "900px",
-          margin: "0 auto",
-          padding: "0 32px 80px",
-          overflow: "hidden",
-        }}
-      >
+      <section className="about-loop-section">
         <div ref={loopRef} style={{ display: "flex", whiteSpace: "nowrap" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

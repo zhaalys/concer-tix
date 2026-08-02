@@ -16,13 +16,19 @@ const categories = [
 
 export default function Categories() {
   return (
-    <section
-      style={{
-        maxWidth: "1320px",
-        margin: "0 auto",
-        padding: "30px 45px 40px",
-      }}
-    >
+    <section className="categories-section">
+      <style>{`
+        .categories-section {
+          max-width: 1320px;
+          margin: 0 auto;
+          padding: 30px 45px 40px;
+        }
+        @media (max-width: 767px) {
+          .categories-section {
+            padding: 16px 16px 24px !important;
+          }
+        }
+      `}</style>
       <div
         style={{
           display: "flex",

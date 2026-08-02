@@ -91,7 +91,19 @@ const FAQ_ITEMS = [
 export default function FAQView() {
   return (
     <div style={{ backgroundColor: "#F7F9FB", minHeight: "100vh" }}>
-      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "64px 32px 100px" }}>
+      <style>{`
+        .faq-wrap {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 64px 32px 100px;
+        }
+        @media (max-width: 767px) {
+          .faq-wrap {
+            padding: 24px 16px 80px !important;
+          }
+        }
+      `}</style>
+      <div className="faq-wrap">
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/banner/banner_5.png" alt=""

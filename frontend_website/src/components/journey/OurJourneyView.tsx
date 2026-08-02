@@ -21,16 +21,22 @@ const paymentLogos = [
 export default function OurJourneyView() {
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
-      <section
-        style={{
-          maxWidth: '900px',
-          margin: '0 auto',
-          padding: '48px 32px 80px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-        }}
-      >
+      <style>{`
+        .journey-wrap {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 48px 32px 80px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        @media (max-width: 767px) {
+          .journey-wrap {
+            padding: 20px 16px 80px !important;
+          }
+        }
+      `}</style>
+      <section className="journey-wrap">
         {/* Merchandise1 */}
         <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -24,9 +24,33 @@ export default function EventDetailView({ event }: { event: EventData }) {
 
   return (
     <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px 80px" }}>
+      <style>{`
+        .event-detail-wrap {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 40px 32px 80px;
+        }
+        .event-detail-grid {
+          display: grid;
+          grid-template-columns: 1fr 340px;
+          gap: 48px;
+          align-items: start;
+        }
+        @media (max-width: 991px) {
+          .event-detail-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+        }
+        @media (max-width: 767px) {
+          .event-detail-wrap {
+            padding: 20px 16px 80px !important;
+          }
+        }
+      `}</style>
+      <div className="event-detail-wrap">
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "48px", alignItems: "start" }}>
+        <div className="event-detail-grid">
 
           {/* ── LEFT ── */}
           <div>

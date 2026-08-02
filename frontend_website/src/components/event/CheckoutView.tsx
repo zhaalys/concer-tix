@@ -36,7 +36,7 @@ const PAYMENT_METHODS = [
 
 function Stepper({ current }: { current: number }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0", marginBottom: "40px", padding: "20px 0" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0", marginBottom: "40px", padding: "20px 0", flexWrap: "wrap", rowGap: "8px" }}>
       {STEPS.map((step, i) => (
         <div key={step} style={{ display: "flex", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -78,7 +78,7 @@ function Step1({ event, onNext }: { event: EventData; onNext: (cat: TicketCatego
   const cat = categories.find((c) => c.id === selected);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
+    <div className="checkout-step-grid">
       <div>
         <div style={{ borderRadius: "12px", overflow: "hidden", marginBottom: "20px", border: "1px solid #EBEBEB" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -207,7 +207,7 @@ function Step2({ event, category, onNext, onBack }: { event: EventData; category
   const canSubmit = form.nama.trim() && emailValid && phoneValid && ticketForm.nama.trim() && ticketForm.idType && ticketForm.idNo.trim() && idNoValid;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
+    <div className="checkout-step-grid">
       <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
 
         <div style={{ display: "flex", alignItems: "center", backgroundColor: "#F5A623", borderRadius: "6px", overflow: "hidden" }}>
@@ -691,7 +691,31 @@ export default function CheckoutView({ event }: { event: EventData }) {
 
   return (
     <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 32px 80px" }}>
+      <style>{`
+        .checkout-wrap {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 40px 32px 80px;
+        }
+        .checkout-step-grid {
+          display: grid;
+          grid-template-columns: 1fr 300px;
+          gap: 32px;
+          align-items: start;
+        }
+        @media (max-width: 991px) {
+          .checkout-step-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+        }
+        @media (max-width: 767px) {
+          .checkout-wrap {
+            padding: 16px 16px 80px !important;
+          }
+        }
+      `}</style>
+      <div className="checkout-wrap">
         <Stepper current={step} />
         {step === 0 && <Step1 event={event} onNext={(cat) => { setSelectedCategory(cat); setStep(1); }} />}
         {step === 1 && selectedCategory && (
