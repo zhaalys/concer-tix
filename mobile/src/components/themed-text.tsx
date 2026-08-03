@@ -4,7 +4,22 @@ import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?:
+    | 'default'
+    | 'title'
+    | 'headlineXl'
+    | 'headlineLg'
+    | 'headlineMd'
+    | 'bodyLg'
+    | 'bodyMd'
+    | 'labelMd'
+    | 'priceTag'
+    | 'small'
+    | 'smallBold'
+    | 'subtitle'
+    | 'link'
+    | 'linkPrimary'
+    | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -14,8 +29,15 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   return (
     <Text
       style={[
-        { color: theme[themeColor ?? 'text'] },
+        { color: theme[themeColor ?? 'text'], fontFamily: Fonts?.sans },
         type === 'default' && styles.default,
+        type === 'headlineXl' && styles.headlineXl,
+        type === 'headlineLg' && styles.headlineLg,
+        type === 'headlineMd' && styles.headlineMd,
+        type === 'bodyLg' && styles.bodyLg,
+        type === 'bodyMd' && styles.bodyMd,
+        type === 'labelMd' && styles.labelMd,
+        type === 'priceTag' && styles.priceTag,
         type === 'title' && styles.title,
         type === 'small' && styles.small,
         type === 'smallBold' && styles.smallBold,
@@ -31,43 +53,80 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 const styles = StyleSheet.create({
+  headlineXl: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '700',
+  },
+  headlineLg: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: '700',
+  },
+  headlineMd: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '600',
+  },
+  bodyLg: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+  },
+  bodyMd: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400',
+  },
+  labelMd: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    letterSpacing: 0.2,
+  },
+  priceTag: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
+  },
   small: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: 500,
+    fontWeight: '500',
   },
   smallBold: {
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: 700,
+    fontWeight: '700',
   },
   default: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400',
   },
   title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
+    fontSize: 28,
+    fontWeight: '700',
+    lineHeight: 36,
   },
   subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
-    fontWeight: 600,
+    fontSize: 22,
+    lineHeight: 30,
+    fontWeight: '600',
   },
   link: {
-    lineHeight: 30,
+    lineHeight: 20,
     fontSize: 14,
   },
   linkPrimary: {
-    lineHeight: 30,
+    lineHeight: 20,
     fontSize: 14,
-    color: '#3c87f7',
+    color: '#0e3ec7',
+    fontWeight: '600',
   },
   code: {
-    fontFamily: Fonts.mono,
-    fontWeight: Platform.select({ android: 700 }) ?? 500,
+    fontFamily: Fonts?.mono,
+    fontWeight: Platform.select({ android: '700' }) ?? '500',
     fontSize: 12,
   },
 });

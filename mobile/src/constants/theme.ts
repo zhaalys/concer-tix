@@ -1,6 +1,5 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Artatix Theme System - Clean White Backgrounds & Saturated Blue Accents
  */
 
 import '@/global.css';
@@ -9,18 +8,44 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#000000',
+    text: '#0b1a3d',
+    textSecondary: '#444654',
     background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    backgroundElement: '#f4f6fc',
+    backgroundSelected: '#eaedff',
+    primary: '#0e3ec7',
+    primaryContainer: '#3559e0',
+    onPrimary: '#ffffff',
+    secondary: '#a33800',
+    secondaryContainer: '#cd4800',
+    onSecondary: '#ffffff',
+    outline: '#747686',
+    outlineVariant: '#c4c5d7',
+    surfaceContainerLowest: '#ffffff',
+    surfaceContainerLow: '#f4f6fc',
+    surfaceContainer: '#eaedff',
+    surfaceContainerHigh: '#e3e7ff',
+    surfaceContainerHighest: '#dbe1ff',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#0b1a3d', // Clean light UI requested by user
+    textSecondary: '#444654',
+    background: '#ffffff',
+    backgroundElement: '#f4f6fc',
+    backgroundSelected: '#eaedff',
+    primary: '#0e3ec7',
+    primaryContainer: '#3559e0',
+    onPrimary: '#ffffff',
+    secondary: '#ff6b2b',
+    secondaryContainer: '#cd4800',
+    onSecondary: '#ffffff',
+    outline: '#747686',
+    outlineVariant: '#c4c5d7',
+    surfaceContainerLowest: '#ffffff',
+    surfaceContainerLow: '#f4f6fc',
+    surfaceContainer: '#eaedff',
+    surfaceContainerHigh: '#e3e7ff',
+    surfaceContainerHighest: '#dbe1ff',
   },
 } as const;
 
@@ -28,23 +53,19 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
+    sans: 'System',
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'normal',
+    sans: 'Plus Jakarta Sans',
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
   },
   web: {
-    sans: 'var(--font-display)',
+    sans: "'Plus Jakarta Sans', sans-serif",
     serif: 'var(--font-serif)',
     rounded: 'var(--font-rounded)',
     mono: 'var(--font-mono)',
