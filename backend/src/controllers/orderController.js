@@ -65,6 +65,22 @@ exports.createOrder = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
 
+    const { data: staleOrders, error: staleErr } = await supabase
+      .from("orders")
+      .select("id, order_items!inner(order_id)")
+      .eq("user_id", user_id)
+      .eq("status", "pending")
+      .eq("order_items.event_id", event.id);
+
+    if (staleErr) throw staleErr;
+
+    if (staleOrders && staleOrders.length > 0) {
+      await supabase
+        .from("orders")
+        .update({ status: "cancelled" })
+        .in("id", staleOrders.map((o) => o.id));
+    }
+
     const { data: ticket, error: tkErr } = await supabase
       .from("event_tickets")
       .select("id")
@@ -154,7 +170,11 @@ exports.getOrderHistory = async (req, res, next) => {
 
     if (error) throw error;
 
-    const enriched = await Promise.all((orders || []).map(enrichOrder));
+    const visibleOrders = (orders || []).filter(
+      (o) => o.status !== "cancelled" && !(o.status === "pending" && !o.payment_token)
+    );
+
+    const enriched = await Promise.all((visibleOrders || []).map(enrichOrder));
 
     res.json({ success: true, data: enriched });
   } catch (err) {

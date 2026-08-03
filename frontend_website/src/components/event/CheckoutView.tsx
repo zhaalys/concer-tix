@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { EventData } from "@/lib/eventsData";
 import { supabase } from "@/lib/supabase";
@@ -619,6 +619,7 @@ export default function CheckoutView({ event }: { event: EventData }) {
   const [orderCode, setOrderCode] = useState("");
   const [pendingOrderCode, setPendingOrderCode] = useState("");
   const [orderForm, setOrderForm] = useState({ nama: "", email: "", whatsapp: "", idType: "", idNo: "", ticketNama: "", gender: "", age: "", domicile: "" });
+  const creatingOrderRef = useRef(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -635,6 +636,8 @@ export default function CheckoutView({ event }: { event: EventData }) {
   }, [router]);
 
   const handleStep2Next = async (form: typeof orderForm) => {
+    if (creatingOrderRef.current) return;
+    creatingOrderRef.current = true;
     setOrderForm(form);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -680,6 +683,8 @@ export default function CheckoutView({ event }: { event: EventData }) {
       }
     } catch {
       // order creation failed silently, user can retry on pay
+    } finally {
+      creatingOrderRef.current = false;
     }
     setStep(2);
   };
