@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   linkPrimary: {
     lineHeight: 20,
     fontSize: 14,
-    color: '#0e3ec7',
+    color: '#0E9375',
     fontWeight: '600',
   },
   code: {

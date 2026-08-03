@@ -1,22 +1,19 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from './themed-text';
-import { Colors } from '@/constants/theme';
+import { useAuth } from '@/lib/auth-context';
+import { resolveImage } from '@/lib/assets';
 import { useTheme } from '@/hooks/use-theme';
 
 export function Header() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const router = useRouter();
-  const [lang, setLang] = useState<'ID' | 'EN'>('ID');
-
-  const toggleLanguage = () => {
-    setLang(lang === 'ID' ? 'EN' : 'ID');
-  };
+  const { user } = useAuth();
 
   return (
     <View
@@ -28,29 +25,21 @@ export function Header() {
         },
       ]}>
       {/* Brand Logo */}
-      <Pressable onPress={() => router.push('/')} style={styles.brandContainer}>
-        <ThemedText style={styles.logoText}>Artatix</ThemedText>
+      <Pressable onPress={() => router.push('/' as never)} style={styles.brandContainer}>
+        <Image
+          source={resolveImage('/logo/tix_logo.png')}
+          style={styles.logo}
+          contentFit="contain"
+          transition={0}
+        />
+        <ThemedText style={styles.logoText}>Concer TIX</ThemedText>
       </Pressable>
 
       {/* Right Controls */}
       <View style={styles.rightControls}>
-        {/* Language Selector */}
-        <Pressable
-          onPress={toggleLanguage}
-          style={({ pressed }) => [
-            styles.langPill,
-            { backgroundColor: '#F4F6FC' },
-            pressed && styles.pressed,
-          ]}>
-          <MaterialIcons name="language" size={16} color={theme.textSecondary} />
-          <ThemedText type="labelMd" style={{ color: theme.textSecondary }}>
-            {lang}
-          </ThemedText>
-        </Pressable>
-
         {/* Search Icon Button */}
         <Pressable
-          onPress={() => router.push('/explore')}
+          onPress={() => router.push('/explore' as never)}
           style={({ pressed }) => [
             styles.iconBtn,
             { backgroundColor: '#F4F6FC' },
@@ -62,10 +51,10 @@ export function Header() {
 
         {/* Profile Avatar Button */}
         <Pressable
-          onPress={() => router.push('/profile')}
+          onPress={() => router.push('/profile' as never)}
           style={({ pressed }) => [
             styles.avatarBtn,
-            { backgroundColor: Colors.light.primary },
+            { backgroundColor: '#0E9375' },
             pressed && styles.pressed,
           ]}>
           <MaterialIcons name="person" size={18} color="#FFFFFF" />
@@ -90,25 +79,22 @@ const styles = StyleSheet.create({
   brandContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  logo: {
+    width: 34,
+    height: 34,
   },
   logoText: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#0e3ec7',
+    fontSize: 19,
+    fontWeight: '800',
+    color: '#0E9375',
     letterSpacing: -0.5,
   },
   rightControls: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  langPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
   },
   iconBtn: {
     width: 34,

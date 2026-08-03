@@ -19,16 +19,19 @@ export default function AppTabs() {
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
-          <TabTrigger name="beranda" href="/" asChild>
+          <TabTrigger name="beranda" href={'/' as never} asChild>
             <TabButton icon="home">Beranda</TabButton>
           </TabTrigger>
-          <TabTrigger name="jelajah" href="/explore" asChild>
+          <TabTrigger name="jelajah" href={'/explore' as never} asChild>
             <TabButton icon="explore">Jelajah</TabButton>
           </TabTrigger>
-          <TabTrigger name="tiket" href="/tickets" asChild>
+          <TabTrigger name="tiket" href={'/tickets' as never} asChild>
             <TabButton icon="confirmation-number">Tiket</TabButton>
           </TabTrigger>
-          <TabTrigger name="profil" href="/profile" asChild>
+          <TabTrigger name="gelang" href={'/wristband' as never} asChild>
+            <TabButton icon="style">Gelang</TabButton>
+          </TabTrigger>
+          <TabTrigger name="profil" href={'/profile' as never} asChild>
             <TabButton icon="account-circle">Profil</TabButton>
           </TabTrigger>
         </CustomTabList>
@@ -50,21 +53,19 @@ export function TabButton({
       <View
         style={[
           styles.tabButtonView,
-          isFocused
-            ? { backgroundColor: 'rgba(14, 62, 199, 0.12)' }
-            : { backgroundColor: 'transparent' },
+          isFocused ? { backgroundColor: 'rgba(14, 147, 117, 0.12)' } : { backgroundColor: 'transparent' },
         ]}>
         {icon && (
           <MaterialIcons
             name={icon}
             size={20}
-            color={isFocused ? '#0e3ec7' : theme.textSecondary}
+            color={isFocused ? '#0E9375' : theme.textSecondary}
           />
         )}
         <ThemedText
           type="labelMd"
           style={{
-            color: isFocused ? '#0e3ec7' : theme.textSecondary,
+            color: isFocused ? '#0E9375' : theme.textSecondary,
             fontWeight: isFocused ? '700' : '500',
           }}>
           {children}

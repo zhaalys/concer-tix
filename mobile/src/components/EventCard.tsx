@@ -1,103 +1,57 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppImage } from './AppImage';
 import { ThemedText } from './themed-text';
 import { useTheme } from '@/hooks/use-theme';
-
-export interface EventItem {
-  id: string;
-  title: string;
-  meta: string;
-  metaIcon: 'location-on' | 'schedule';
-  price: string;
-  dateMonth: string;
-  dateDay: string;
-  imageUrl: string;
-}
+import { formatPrice } from '@/lib/format';
+import type { Event } from '@/lib/types';
 
 interface EventCardProps {
-  event: EventItem;
-  onPress?: () => void;
+  event: Event;
+  horizontal?: boolean;
 }
 
-export function EventCard({ event, onPress }: EventCardProps) {
+export function EventCard({ event, horizontal }: EventCardProps) {
   const theme = useTheme();
-  const [isLiked, setIsLiked] = useState(false);
+  const router = useRouter();
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => router.push(`/event/${event.id}` as never)}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: theme.surfaceContainerLowest },
+        { backgroundColor: '#FFFFFF', borderColor: '#E9ECEF' },
         pressed && styles.pressed,
       ]}>
-      {/* Left Image Section */}
-      <View style={styles.imageContainer}>
-        <Image
-          source={{ uri: event.imageUrl }}
-          style={styles.image}
-          contentFit="cover"
-          transition={200}
-        />
-        {/* Date Badge Overlay */}
-        <View style={styles.dateBadge}>
-          <ThemedText style={styles.dateMonthText}>{event.dateMonth}</ThemedText>
-          <ThemedText style={styles.dateDayText}>{event.dateDay}</ThemedText>
-        </View>
+      <View style={[styles.imageWrap, horizontal && styles.imageWrapH]}>
+        <AppImage src={event.image_url} style={[styles.image, horizontal && styles.imageH]} radius={horizontal ? 8 : 12} />
+        {event.is_hot && (
+          <View style={styles.badge}>
+            <ThemedText style={styles.badgeText}>HOT</ThemedText>
+          </View>
+        )}
       </View>
-
-      {/* Right Info Section */}
-      <View style={styles.infoContainer}>
-        <View>
-          <ThemedText
-            type="headlineMd"
-            numberOfLines={1}
-            style={[styles.title, { color: theme.text }]}>
-            {event.title}
+      <View style={styles.info}>
+        <ThemedText numberOfLines={1} style={styles.title}>
+          {event.title}
+        </ThemedText>
+        <View style={styles.metaRow}>
+          <MaterialIcons name="calendar-month" size={14} color={theme.primary} />
+          <ThemedText numberOfLines={1} style={styles.metaText}>
+            {event.event_date}
           </ThemedText>
-
-          <View style={styles.metaRow}>
-            <MaterialIcons
-              name={event.metaIcon}
-              size={15}
-              color={theme.primary}
-            />
-            <ThemedText
-              type="bodyMd"
-              numberOfLines={1}
-              style={[styles.metaText, { color: theme.textSecondary }]}>
-              {event.meta}
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.footerRow}>
+          <ThemedText style={styles.price}>{formatPrice(event.numericPrice ?? 0)}</ThemedText>
+          <View style={styles.organizerRow}>
+            <AppImage src={event.organizer_logo} style={styles.organizerLogo} radius={14} />
+            <ThemedText numberOfLines={1} style={styles.organizerText}>
+              {event.organizer}
             </ThemedText>
           </View>
-        </View>
-
-        {/* Footer Row */}
-        <View
-          style={[
-            styles.footerRow,
-            { borderTopColor: theme.surfaceContainerHigh },
-          ]}>
-          <ThemedText type="priceTag" style={{ color: theme.primary }}>
-            {event.price}
-          </ThemedText>
-
-          <Pressable
-            onPress={() => setIsLiked(!isLiked)}
-            style={({ pressed }) => [
-              styles.favoriteBtn,
-              { backgroundColor: theme.surfaceContainerLow },
-              pressed && styles.pressed,
-            ]}
-            hitSlop={8}>
-            <MaterialIcons
-              name={isLiked ? 'favorite' : 'favorite-border'}
-              size={18}
-              color={isLiked ? '#ba1a1a' : theme.textSecondary}
-            />
-          </Pressable>
         </View>
       </View>
     </Pressable>
@@ -106,56 +60,55 @@ export function EventCard({ event, onPress }: EventCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    height: 124,
     borderRadius: 16,
+    borderWidth: 1,
     overflow: 'hidden',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 6,
+    shadowRadius: 8,
     elevation: 2,
   },
-  imageContainer: {
-    width: '35%',
-    height: '100%',
+  imageWrap: {
+    width: '100%',
+    aspectRatio: 16 / 10,
     position: 'relative',
+  },
+  imageWrapH: {
+    aspectRatio: 4 / 3,
   },
   image: {
     width: '100%',
     height: '100%',
   },
-  dateBadge: {
+  imageH: {
+    width: '100%',
+    height: '100%',
+  },
+  badge: {
     position: 'absolute',
     top: 8,
     left: 8,
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 2,
+    backgroundColor: '#1ABC9C',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-  dateMonthText: {
+  badgeText: {
     fontSize: 9,
-    fontWeight: '700',
-    color: '#444654',
+    fontWeight: '800',
+    color: '#FFFFFF',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  dateDayText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#0b1a3d',
-    lineHeight: 17,
-  },
-  infoContainer: {
-    flex: 1,
+  info: {
     padding: 12,
-    justifyContent: 'space-between',
+    gap: 6,
   },
   title: {
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#1A1D2E',
   },
   metaRow: {
     flexDirection: 'row',
@@ -163,23 +116,44 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   metaText: {
-    flex: 1,
+    fontSize: 12,
+    color: '#495057',
+  },
+  divider: {
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    marginVertical: 2,
   },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 8,
-    borderTopWidth: 1,
+    gap: 8,
   },
-  favoriteBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  price: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0E9375',
+    flexShrink: 1,
+  },
+  organizerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 6,
+    flexShrink: 1,
+  },
+  organizerLogo: {
+    width: 22,
+    height: 22,
+  },
+  organizerText: {
+    fontSize: 12,
+    color: '#495057',
+    fontWeight: '500',
+    flexShrink: 1,
   },
   pressed: {
-    opacity: 0.8,
+    opacity: 0.85,
   },
 });

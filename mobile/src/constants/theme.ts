@@ -1,5 +1,5 @@
 /**
- * Artatix Theme System - Clean White Backgrounds & Saturated Blue Accents
+ * Concer TIX Theme System - Clean White Backgrounds & Tosca (Teal) Accents
  */
 
 import '@/global.css';
@@ -12,40 +12,40 @@ export const Colors = {
     textSecondary: '#444654',
     background: '#ffffff',
     backgroundElement: '#f4f6fc',
-    backgroundSelected: '#eaedff',
-    primary: '#0e3ec7',
-    primaryContainer: '#3559e0',
+    backgroundSelected: '#e0f2ef',
+    primary: '#0E9375',
+    primaryContainer: '#1ABC9C',
     onPrimary: '#ffffff',
-    secondary: '#a33800',
-    secondaryContainer: '#cd4800',
+    secondary: '#064E3B',
+    secondaryContainer: '#0F766E',
     onSecondary: '#ffffff',
     outline: '#747686',
     outlineVariant: '#c4c5d7',
     surfaceContainerLowest: '#ffffff',
     surfaceContainerLow: '#f4f6fc',
-    surfaceContainer: '#eaedff',
-    surfaceContainerHigh: '#e3e7ff',
-    surfaceContainerHighest: '#dbe1ff',
+    surfaceContainer: '#e0f2ef',
+    surfaceContainerHigh: '#d0ebe4',
+    surfaceContainerHighest: '#c0e4da',
   },
   dark: {
     text: '#0b1a3d', // Clean light UI requested by user
     textSecondary: '#444654',
     background: '#ffffff',
     backgroundElement: '#f4f6fc',
-    backgroundSelected: '#eaedff',
-    primary: '#0e3ec7',
-    primaryContainer: '#3559e0',
+    backgroundSelected: '#e0f2ef',
+    primary: '#0E9375',
+    primaryContainer: '#1ABC9C',
     onPrimary: '#ffffff',
     secondary: '#ff6b2b',
-    secondaryContainer: '#cd4800',
+    secondaryContainer: '#0F766E',
     onSecondary: '#ffffff',
     outline: '#747686',
     outlineVariant: '#c4c5d7',
     surfaceContainerLowest: '#ffffff',
     surfaceContainerLow: '#f4f6fc',
-    surfaceContainer: '#eaedff',
-    surfaceContainerHigh: '#e3e7ff',
-    surfaceContainerHighest: '#dbe1ff',
+    surfaceContainer: '#e0f2ef',
+    surfaceContainerHigh: '#d0ebe4',
+    surfaceContainerHighest: '#c0e4da',
   },
 } as const;
 
@@ -53,13 +53,13 @@ export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
   ios: {
-    sans: 'System',
+    sans: 'PlusJakartaSans',
     serif: 'ui-serif',
     rounded: 'ui-rounded',
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'Plus Jakarta Sans',
+    sans: 'PlusJakartaSans',
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
