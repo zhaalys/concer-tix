@@ -29,6 +29,12 @@ const TYPE_META: Record<string, { label: string; color: string; bg: string; icon
   update: { label: "Update", color: "#6A4C93", bg: "#F0EBF9", icon: <RefreshCcw size={13} /> },
 };
 
+const PLACEMENT_META: Record<string, { label: string; color: string; bg: string }> = {
+  hero: { label: "Carousel atas", color: "#0F609B", bg: "#E7F0FB" },
+  banner: { label: "Banner tengah", color: "#18794E", bg: "#E9F9EE" },
+  inline: { label: "Teks", color: "#6A6A67", bg: "#F1F1EF" },
+};
+
 export default function AdminNotificationsPage() {
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -145,13 +151,14 @@ export default function AdminNotificationsPage() {
             <div style={{ fontSize: 13, color: TEXT_FAINT, marginTop: 4 }}>Buat pemberitahuan pertama untuk pengguna.</div>
           </div>
         ) : (
-          <NotionTable headers={["Pemberitahuan", "Tipe", "Status", "Dibuat", "Aksi"]} minWidth={760}>
+          <NotionTable headers={["Pemberitahuan", "Banner", "Tipe", "Status", "Dibuat", "Aksi"]} minWidth={820}>
             {items.map((n) => {
               const meta = TYPE_META[n.type] || TYPE_META.info;
+              const pm = PLACEMENT_META[n.placement] || PLACEMENT_META.inline;
               return (
                 <Tr key={n.id}>
                   <Td>
-                    <div style={{ minWidth: 0, maxWidth: 380 }}>
+                    <div style={{ minWidth: 0, maxWidth: 340 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 500 }}>
                         {n.link && <Link2 size={12.5} color={TEXT_FAINT} />}
                         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.title}</span>
@@ -161,6 +168,19 @@ export default function AdminNotificationsPage() {
                           {n.message}
                         </div>
                       )}
+                    </div>
+                  </Td>
+                  <Td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 52, height: 34, borderRadius: 5, overflow: "hidden", border: `1px solid ${BORDER}`, flexShrink: 0, background: "#FBFBFA" }}>
+                        {n.image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={n.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        ) : null}
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 500, color: pm.color, background: pm.bg, padding: "3px 8px", borderRadius: 6, whiteSpace: "nowrap" }}>
+                        {pm.label}
+                      </span>
                     </div>
                   </Td>
                   <Td>

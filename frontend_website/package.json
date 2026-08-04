@@ -23,6 +23,7 @@
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
     "gsap": "^3.15.0",
+    "html5-qrcode": "^2.3.8",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.27.0",
     "midtrans-client": "^1.4.3",

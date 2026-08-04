@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { adminFetch } from "@/lib/adminApi";
 import { Spinner, GhostButton, TEXT, TEXT_MUTED, TEXT_FAINT, BORDER, BLUE } from "@/components/admin/AdminUI";
-import { Info, Tag, TriangleAlert, RefreshCcw, Loader2 } from "lucide-react";
+import { Info, Tag, TriangleAlert, RefreshCcw, Loader2, Upload } from "lucide-react";
 import type { AdminNotification } from "@/types";
 
 const TYPE_META: Record<string, { label: string; icon: React.ReactNode }> = {
@@ -14,15 +14,30 @@ const TYPE_META: Record<string, { label: string; icon: React.ReactNode }> = {
   update: { label: "Update", icon: <RefreshCcw size={13} /> },
 };
 
+const PLACEMENT_OPTIONS = [
+  { value: "inline", label: "Teks (tidak tampil sebagai banner)" },
+  { value: "hero", label: "Banner utama (carousel atas)" },
+  { value: "banner", label: "Banner tengah (di bawah event)" },
+];
+
+const OBJECT_FIT_OPTIONS = [
+  { value: "cover", label: "Isi penuh (dipotong bila perlu)" },
+  { value: "contain", label: "Tampil utuh (ada ruang kosong)" },
+];
+
 interface FormState {
   title: string;
   message: string;
   type: "info" | "promo" | "warning" | "update";
   link: string;
   is_active: boolean;
+  image_url: string;
+  placement: "hero" | "banner" | "inline";
+  object_fit: "cover" | "contain";
+  banner_height: string;
 }
 
-const EMPTY_FORM: FormState = { title: "", message: "", type: "info", link: "", is_active: true };
+const EMPTY_FORM: FormState = { title: "", message: "", type: "promo", link: "", is_active: true, image_url: "", placement: "hero", object_fit: "cover", banner_height: "" };
 
 export default function NotificationForm({ notificationId }: { notificationId?: string }) {
   const router = useRouter();
@@ -30,6 +45,7 @@ export default function NotificationForm({ notificationId }: { notificationId?: 
   const [loading, setLoading] = useState(!!notificationId);
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [notice, setNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
@@ -39,7 +55,17 @@ export default function NotificationForm({ notificationId }: { notificationId?: 
       setLoadError("");
       try {
         const n = await adminFetch<AdminNotification>(`/notifications/${notificationId}`);
-        setForm({ title: n.title, message: n.message || "", type: n.type, link: n.link || "", is_active: n.is_active });
+        setForm({
+          title: n.title,
+          message: n.message || "",
+          type: n.type,
+          link: n.link || "",
+          is_active: n.is_active,
+          image_url: n.image_url || "",
+          placement: n.placement || "inline",
+          object_fit: n.object_fit || "cover",
+          banner_height: n.banner_height ? String(n.banner_height) : "",
+        });
       } catch (e) {
         setLoadError(e instanceof Error ? e.message : "Gagal memuat pemberitahuan");
       } finally {
@@ -50,16 +76,71 @@ export default function NotificationForm({ notificationId }: { notificationId?: 
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => setForm((f) => ({ ...f, [key]: value }));
 
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setNotice({ type: "error", text: "Ukuran gambar maksimal 5 MB" });
+      return;
+    }
+    if (!/^image\/(png|jpe?g|webp|gif)$/i.test(file.type)) {
+      setNotice({ type: "error", text: "Format gambar harus PNG/JPG/WEBP/GIF" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await adminFetch<{ url: string }>("/upload", {
+        method: "POST",
+        body: JSON.stringify({ data: base64 }),
+      });
+      set("image_url", res.url);
+      setNotice({ type: "success", text: "Gambar banner berhasil diunggah" });
+    } catch (err) {
+      setNotice({ type: "error", text: err instanceof Error ? err.message : "Gagal mengunggah gambar" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim()) {
       setNotice({ type: "error", text: "Judul wajib diisi" });
       return;
     }
+    const bannerPlacement = form.placement === "hero" || form.placement === "banner";
+    if (bannerPlacement && !form.image_url.trim()) {
+      setNotice({ type: "error", text: "Unggah gambar banner terlebih dahulu (penempatan Hero/Banner membutuhkan gambar)" });
+      return;
+    }
+    if (form.banner_height.trim()) {
+      const h = Number(form.banner_height);
+      if (!Number.isInteger(h) || h < 40 || h > 2000) {
+        setNotice({ type: "error", text: "Tinggi banner harus angka bulat antara 40–2000 px" });
+        return;
+      }
+    }
     setSaving(true);
     setNotice(null);
     try {
-      const payload = { title: form.title.trim(), message: form.message.trim(), type: form.type, link: form.link.trim() || null, is_active: form.is_active };
+      const payload = {
+        title: form.title.trim(),
+        message: form.message.trim(),
+        type: form.type,
+        link: form.link.trim() || null,
+        is_active: form.is_active,
+        image_url: form.image_url.trim() || null,
+        placement: form.placement,
+        object_fit: form.object_fit,
+        banner_height: form.banner_height.trim() ? Number(form.banner_height) : null,
+      };
       if (notificationId) {
         await adminFetch(`/notifications/${notificationId}`, { method: "PUT", body: JSON.stringify(payload) });
       } else {
@@ -132,9 +213,77 @@ export default function NotificationForm({ notificationId }: { notificationId?: 
           </div>
           <div>
             <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: TEXT_MUTED, marginBottom: 5 }}>Link (opsional)</label>
-            <input className="an-input" value={form.link} onChange={(e) => set("link", e.target.value)} placeholder="https://..." />
+            <input className="an-input" value={form.link} onChange={(e) => set("link", e.target.value)} placeholder="https://... atau /events/..." />
           </div>
         </div>
+
+        <div>
+          <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: TEXT_MUTED, marginBottom: 5 }}>Penempatan</label>
+          <select className="an-input" value={form.placement} onChange={(e) => set("placement", e.target.value as FormState["placement"])}>
+            {PLACEMENT_OPTIONS.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
+          <div style={{ fontSize: 12, color: TEXT_FAINT, marginTop: 6 }}>
+            Pilih <b>Banner utama</b> agar tampil di carousel atas, atau <b>Banner tengah</b> untuk strip di bawah daftar event. Keduanya membutuhkan gambar.
+          </div>
+        </div>
+
+        <div>
+          <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: TEXT_MUTED, marginBottom: 5 }}>Gambar banner</label>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <div style={{ width: 120, height: 84, borderRadius: 8, overflow: "hidden", border: `1px solid ${BORDER}`, flexShrink: 0, background: "#FBFBFA", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {form.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={form.image_url} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : null}
+            </div>
+            <div style={{ flex: 1 }}>
+              <label
+                htmlFor="an-upload"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 7,
+                  background: "#EFEEEC",
+                  color: TEXT,
+                  borderRadius: 6,
+                  padding: "7px 13px",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: uploading ? "default" : "pointer",
+                  opacity: uploading ? 0.5 : 1,
+                }}
+              >
+                {uploading ? <Loader2 size={14} className="admin-spin" /> : <Upload size={14} />}
+                {uploading ? "Mengunggah..." : "Unggah gambar"}
+              </label>
+              <input id="an-upload" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleFile} style={{ display: "none" }} />
+              {form.image_url && (
+                <button type="button" onClick={() => set("image_url", "")} style={{ display: "block", marginTop: 8, background: "none", border: "none", color: TEXT_FAINT, fontSize: 12.5, cursor: "pointer", padding: 0 }}>
+                  Hapus gambar
+                </button>
+              )}
+              <div style={{ fontSize: 12, color: TEXT_FAINT, marginTop: 8 }}>PNG/JPG/WEBP/GIF, maks 5 MB. Rasio lebar ~1320px direkomendasikan.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: TEXT_MUTED, marginBottom: 5 }}>Ukuran gambar</label>
+            <select className="an-input" value={form.object_fit} onChange={(e) => set("object_fit", e.target.value as FormState["object_fit"])}>
+              {OBJECT_FIT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 13, fontWeight: 500, color: TEXT_MUTED, marginBottom: 5 }}>Tinggi banner (px, opsional)</label>
+            <input className="an-input" inputMode="numeric" value={form.banner_height} onChange={(e) => set("banner_height", e.target.value)} placeholder="Kosongkan = otomatis (240–480)" />
+          </div>
+        </div>
+
         <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 2 }}>
           <input id="an-active" type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} style={{ width: 15, height: 15, cursor: "pointer" }} />
           <label htmlFor="an-active" style={{ fontSize: 13.5, color: TEXT, cursor: "pointer", fontWeight: 500 }}>Tampilkan ke pengguna</label>

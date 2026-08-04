@@ -13,6 +13,7 @@ export const BG_PAGE = "#FFFFFF";
 export const BLUE = "#2383E2";
 export const RED = "#E5484D";
 export const GREEN = "#30A46C";
+export const AMBER = "#F59E0B";
 
 export function errMsg(e: unknown): string {
   return e instanceof Error ? e.message : "Terjadi kesalahan pada server";
@@ -343,15 +344,18 @@ export function PrimaryButton({
 export function GhostButton({
   children,
   onClick,
+  disabled,
   style,
 }: {
   children: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
   style?: React.CSSProperties;
 }) {
   return (
     <button
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -363,11 +367,14 @@ export function GhostButton({
         padding: "7px 11px",
         fontSize: 14,
         fontWeight: 500,
-        cursor: "pointer",
+        cursor: disabled ? "default" : "pointer",
+        opacity: disabled ? 0.5 : 1,
         transition: "background 0.15s ease",
         ...style,
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = BG_HOVER)}
+      onMouseEnter={(e) => {
+        if (!disabled) e.currentTarget.style.background = BG_HOVER;
+      }}
       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
     >
       {children}

@@ -666,11 +666,23 @@ exports.updateOrder = async (req, res, next) => {
   }
 };
 
+const PLACEMENTS = ["hero", "banner", "inline"];
+const OBJECT_FITS = ["cover", "contain"];
+
+function validBannerHeight(value) {
+  if (value === undefined || value === null || value === "") return true;
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 40 && n <= 2000;
+}
+
+const NOTIFICATION_SELECT =
+  "id, title, message, type, link, is_active, image_url, placement, object_fit, banner_height, created_at, updated_at";
+
 exports.listNotifications = async (req, res, next) => {
   try {
     const { data, error } = await supabase
       .from("notifications")
-      .select("id, title, message, type, link, is_active, created_at, updated_at")
+      .select(NOTIFICATION_SELECT)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -685,7 +697,7 @@ exports.getNotification = async (req, res, next) => {
     const { id } = req.params;
     const { data, error } = await supabase
       .from("notifications")
-      .select("id, title, message, type, link, is_active, created_at, updated_at")
+      .select(NOTIFICATION_SELECT)
       .eq("id", id)
       .maybeSingle();
 
@@ -699,16 +711,36 @@ exports.getNotification = async (req, res, next) => {
 
 exports.createNotification = async (req, res, next) => {
   try {
-    const { title, message = "", type = "info", link, is_active = true } = req.body || {};
+    const { title, message = "", type = "info", link, is_active = true, image_url, placement = "inline", object_fit = "cover", banner_height } = req.body || {};
     if (!title) return res.status(400).json({ success: false, message: "Judul pemberitahuan wajib diisi" });
     if (!["info", "promo", "warning", "update"].includes(type)) {
       return res.status(400).json({ success: false, message: "Tipe pemberitahuan tidak valid" });
     }
+    if (!PLACEMENTS.includes(placement)) {
+      return res.status(400).json({ success: false, message: "Penempatan banner tidak valid" });
+    }
+    if (!OBJECT_FITS.includes(object_fit)) {
+      return res.status(400).json({ success: false, message: "Mode ukuran gambar tidak valid" });
+    }
+    if (!validBannerHeight(banner_height)) {
+      return res.status(400).json({ success: false, message: "Tinggi banner harus angka antara 40–2000" });
+    }
 
     const { data, error } = await supabase
       .from("notifications")
-      .insert({ title, message, type, link: link || null, is_active: !!is_active, created_by: req.admin.id })
-      .select("id, title, message, type, link, is_active, created_at, updated_at")
+      .insert({
+        title,
+        message,
+        type,
+        link: link || null,
+        is_active: !!is_active,
+        created_by: req.admin.id,
+        image_url: image_url || null,
+        placement,
+        object_fit,
+        banner_height: banner_height ? Number(banner_height) : null,
+      })
+      .select(NOTIFICATION_SELECT)
       .single();
 
     if (error) throw error;
@@ -721,7 +753,7 @@ exports.createNotification = async (req, res, next) => {
 exports.updateNotification = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, message, type, link, is_active } = req.body || {};
+    const { title, message, type, link, is_active, image_url, placement, object_fit, banner_height } = req.body || {};
 
     const patch = { updated_at: new Date().toISOString() };
     if (title !== undefined) patch.title = title;
@@ -734,12 +766,31 @@ exports.updateNotification = async (req, res, next) => {
     }
     if (link !== undefined) patch.link = link || null;
     if (is_active !== undefined) patch.is_active = !!is_active;
+    if (image_url !== undefined) patch.image_url = image_url || null;
+    if (placement !== undefined) {
+      if (!PLACEMENTS.includes(placement)) {
+        return res.status(400).json({ success: false, message: "Penempatan banner tidak valid" });
+      }
+      patch.placement = placement;
+    }
+    if (object_fit !== undefined) {
+      if (!OBJECT_FITS.includes(object_fit)) {
+        return res.status(400).json({ success: false, message: "Mode ukuran gambar tidak valid" });
+      }
+      patch.object_fit = object_fit;
+    }
+    if (banner_height !== undefined) {
+      if (!validBannerHeight(banner_height)) {
+        return res.status(400).json({ success: false, message: "Tinggi banner harus angka antara 40–2000" });
+      }
+      patch.banner_height = banner_height ? Number(banner_height) : null;
+    }
 
     const { data, error } = await supabase
       .from("notifications")
       .update(patch)
       .eq("id", id)
-      .select("id, title, message, type, link, is_active, created_at, updated_at")
+      .select(NOTIFICATION_SELECT)
       .single();
 
     if (error) throw error;
@@ -755,6 +806,194 @@ exports.deleteNotification = async (req, res, next) => {
     const { error } = await supabase.from("notifications").delete().eq("id", id);
     if (error) throw error;
     res.json({ success: true, message: "Pemberitahuan dihapus" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+async function logCheckin({ status, message, ticketCode, attendee, order, event, scannedBy }) {
+  try {
+    const { error } = await supabase.from("checkin_logs").insert({
+      ticket_code: ticketCode,
+      status,
+      message,
+      attendee_id: attendee?.id || null,
+      order_id: order?.id || attendee?.order_id || null,
+      event_id: event?.id || attendee?.event_id || null,
+      scanned_by: scannedBy || null,
+    });
+    if (error) console.error("checkin_log insert error:", error.message);
+  } catch (err) {
+    console.error("checkin_log insert failed:", err.message);
+  }
+}
+
+exports.listCheckinLogs = async (req, res, next) => {
+  try {
+    const { status, from, to } = req.query || {};
+    const limit = Math.min(parseInt(req.query.limit, 10) || 30, 100);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+
+    const VALID = ["success", "already_checked_in", "not_found", "not_paid", "invalid"];
+    if (status && !VALID.includes(status)) {
+      return res.status(400).json({ success: false, message: "Status filter tidak valid" });
+    }
+
+    let query = supabase
+      .from("checkin_logs")
+      .select("id, ticket_code, status, message, attendee_id, order_id, event_id, scanned_by, scanned_at", { count: "exact" });
+
+    if (status) query = query.eq("status", status);
+    if (from) query = query.gte("scanned_at", from);
+    if (to) query = query.lte("scanned_at", to);
+
+    const { data, error, count } = await query.order("scanned_at", { ascending: false }).range(offset, offset + limit - 1);
+    if (error) throw error;
+
+    const ids = [...new Set((data || []).map((l) => l.scanned_by).filter(Boolean))];
+    let scanners = {};
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("id, display_name").in("id", ids);
+      scanners = Object.fromEntries((profs || []).map((p) => [p.id, p.display_name || "-"]));
+    }
+
+    res.json({
+      success: true,
+      data: {
+        logs: (data || []).map((l) => ({ ...l, scanner_name: scanners[l.scanned_by] || "-" })),
+        total: count || 0,
+        limit,
+        offset,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.checkIn = async (req, res, next) => {
+  try {
+    const { code } = req.body || {};
+    const normalized = String(code || "").trim();
+    if (!normalized) {
+      await logCheckin({ status: "invalid", message: "Kode QR wajib diisi", ticketCode: normalized, scannedBy: req.admin?.id });
+      return res.status(400).json({ success: false, message: "Kode QR wajib diisi" });
+    }
+
+    let { data: attendee } = await supabase
+      .from("attendees")
+      .select("id, order_id, event_id, ticket_code, full_name, email, is_checked_in, checked_in_at")
+      .eq("ticket_code", normalized)
+      .maybeSingle();
+
+    if (!attendee) {
+      const { data: orderByCode } = await supabase
+        .from("orders")
+        .select("id")
+        .eq("order_code", normalized)
+        .maybeSingle();
+
+      if (orderByCode) {
+        const { data: atts } = await supabase
+          .from("attendees")
+          .select("id, order_id, event_id, ticket_code, full_name, email, is_checked_in, checked_in_at")
+          .eq("order_id", orderByCode.id)
+          .limit(1);
+        attendee = atts?.[0] || null;
+      }
+    }
+
+    if (!attendee) {
+      await logCheckin({ status: "not_found", message: "QR tidak dikenali. Tiket tidak ditemukan.", ticketCode: normalized, scannedBy: req.admin?.id });
+      return res.status(404).json({ success: false, message: "QR tidak dikenali. Tiket tidak ditemukan." });
+    }
+
+    const [orderRes, eventRes] = await Promise.all([
+      supabase.from("orders").select("order_code, status, total_amount, paid_at").eq("id", attendee.order_id).maybeSingle(),
+      supabase.from("events").select("title, event_date, event_time, location, city").eq("id", attendee.event_id).maybeSingle(),
+    ]);
+
+    const order = orderRes.data;
+    const event = eventRes.data;
+
+    if (!order || order.status !== "paid") {
+      const reason = !order ? "order tidak ditemukan" : order.status;
+      await logCheckin({
+        status: "not_paid",
+        message: `Tiket belum dapat digunakan (status: ${reason}). Pastikan pembayaran sudah lunas.`,
+        ticketCode: normalized,
+        attendee,
+        order,
+        event,
+        scannedBy: req.admin?.id,
+      });
+      return res.status(400).json({
+        success: false,
+        message: `Tiket belum dapat digunakan (status: ${reason}). Pastikan pembayaran sudah lunas.`,
+      });
+    }
+
+    const base = {
+      attendee: {
+        id: attendee.id,
+        ticket_code: attendee.ticket_code,
+        full_name: attendee.full_name,
+        email: attendee.email,
+        is_checked_in: attendee.is_checked_in,
+        checked_in_at: attendee.checked_in_at,
+      },
+      order: {
+        order_code: order.order_code,
+        status: order.status,
+        total_amount: order.total_amount,
+        paid_at: order.paid_at,
+      },
+      event: event
+        ? {
+            title: event.title,
+            event_date: event.event_date,
+            event_time: event.event_time,
+            location: event.location,
+            city: event.city,
+          }
+        : null,
+    };
+
+    if (attendee.is_checked_in) {
+      const msg = `Tiket sudah check-in pada ${attendee.checked_in_at ? new Date(attendee.checked_in_at).toLocaleString("id-ID") : "-"}.`;
+      await logCheckin({ status: "already_checked_in", message: msg, ticketCode: normalized, attendee, order, event, scannedBy: req.admin?.id });
+      return res.status(409).json({
+        success: false,
+        message: msg,
+        data: base,
+      });
+    }
+
+    const now = new Date().toISOString();
+    const { error: updErr } = await supabase
+      .from("attendees")
+      .update({ is_checked_in: true, checked_in_at: now })
+      .eq("id", attendee.id);
+    if (updErr) throw updErr;
+
+    await logCheckin({
+      status: "success",
+      message: "Check-in berhasil",
+      ticketCode: normalized,
+      attendee,
+      order,
+      event,
+      scannedBy: req.admin?.id,
+    });
+
+    res.json({
+      success: true,
+      message: "Check-in berhasil. Selamat menikmati acara!",
+      data: {
+        ...base,
+        attendee: { ...base.attendee, is_checked_in: true, checked_in_at: now },
+      },
+    });
   } catch (err) {
     next(err);
   }

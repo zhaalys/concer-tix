@@ -25,6 +25,9 @@ router.post("/notifications", adminController.createNotification);
 router.put("/notifications/:id", adminController.updateNotification);
 router.delete("/notifications/:id", adminController.deleteNotification);
 
+router.post("/checkin", adminController.checkIn);
+router.get("/checkin-logs", adminController.listCheckinLogs);
+
 router.get("/users", requireSuperAdmin, adminController.listUsers);
 router.get("/admins", requireSuperAdmin, adminController.listAdmins);
 router.post("/admins", requireSuperAdmin, adminController.addAdmin);

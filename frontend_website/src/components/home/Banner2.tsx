@@ -1,6 +1,21 @@
 "use client";
 
-export default function Banner2() {
+import { useRouter } from "next/navigation";
+
+export default function Banner2({ src, link }: { src?: string | null; link?: string | null }) {
+  const router = useRouter();
+  if (!src) return null;
+
+  const open = () => {
+    if (link) {
+      if (link.startsWith("http")) {
+        window.open(link, "_blank", "noopener,noreferrer");
+      } else {
+        router.push(link);
+      }
+    }
+  };
+
   return (
     <section
       style={{
@@ -10,16 +25,17 @@ export default function Banner2() {
       }}
     >
       <div
+        onClick={open}
         style={{
           borderRadius: "20px",
           overflow: "hidden",
-          cursor: "pointer",
+          cursor: link ? "pointer" : "default",
           position: "relative",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/banner/banner_2.png"
+          src={src}
           alt="Banner Promo"
           style={{
             width: "100%",

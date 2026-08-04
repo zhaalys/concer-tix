@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AdminProvider, useAdmin } from "@/lib/useAdmin";
 import { supabase } from "@/lib/supabase";
-import { LayoutDashboard, Ticket, Users, ShieldCheck, Globe, LogOut, Menu, X, Search, CalendarDays, CreditCard, Bell, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Ticket, Users, ShieldCheck, Globe, LogOut, Menu, X, Search, CalendarDays, CreditCard, Bell, ScanLine, type LucideIcon } from "lucide-react";
 import { TEXT, TEXT_MUTED, TEXT_FAINT, BORDER, BG_HOVER, BG_SIDEBAR } from "@/components/admin/AdminUI";
 
 const SIDEBAR_W = 260;
@@ -22,6 +22,7 @@ function SidebarContent({ onNavigate, isMobile }: { onNavigate?: () => void; isM
     { label: "Payments", href: "/admin/payments", icon: CreditCard },
     { label: "Events", href: "/admin/events", icon: CalendarDays },
     { label: "Notifications", href: "/admin/notifications", icon: Bell },
+    { label: "Check-in", href: "/admin/scanner", icon: ScanLine },
   ];
   const manageItems = [
     { label: "Users", href: "/admin/users", icon: Users },
@@ -299,6 +300,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     "/admin/events/new": "Tambah event",
     "/admin/notifications": "Notifications",
     "/admin/notifications/new": "Tambah pemberitahuan",
+    "/admin/scanner": "Scan QR Check-in",
     "/admin/users": "Users",
     "/admin/admins": "Admin Management",
     "/admin/admins/new": "Tambah admin",

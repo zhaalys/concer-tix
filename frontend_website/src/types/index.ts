@@ -161,6 +161,24 @@ export interface AdminNotification {
   type: "info" | "promo" | "warning" | "update";
   link: string | null;
   is_active: boolean;
+  image_url: string | null;
+  placement: "hero" | "banner" | "inline";
+  object_fit: "cover" | "contain";
+  banner_height: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HomeBanner {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  link: string | null;
+  image_url: string;
+  placement: "hero" | "banner";
+  object_fit: "cover" | "contain";
+  banner_height: number | null;
   created_at: string;
   updated_at: string;
 }

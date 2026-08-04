@@ -1,21 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
-const slides = [
-  { img: "/banner/banner_1.png", alt: "Banner 1" },
-  { img: "/banner/banner_6.png", alt: "Banner 2" },
+export interface HeroSlide {
+  img: string;
+  alt: string;
+  link?: string | null;
+  objectFit?: "cover" | "contain";
+  height?: number | null;
+}
+
+const DEFAULT_SLIDES: HeroSlide[] = [
+  { img: "/banner/banner_1.png", alt: "Banner 1", objectFit: "cover" },
+  { img: "/banner/banner_6.png", alt: "Banner 2", objectFit: "cover" },
 ];
 
 const INTERVAL = 7000;
 
-export default function HeroBanner() {
+export default function HeroBanner({ slides = DEFAULT_SLIDES }: { slides?: HeroSlide[] }) {
+  const router = useRouter();
   const [current, setCurrent] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const goTo = useCallback((idx: number) => {
     setCurrent(((idx % slides.length) + slides.length) % slides.length);
-  }, []);
+  }, [slides.length]);
 
   const next = useCallback(() => goTo(current + 1), [current, goTo]);
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
@@ -25,7 +35,7 @@ export default function HeroBanner() {
     timerRef.current = setInterval(() => {
       setCurrent((c) => (c + 1) % slides.length);
     }, INTERVAL);
-  }, []);
+  }, [slides.length]);
 
   useEffect(() => {
     startTimer();
@@ -39,6 +49,18 @@ export default function HeroBanner() {
     startTimer();
   };
 
+  const openSlide = (slide: HeroSlide) => {
+    if (slide.link) {
+      if (slide.link.startsWith("http")) {
+        window.open(slide.link, "_blank", "noopener,noreferrer");
+      } else {
+        router.push(slide.link);
+      }
+    }
+  };
+
+  const customHeight = slides.find((s) => s.height && s.height > 0)?.height || null;
+
   return (
     <section className="hero-banner-section">
       <style>{`
@@ -50,14 +72,14 @@ export default function HeroBanner() {
         .hero-slide-container {
           position: relative;
           width: 100%;
-          height: clamp(240px, 34vw, 480px);
+          height: var(--hero-h, clamp(240px, 34vw, 480px));
         }
         @media (max-width: 767px) {
           .hero-banner-section {
             padding: 16px 16px 20px !important;
           }
           .hero-slide-container {
-            height: clamp(170px, 45vw, 240px) !important;
+            height: var(--hero-h-m, clamp(170px, 45vw, 240px)) !important;
           }
         }
       `}</style>
@@ -67,20 +89,23 @@ export default function HeroBanner() {
           borderRadius: "20px",
           overflow: "hidden",
           width: "100%",
-          cursor: "pointer",
           boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+          ["--hero-h" as string]: customHeight ? `${customHeight}px` : undefined,
+          ["--hero-h-m" as string]: customHeight ? `${customHeight}px` : undefined,
         }}
       >
         {/* Slides */}
         <div className="hero-slide-container">
           {slides.map((slide, idx) => (
             <div
-              key={slide.img}
+              key={`${slide.img}-${idx}`}
+              onClick={() => openSlide(slide)}
               style={{
                 position: "absolute",
                 inset: 0,
                 transform: `translateX(${(idx - current) * 100}%)`,
                 transition: "transform 0.5s ease",
+                cursor: slide.link ? "pointer" : "default",
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -90,7 +115,7 @@ export default function HeroBanner() {
                 style={{
                   width: "100%",
                   height: "100%",
-                  objectFit: "cover",
+                  objectFit: slide.objectFit || "cover",
                   display: "block",
                   borderRadius: "20px",
                 }}
@@ -99,90 +124,94 @@ export default function HeroBanner() {
           ))}
         </div>
 
-        {/* Prev arrow */}
-        <button
-          onClick={onManual(prev)}
-          aria-label="Sebelumnya"
-          style={{
-            position: "absolute",
-            left: 14,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            border: "none",
-            background: "rgba(255,255,255,0.85)",
-            color: "#0d1b3e",
-            fontSize: 20,
-            lineHeight: 1,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          }}
-        >
-          ‹
-        </button>
-
-        {/* Next arrow */}
-        <button
-          onClick={onManual(next)}
-          aria-label="Berikutnya"
-          style={{
-            position: "absolute",
-            right: 14,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            border: "none",
-            background: "rgba(255,255,255,0.85)",
-            color: "#0d1b3e",
-            fontSize: 20,
-            lineHeight: 1,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-          }}
-        >
-          ›
-        </button>
-
-        {/* Dots */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 12,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            gap: 8,
-          }}
-        >
-          {slides.map((_, idx) => (
+        {slides.length > 1 && (
+          <>
+            {/* Prev arrow */}
             <button
-              key={idx}
-              onClick={onManual(() => goTo(idx))}
-              aria-label={`Banner ${idx + 1}`}
+              onClick={onManual(prev)}
+              aria-label="Sebelumnya"
               style={{
-                width: idx === current ? 22 : 8,
-                height: 8,
-                borderRadius: 4,
+                position: "absolute",
+                left: 14,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
                 border: "none",
-                background: idx === current ? "#0d1b3e" : "rgba(13,27,62,0.35)",
+                background: "rgba(255,255,255,0.85)",
+                color: "#0d1b3e",
+                fontSize: 20,
+                lineHeight: 1,
                 cursor: "pointer",
-                transition: "all 0.3s ease",
-                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
               }}
-            />
-          ))}
-        </div>
+            >
+              ‹
+            </button>
+
+            {/* Next arrow */}
+            <button
+              onClick={onManual(next)}
+              aria-label="Berikutnya"
+              style={{
+                position: "absolute",
+                right: 14,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(255,255,255,0.85)",
+                color: "#0d1b3e",
+                fontSize: 20,
+                lineHeight: 1,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+            >
+              ›
+            </button>
+
+            {/* Dots */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 12,
+                left: 0,
+                right: 0,
+                display: "flex",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={onManual(() => goTo(idx))}
+                  aria-label={`Banner ${idx + 1}`}
+                  style={{
+                    width: idx === current ? 22 : 8,
+                    height: 8,
+                    borderRadius: 4,
+                    border: "none",
+                    background: idx === current ? "#0d1b3e" : "rgba(13,27,62,0.35)",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    padding: 0,
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
