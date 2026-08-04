@@ -56,20 +56,20 @@ export function TabButton({
       <View
         style={[
           styles.tabButtonView,
-          isFocused ? { backgroundColor: 'rgba(14, 147, 117, 0.12)' } : { backgroundColor: 'transparent' },
+          isFocused ? { backgroundColor: '#E6F4F1' } : { backgroundColor: 'transparent' },
         ]}>
         {icon ? (
           <MaterialIcons
             name={icon}
-            size={26}
-            color={isFocused ? '#0E9375' : theme.textSecondary}
+            size={22}
+            color={isFocused ? '#0E9375' : '#64748B'}
           />
         ) : null}
         {isFocused ? (
           <ThemedText
             type="labelMd"
             style={{
-              fontSize: 14,
+              fontSize: 13,
               color: '#0E9375',
               fontWeight: '700',
             }}>
@@ -103,34 +103,36 @@ const styles = StyleSheet.create({
   },
   tabListContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 12,
     left: 0,
     right: 0,
-    paddingBottom: Spacing.two,
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 99,
   },
   innerContainer: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.three,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    gap: 6,
+    justifyContent: 'space-between',
+    gap: 4,
     width: '100%',
-    maxWidth: MaxContentWidth,
+    maxWidth: 420,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 10,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.06)',
   },
   tabBtnPressable: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabButtonView: {
     height: 40,
@@ -140,7 +142,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 20,
     gap: 6,
-    minWidth: 52,
+    width: '100%',
   },
   pressed: {
     opacity: 0.7,
