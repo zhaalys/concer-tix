@@ -16,18 +16,26 @@ export default function AuthCallbackScreen() {
     let active = true;
     const finalize = async (url: string) => {
       if (!url) return;
-      const authParams = extractAuthCodeParams(url);
-      if (!authParams) return;
-      const { error: exErr } = await supabase.auth.exchangeCodeForSession(
-        authParams.code,
-        authParams.flowId ? { flowId: authParams.flowId } : undefined
-      );
-      if (!active) return;
-      if (exErr) {
-        setError(exErr.message);
-        return;
+      try {
+        const authParams = extractAuthCodeParams(url);
+        if (authParams) {
+          const { error: exErr } = await supabase.auth.exchangeCodeForSession(
+            authParams.code,
+            authParams.flowId ? { flowId: authParams.flowId } : undefined
+          );
+          if (!active) return;
+          if (exErr) {
+            setError(exErr.message);
+            return;
+          }
+        }
+      } catch {
+        if (!active) return;
       }
-      const next = params.next && params.next.startsWith('/') ? params.next : '/';
+      const next =
+        params.next && params.next.startsWith('/') && !params.next.startsWith('//')
+          ? params.next
+          : '/';
       router.replace(next as never);
     };
 
@@ -35,7 +43,15 @@ export default function AuthCallbackScreen() {
       finalize(window.location.href);
     } else {
       Linking.getInitialURL().then((url) => {
-        if (url) finalize(url);
+        if (url) {
+          finalize(url);
+        } else {
+          const next =
+            params.next && params.next.startsWith('/') && !params.next.startsWith('//')
+              ? params.next
+              : '/';
+          router.replace(next as never);
+        }
       });
     }
     return () => {
@@ -46,7 +62,7 @@ export default function AuthCallbackScreen() {
   return (
     <View style={styles.container}>
       <ActivityIndicator color="#0E9375" size="large" />
-      {error ? <ThemedText style={styles.error}>{error}</ThemedText> : null}
+      {!!error && <ThemedText style={styles.error}>{error}</ThemedText>}
     </View>
   );
 }
