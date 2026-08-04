@@ -14,7 +14,7 @@ import { Platform } from 'react-native';
 
 import type { Profile } from './types';
 import { extractAuthCodeParams } from './auth-url';
-import { supabase } from './supabase';
+import { isPlaceholderSupabase, supabase } from './supabase';
 
 export interface AuthUser {
   id: string;
@@ -334,22 +334,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const signInWithGoogle = useCallback(async () => {
+    const mockGoogleUser: AuthUser = {
+      id: 'google-user-' + Date.now(),
+      email: 'user.google@gmail.com',
+      display_name: 'Google User',
+      avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
+      role: 'user',
+      provider: 'google',
+    };
+
+    if (isPlaceholderSupabase) {
+      setUser(mockGoogleUser);
+      setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
+      return {};
+    }
+
     try {
       const redirectTo = getRedirectUri();
       if (Platform.OS === 'web') {
         const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
         if (error) {
-          const mockGoogleUser: AuthUser = {
-            id: 'google-user-' + Date.now(),
-            email: 'user.google@gmail.com',
-            display_name: 'Google User',
-            avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
-            role: 'user',
-            provider: 'google',
-          };
           setUser(mockGoogleUser);
           setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
-          return {};
         }
         return {};
       }
@@ -357,41 +363,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
         provider: 'google',
         options: { redirectTo, skipBrowserRedirect: true },
       });
-      if (error) {
-        const mockGoogleUser: AuthUser = {
-          id: 'google-user-' + Date.now(),
-          email: 'user.google@gmail.com',
-          display_name: 'Google User',
-          avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
-          role: 'user',
-          provider: 'google',
-        };
+      if (error || !data?.url) {
         setUser(mockGoogleUser);
         setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
         return {};
       }
-      if (data?.url) {
-        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-        if (result.type === 'success' && result.url) {
-          const params = extractAuthCodeParams(result.url);
-          if (params) {
-            await supabase.auth.exchangeCodeForSession(
-              params.code,
-              params.flowId ? { flowId: params.flowId } : undefined
-            );
-          }
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (result.type === 'success' && result.url) {
+        const params = extractAuthCodeParams(result.url);
+        if (params) {
+          await supabase.auth.exchangeCodeForSession(
+            params.code,
+            params.flowId ? { flowId: params.flowId } : undefined
+          );
         }
       }
       return {};
     } catch {
-      const mockGoogleUser: AuthUser = {
-        id: 'google-user-' + Date.now(),
-        email: 'user.google@gmail.com',
-        display_name: 'Google User',
-        avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
-        role: 'user',
-        provider: 'google',
-      };
       setUser(mockGoogleUser);
       setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
       return {};
