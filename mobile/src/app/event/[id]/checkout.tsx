@@ -469,10 +469,16 @@ export default function CheckoutScreen() {
 
         {step === 3 && (
           <View style={styles.successWrap}>
-            <AppImage src="/history_lanyard/lanyard_accept.png" style={styles.successImg} contentFit="contain" />
+            <View style={styles.lanyardContainer}>
+              <AppImage src="/history_lanyard/lanyard_accept.png" style={styles.lanyardImgLarge} contentFit="contain" />
+              <View style={styles.badgeTextOverlay}>
+                <MaterialIcons name="check-circle" size={24} color="#0E9375" />
+                <ThemedText style={styles.badgeSuccessTitle}>PAYMENT SUCCESSFUL</ThemedText>
+                <ThemedText style={styles.badgeOrderCode}>{order?.order_code}</ThemedText>
+              </View>
+            </View>
+
             <View style={styles.successCard}>
-              <ThemedText style={styles.successTitle}>Payment Successful</ThemedText>
-              <View style={styles.successDivider} />
               <View style={styles.successRow}>
                 <ThemedText style={styles.successLabel}>Event</ThemedText>
                 <ThemedText style={styles.successValue}>{event.title}</ThemedText>
@@ -857,10 +863,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
-  successImg: {
-    width: '70%',
-    maxWidth: 260,
+  lanyardContainer: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: 360,
     aspectRatio: 1,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lanyardImgLarge: {
+    width: '100%',
+    height: '100%',
+  },
+  badgeTextOverlay: {
+    position: 'absolute',
+    top: '55%',
+    left: '15%',
+    right: '15%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+  },
+  badgeSuccessTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1A1D2E',
+    textAlign: 'center',
+    letterSpacing: 0.4,
+  },
+  badgeOrderCode: {
+    fontSize: 11,
+    color: '#0E9375',
+    fontWeight: '700',
+    fontFamily: 'monospace',
   },
   successCard: {
     backgroundColor: '#FFFFFF',
