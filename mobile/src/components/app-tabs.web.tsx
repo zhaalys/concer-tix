@@ -35,6 +35,9 @@ export default function AppTabs() {
               <TabTrigger name="gelang" href={'/wristband' as never} asChild>
                 <TabButton icon="style">Gelang</TabButton>
               </TabTrigger>
+              <TabTrigger name="profil" href={'/profile' as never} asChild>
+                <TabButton icon="person">Profil</TabButton>
+              </TabTrigger>
             </CustomTabList>
           </TabList>
         </Tabs>

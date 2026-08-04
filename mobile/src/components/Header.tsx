@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,19 @@ export function Header() {
   const theme = useTheme();
   const router = useRouter();
   const { user } = useAuth();
+
+  const handleProfilePress = () => {
+    try {
+      router.push('/profile' as never);
+    } catch {
+      // fallback
+    }
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      if (window.location.pathname !== '/profile') {
+        window.location.href = '/profile';
+      }
+    }
+  };
 
   return (
     <View
@@ -66,7 +79,7 @@ export function Header() {
 
         {/* Profile Avatar Button */}
         <Pressable
-          onPress={() => router.push('/profile' as never)}
+          onPress={handleProfilePress}
           style={({ pressed }) => [
             styles.avatarBtn,
             { backgroundColor: '#0E9375' },
