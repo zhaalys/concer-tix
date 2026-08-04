@@ -14,7 +14,7 @@ import { Platform } from 'react-native';
 
 import type { Profile } from './types';
 import { extractAuthCodeParams } from './auth-url';
-import { isPlaceholderSupabase, supabase } from './supabase';
+import { isPlaceholderSupabase, supabase, SUPABASE_URL } from './supabase';
 
 export interface AuthUser {
   id: string;
@@ -343,7 +343,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
       provider: 'google',
     };
 
-    if (isPlaceholderSupabase) {
+    const isPlaceholder =
+      !isPlaceholderSupabase ||
+      isPlaceholderSupabase === true ||
+      !SUPABASE_URL ||
+      SUPABASE_URL.includes('demo-placeholder') ||
+      SUPABASE_URL.includes('placeholder');
+
+    if (isPlaceholder) {
       setUser(mockGoogleUser);
       setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
       return {};
