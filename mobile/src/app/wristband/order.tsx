@@ -18,10 +18,9 @@ import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import { WRISTBAND_INVOICE_MSG, WRISTBAND_UNIT_PRICE, WRISTBAND_VARIANTS } from '@/lib/content';
 import { formatPhone, isValidPhone, phoneDigits } from '@/lib/format';
-import { openSnap } from '@/lib/payment';
 import type { WristbandOrder } from '@/lib/types';
 
-type Stage = 'form' | 'creating' | 'paying' | 'done';
+type Stage = 'form' | 'creating' | 'done';
 
 export default function WristbandOrderScreen() {
   const params = useLocalSearchParams<{ variant?: string; qty?: string }>();
@@ -34,7 +33,7 @@ export default function WristbandOrderScreen() {
 
   const [stage, setStage] = useState<Stage>('form');
   const [order, setOrder] = useState<WristbandOrder | null>(null);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(user?.display_name ?? '');
   const [whatsapp, setWhatsapp] = useState('');
   const [address, setAddress] = useState('');
   const [error, setError] = useState('');
@@ -51,12 +50,10 @@ export default function WristbandOrderScreen() {
   }, [user, router]);
 
   const handlePhoneChange = (text: string) => {
-    const digits = text.replace(/\D/g, '');
-    let d = digits;
-    if (d.startsWith('0')) d = d.slice(1);
-    if (!d.startsWith('8')) d = d.replace(/^62/, '8');
-    d = d.slice(0, 13);
-    setWhatsapp(d ? `+62 ${d}` : '');
+    let digits = text.replace(/\D/g, '');
+    if (digits.startsWith('62')) digits = digits.slice(2);
+    else if (digits.startsWith('0')) digits = digits.slice(1);
+    setWhatsapp(digits ? `+62 ${digits.slice(0, 13)}` : '');
   };
 
   const handlePlaceOrder = async () => {
@@ -72,16 +69,7 @@ export default function WristbandOrderScreen() {
         user_id: user?.id ?? null,
       });
       setOrder(res.data);
-      setStage('paying');
-      try {
-        const tokenRes = await api.createWristbandPaymentToken(res.data.order_code);
-        await openSnap(tokenRes.token);
-        const paid = await api.updateWristbandOrderStatus(res.data.order_code, { status: 'paid' });
-        setOrder(paid.data);
-        setStage('done');
-      } catch {
-        setStage('done');
-      }
+      setStage('done');
     } catch (e: any) {
       setError(e?.message || 'Terjadi kesalahan');
       setStage('form');
@@ -98,26 +86,39 @@ export default function WristbandOrderScreen() {
     );
   }
 
-  if (stage === 'paying') {
-    return (
-      <View style={styles.container}>
-        <ScreenHeader title="Order Wristband" />
-        <ActivityIndicator color="#0E9375" style={{ marginTop: 60 }} />
-        <ThemedText style={styles.loadingText}>Processing payment...</ThemedText>
-      </View>
-    );
-  }
-
   if (stage === 'done' && order) {
+    const waMsg = encodeURIComponent(
+      `Halo Concer TIX! Saya telah melakukan pemesanan wristband:\n\n` +
+        `Order Code: ${order.order_code}\n` +
+        `Variant: ${WRISTBAND_VARIANTS[order.variant].label}\n` +
+        `Quantity: ${order.quantity}\n` +
+        `Total: Rp ${order.total_amount.toLocaleString('id-ID')}\n` +
+        `Status: ${order.status === 'paid' ? 'Lunas' : 'Pending'}\n` +
+        `Nama: ${order.customer_name}\n` +
+        `WhatsApp: ${order.customer_whatsapp}\n` +
+        `Alamat: ${order.shipping_address}\n\n` +
+        `Mohon konfirmasi dan info pengiriman. Terima kasih.`
+    );
+
     return (
       <View style={styles.container}>
         <ScreenHeader title="Order Wristband" />
-        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 40 + insets.bottom }]} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingBottom: 60 + insets.bottom }]}
+          showsVerticalScrollIndicator={false}>
           <View style={styles.headerRow}>
             <ThemedText style={styles.mono}>{order.order_code}</ThemedText>
-            <View style={[styles.statusBadge, order.status === 'paid' ? styles.statusPaid : styles.statusPending]}>
-              <ThemedText style={[styles.statusText, order.status === 'paid' ? styles.statusTextPaid : styles.statusTextPending]}>
-                {order.status}
+            <View
+              style={[
+                styles.statusBadge,
+                order.status === 'paid' ? styles.statusPaid : styles.statusPending,
+              ]}>
+              <ThemedText
+                style={[
+                  styles.statusText,
+                  order.status === 'paid' ? styles.statusTextPaid : styles.statusTextPending,
+                ]}>
+                {order.status === 'paid' ? 'Paid' : 'Pending'}
               </ThemedText>
             </View>
           </View>
@@ -150,8 +151,7 @@ export default function WristbandOrderScreen() {
             label="Send Invoice to WhatsApp"
             variant="dark"
             onPress={() => {
-              const msg = WRISTBAND_INVOICE_MSG(order);
-              Linking.openURL(`https://wa.me/6281316936289?text=${encodeURIComponent(msg)}`);
+              Linking.openURL(`https://wa.me/6281316936289?text=${waMsg}`);
             }}
           />
           <AppButton label="My Orders" variant="outline" onPress={() => router.push('/tickets' as never)} />
@@ -163,7 +163,10 @@ export default function WristbandOrderScreen() {
   return (
     <View style={styles.container}>
       <ScreenHeader title="Order Wristband" />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
         <ThemedText style={styles.subtitle}>Complete your wristband order</ThemedText>
 
         <Section label="Order Detail">
@@ -191,7 +194,13 @@ export default function WristbandOrderScreen() {
             value={whatsapp}
             onChangeText={handlePhoneChange}
             keyboardType="phone-pad"
-            error={whatsapp ? (phoneValid ? undefined : 'Nomor tidak valid, minimal 10 digit setelah +62') : undefined}
+            error={
+              whatsapp
+                ? phoneValid
+                  ? undefined
+                  : 'Nomor tidak valid, minimal 10 digit setelah +62'
+                : undefined
+            }
             valid={phoneValid ? `Tersimpan sebagai ${formatPhone(phoneDigitsStr)}` : undefined}
           />
           <FormInput
@@ -206,15 +215,17 @@ export default function WristbandOrderScreen() {
           />
         </View>
 
-        {error && (
+        {error ? (
           <View style={styles.errorBox}>
             <ThemedText style={styles.errorText}>{error}</ThemedText>
           </View>
-        )}
+        ) : null}
 
         <View style={styles.actions}>
           <AppButton label="Place Order" variant="dark" disabled={!canSubmit} onPress={handlePlaceOrder} />
-          <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+          <Pressable
+            onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+            style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
             <ThemedText style={styles.backText}>Back</ThemedText>
           </Pressable>
         </View>

@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
 import { AppImage } from '@/components/AppImage';
@@ -19,13 +19,23 @@ const MENU_ITEMS = [
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, loading, signOut, updateDisplayName } = useAuth();
-  const [name] = useState(user?.display_name ?? '');
+
+  const [name, setName] = useState(user?.display_name ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    if (user?.display_name) {
+      setName(user.display_name);
+    }
+  }, [user?.display_name]);
+
   if (!loading && !user) {
     return (
-      <ScrollView style={styles.container} contentContainerStyle={styles.centerContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.centerContent}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.avatarCircle}>
           <MaterialIcons name="person" size={40} color="#FFFFFF" />
         </View>
@@ -46,12 +56,13 @@ export default function ProfileScreen() {
   const initial = (user?.display_name || user?.email || 'U').charAt(0).toUpperCase();
 
   const handleSave = async () => {
+    if (!name.trim() || name.trim() === user?.display_name) return;
     setSaving(true);
-    const res = await updateDisplayName(name);
+    const res = await updateDisplayName(name.trim());
     setSaving(false);
     if (!res.error) {
       setSaved(true);
-      setTimeout(() => setSaved(false), 1500);
+      setTimeout(() => setSaved(false), 2000);
     }
   };
 
@@ -62,7 +73,11 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.root}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}>
+        {/* User Identity */}
         <View style={styles.identity}>
           {user?.avatar_url ? (
             <AppImage src={user.avatar_url} style={styles.avatar} radius={36} />
@@ -73,24 +88,35 @@ export default function ProfileScreen() {
           )}
           <ThemedText style={styles.name}>{user?.display_name || 'User'}</ThemedText>
           <ThemedText style={styles.email}>{user?.email}</ThemedText>
-          <ThemedText style={styles.provider}>Signed in with {provider}</ThemedText>
+          <ThemedText style={styles.provider}>{provider} sign-in</ThemedText>
         </View>
 
+        {/* Edit Display Name */}
         <View style={styles.card}>
-          <ThemedText style={styles.cardLabel}>Display Name</ThemedText>
-          <View style={styles.inputWrap}>
-            <ThemedText style={styles.inputText}>{name}</ThemedText>
+          <ThemedText style={styles.cardLabel}>DISPLAY NAME</ThemedText>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={(val) => {
+                setName(val);
+                setSaved(false);
+              }}
+              placeholder="Your name"
+              placeholderTextColor="#ADB5BD"
+            />
+            <AppButton
+              label={saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
+              disabled={saving || !name.trim() || name.trim() === user?.display_name}
+              onPress={handleSave}
+              style={styles.saveBtn}
+            />
           </View>
-          <AppButton
-            label={saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
-            disabled={!name.trim() || name.trim() === user?.display_name}
-            onPress={handleSave}
-            style={styles.saveBtn}
-          />
         </View>
 
         <View style={styles.divider} />
 
+        {/* Navigation Menu */}
         <View style={styles.menu}>
           {MENU_ITEMS.map((item) => (
             <Pressable
@@ -104,25 +130,9 @@ export default function ProfileScreen() {
           ))}
         </View>
 
+        {/* Logout */}
         <AppButton label="Log out" variant="outline" onPress={handleLogout} style={styles.logout} />
       </ScrollView>
-
-      {user ? (
-        <View style={styles.topRight}>
-          {user.avatar_url ? (
-            <AppImage src={user.avatar_url} style={styles.topAvatar} radius={16} />
-          ) : (
-            <View style={styles.topAvatarFallback}>
-              <ThemedText style={styles.topAvatarLetter}>{initial}</ThemedText>
-            </View>
-          )}
-          <Pressable
-            onPress={handleLogout}
-            style={({ pressed }) => [styles.logoutBtn, pressed && styles.pressed]}>
-            <MaterialIcons name="logout" size={20} color="#EF4444" />
-          </Pressable>
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -137,8 +147,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingBottom: 40,
-    gap: 16,
+    paddingBottom: 90,
+    gap: 18,
   },
   centerContent: {
     flexGrow: 1,
@@ -175,10 +185,12 @@ const styles = StyleSheet.create({
   identity: {
     alignItems: 'center',
     gap: 4,
+    paddingTop: 10,
   },
   avatar: {
     width: 72,
     height: 72,
+    borderRadius: 36,
     marginBottom: 6,
   },
   avatarFallback: {
@@ -223,21 +235,25 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  inputWrap: {
-    height: 44,
+  inputRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    height: 42,
     borderWidth: 1,
-    borderColor: '#E9ECEF',
+    borderColor: '#E5E7EB',
     borderRadius: 8,
     paddingHorizontal: 12,
-    justifyContent: 'center',
-    backgroundColor: '#F8F9FA',
-  },
-  inputText: {
     fontSize: 14,
     color: '#1A1D2E',
+    backgroundColor: '#FFFFFF',
   },
   saveBtn: {
-    height: 40,
+    height: 42,
+    paddingHorizontal: 18,
   },
   divider: {
     height: 1,
@@ -267,45 +283,10 @@ const styles = StyleSheet.create({
   },
   logout: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#EF4444',
+    borderColor: '#F1F3F5',
     borderWidth: 1,
     borderRadius: 8,
-    height: 46,
-  },
-  topRight: {
-    position: 'absolute',
-    top: 8,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  topAvatar: {
-    width: 32,
-    height: 32,
-  },
-  topAvatarFallback: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#1ABC9C',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  topAvatarLetter: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  logoutBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#F1F3F5',
+    height: 44,
   },
   pressed: {
     opacity: 0.8,

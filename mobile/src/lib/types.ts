@@ -86,6 +86,8 @@ export interface EventSummary {
 export interface Order {
   id: string;
   order_code: string;
+  user_id?: string | null;
+  event_slug?: string | null;
   status: 'pending' | 'paid' | 'cancelled' | 'refunded';
   total_amount: number;
   payment_method?: string | null;
