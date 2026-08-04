@@ -172,20 +172,20 @@ export default function CheckoutScreen() {
     setPaying(true);
     setPayError('');
     try {
-      const method = PAYMENT_METHODS.find((m) => m.id === paymentMethod)!;
+      const method = PAYMENT_METHODS.find((m) => m.id === paymentMethod) ?? PAYMENT_METHODS[0];
       const orderId = `${order.order_code}-${Date.now()}`;
       const tokenRes = await api.createPaymentToken({
         orderId,
         amount: order.total_amount,
-        name: bookerName || user!.display_name || 'User',
-        email: email || user!.email || '',
-        category: { id: selectedTicket!.label, label: selectedTicket!.label },
+        name: bookerName || user?.display_name || 'User',
+        email: email || user?.email || '',
+        category: { id: selectedTicket?.label || 'Reguler', label: selectedTicket?.label || 'Reguler' },
         enabledPayments: [method.snapKey],
       });
       await openSnap(tokenRes.token);
       await api.updateOrderStatus(order.order_code, {
         status: 'paid',
-        payment_method: method.snapKey.replace(/_/g, ' '),
+        payment_method: method.label,
         payment_token: orderId,
       });
       setOrder({ ...order, status: 'paid', payment_method: method.label });

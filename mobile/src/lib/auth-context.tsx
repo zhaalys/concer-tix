@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import {
@@ -37,6 +38,28 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const LOCAL_USER_STORAGE_KEY = 'ARTATIX_LOCAL_AUTH_USER_V2';
+
+async function getStoredUser(): Promise<AuthUser | null> {
+  try {
+    const raw = await AsyncStorage.getItem(LOCAL_USER_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function persistStoredUser(user: AuthUser | null): Promise<void> {
+  try {
+    if (user) {
+      await AsyncStorage.setItem(LOCAL_USER_STORAGE_KEY, JSON.stringify(user));
+    } else {
+      await AsyncStorage.removeItem(LOCAL_USER_STORAGE_KEY);
+    }
+  } catch {
+    // ignore
+  }
+}
 
 export function getRedirectUri(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -92,28 +115,48 @@ function toAuthUser(
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<AuthContextValue['session']>(null);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUserState] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const applySession = useCallback(async (sess: AuthContextValue['session']) => {
-    setSession(sess);
-    if (sess?.user) {
-      const profile = await ensureProfile(sess.user);
-      setUser(toAuthUser(sess.user, profile));
-    } else {
-      setUser(null);
-    }
+  const setUser = useCallback((u: AuthUser | null) => {
+    setUserState(u);
+    persistStoredUser(u);
   }, []);
+
+  const applySession = useCallback(
+    async (sess: AuthContextValue['session']) => {
+      setSession(sess);
+      if (sess?.user) {
+        const profile = await ensureProfile(sess.user);
+        const u = toAuthUser(sess.user, profile);
+        setUser(u);
+      }
+    },
+    [setUser]
+  );
 
   useEffect(() => {
     let active = true;
+
+    // Load cached local user first for instant load
+    getStoredUser().then((stored) => {
+      if (active && stored) {
+        setUserState(stored);
+        setLoading(false);
+      }
+    });
+
     supabase.auth
       .getSession()
       .then(({ data }) => {
         if (!active) return;
-        applySession(data.session)
-          .catch(() => {})
-          .then(() => setLoading(false));
+        if (data.session) {
+          applySession(data.session)
+            .catch(() => {})
+            .then(() => setLoading(false));
+        } else {
+          setLoading(false);
+        }
       })
       .catch(() => {
         if (active) setLoading(false);
@@ -121,7 +164,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       if (!active) return;
-      applySession(sess).catch(() => {});
+      if (sess) {
+        applySession(sess).catch(() => {});
+      }
       setLoading(false);
     });
 
@@ -129,7 +174,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       active = false;
       sub.subscription.unsubscribe();
     };
-  }, [applySession]);
+  }, [applySession, setUser]);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
@@ -142,7 +187,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
             error.message.includes('FetchError') ||
             error.status === 0
           ) {
-            // Local dev authentication fallback
             const mockUser: AuthUser = {
               id: 'user-' + Date.now(),
               email: email,
@@ -181,7 +225,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return {};
       }
     },
-    [applySession]
+    [applySession, setUser]
   );
 
   const signUp = useCallback(
@@ -241,7 +285,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         return {};
       }
     },
-    []
+    [setUser]
   );
 
   const signOut = useCallback(async () => {
@@ -252,7 +296,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
     setUser(null);
     setSession(null);
-  }, []);
+  }, [setUser]);
 
   const refreshProfile = useCallback(async () => {
     try {
@@ -265,27 +309,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
     } catch {
       // Ignored
     }
-  }, []);
+  }, [setUser]);
 
   const updateDisplayName = useCallback(
     async (name: string) => {
+      const trimmed = name.trim();
       try {
-        const { error } = await supabase.auth.updateUser({ data: { display_name: name } });
-        if (error) return { error: error.message };
-        await supabase.from('profiles').upsert({
-          id: user?.id ?? '',
-          display_name: name,
-        });
-        await refreshProfile();
-        return {};
-      } catch {
-        if (user) {
-          setUser({ ...user, display_name: name });
+        await supabase.auth.updateUser({ data: { display_name: trimmed } });
+        if (user?.id) {
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            display_name: trimmed,
+          });
         }
-        return {};
+      } catch {
+        // Ignored
       }
+      if (user) {
+        setUser({ ...user, display_name: trimmed });
+      }
+      return {};
     },
-    [user, refreshProfile]
+    [user, setUser]
   );
 
   const signInWithGoogle = useCallback(async () => {
@@ -351,7 +396,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
       return {};
     }
-  }, []);
+  }, [setUser]);
 
   const value = useMemo(
     () => ({ session, user, loading, signIn, signUp, signOut, refreshProfile, updateDisplayName, signInWithGoogle }),
