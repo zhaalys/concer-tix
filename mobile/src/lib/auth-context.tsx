@@ -343,6 +343,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
       provider: 'google',
     };
 
+    if (isPlaceholderSupabase) {
+      setUser(mockGoogleUser);
+      setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
+      return {};
+    }
+
     try {
       const redirectTo = getRedirectUri();
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -350,7 +356,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
         options: { redirectTo, skipBrowserRedirect: true },
       });
 
-      if (error || !data?.url || data.url.includes('demo-placeholder') || isPlaceholderSupabase) {
+      const isInvalidUrl = !data?.url || data.url.includes('demo-placeholder') || data.url.includes('placeholder.supabase.co');
+
+      if (error || isInvalidUrl) {
         setUser(mockGoogleUser);
         setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
         return {};
