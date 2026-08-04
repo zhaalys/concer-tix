@@ -47,7 +47,7 @@ export default function ETicketScreen() {
 
   const attendee = order?.attendees?.[0];
   const ticketCode = attendee?.ticket_code || order?.order_code || code;
-  const qrSize = Math.min(winWidth * 0.3, 110);
+  const qrSize = Math.min(winWidth * 0.38, 140);
   const qrData = JSON.stringify({
     code: ticketCode,
     event: order?.event?.title,
@@ -116,13 +116,19 @@ const styles = StyleSheet.create({
   lanyardWrap: {
     position: 'relative',
     alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: 420,
+    aspectRatio: 1,
+    alignSelf: 'center',
   },
   lanyard: {
     width: '100%',
-    aspectRatio: 1,
+    height: '100%',
   },
   qrOverlay: {
     position: 'absolute',
+    top: '50%',
     alignSelf: 'center',
   },
   qrBox: {

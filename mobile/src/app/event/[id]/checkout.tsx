@@ -472,32 +472,33 @@ export default function CheckoutScreen() {
             <View style={styles.lanyardContainer}>
               <AppImage src="/history_lanyard/lanyard_accept.png" style={styles.lanyardImgLarge} contentFit="contain" />
               <View style={styles.badgeTextOverlay}>
-                <MaterialIcons name="check-circle" size={24} color="#0E9375" />
-                <ThemedText style={styles.badgeSuccessTitle}>PAYMENT SUCCESSFUL</ThemedText>
-                <ThemedText style={styles.badgeOrderCode}>{order?.order_code}</ThemedText>
-              </View>
-            </View>
+                <View style={styles.badgeSuccessHeader}>
+                  <MaterialIcons name="check-circle" size={20} color="#0E9375" />
+                  <ThemedText style={styles.badgeSuccessTitle}>PAYMENT SUCCESSFUL</ThemedText>
+                </View>
 
-            <View style={styles.successCard}>
-              <View style={styles.successRow}>
-                <ThemedText style={styles.successLabel}>Event</ThemedText>
-                <ThemedText style={styles.successValue}>{event.title}</ThemedText>
-              </View>
-              <View style={styles.successRow}>
-                <ThemedText style={styles.successLabel}>Order</ThemedText>
-                <ThemedText style={[styles.successValue, { fontFamily: 'monospace' }]}>
-                  {order?.order_code}
-                </ThemedText>
-              </View>
-              <View style={styles.successRow}>
-                <ThemedText style={styles.successLabel}>Category</ThemedText>
-                <ThemedText style={styles.successValue}>{selectedTicket?.label}</ThemedText>
-              </View>
-              <View style={styles.successRow}>
-                <ThemedText style={styles.successLabel}>Total</ThemedText>
-                <ThemedText style={styles.successValue}>
-                  Rp{order?.total_amount.toLocaleString('id-ID')}
-                </ThemedText>
+                <View style={styles.badgeDivider} />
+
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Event</ThemedText>
+                  <ThemedText numberOfLines={1} style={styles.badgeValue}>{event.title}</ThemedText>
+                </View>
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Order</ThemedText>
+                  <ThemedText style={[styles.badgeValue, { fontFamily: 'monospace' }]}>
+                    {order?.order_code}
+                  </ThemedText>
+                </View>
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Category</ThemedText>
+                  <ThemedText numberOfLines={1} style={styles.badgeValue}>{selectedTicket?.label}</ThemedText>
+                </View>
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Total</ThemedText>
+                  <ThemedText style={styles.badgeValueBold}>
+                    Rp{order?.total_amount.toLocaleString('id-ID')}
+                  </ThemedText>
+                </View>
               </View>
             </View>
           </View>
@@ -866,7 +867,7 @@ const styles = StyleSheet.create({
   lanyardContainer: {
     position: 'relative',
     width: '100%',
-    maxWidth: 360,
+    maxWidth: 420,
     aspectRatio: 1,
     alignSelf: 'center',
     alignItems: 'center',
@@ -878,12 +879,22 @@ const styles = StyleSheet.create({
   },
   badgeTextOverlay: {
     position: 'absolute',
-    top: '55%',
-    left: '15%',
-    right: '15%',
+    top: '47%',
+    bottom: '7%',
+    left: '11%',
+    right: '11%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    gap: 5,
+  },
+  badgeSuccessHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3,
+    gap: 6,
   },
   badgeSuccessTitle: {
     fontSize: 13,
@@ -892,20 +903,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.4,
   },
-  badgeOrderCode: {
-    fontSize: 11,
-    color: '#0E9375',
-    fontWeight: '700',
-    fontFamily: 'monospace',
+  badgeDivider: {
+    borderTopWidth: 1,
+    borderTopColor: '#EBEBEB',
+    borderStyle: 'dashed',
+    marginVertical: 3,
   },
-  successCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#EBEBEB',
-    padding: 20,
-    gap: 10,
-    width: '100%',
+  badgeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
+  badgeLabel: {
+    fontSize: 12,
+    color: '#868E96',
+  },
+  badgeValue: {
+    fontSize: 12,
+    color: '#1A1D2E',
+    fontWeight: '600',
+    flexShrink: 1,
+    textAlign: 'right',
+  },
+  badgeValueBold: {
+    fontSize: 13,
+    color: '#0E9375',
+    fontWeight: '800',
   },
   successTitle: {
     fontSize: 16,
