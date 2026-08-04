@@ -37,7 +37,7 @@ export default function RegisterScreen() {
       setError(res.error);
       return;
     }
-    router.replace({ pathname: '/login', params: { check_email: 'true', ...(next ? { next } : {}) } } as never);
+    router.replace((next ?? '/') as never);
   };
 
   const handleGoogle = async () => {
@@ -45,7 +45,11 @@ export default function RegisterScreen() {
     setError('');
     const res = await signInWithGoogle();
     setGoogleLoading(false);
-    if (res.error) setError(res.error);
+    if (res.error) {
+      setError(res.error);
+    } else {
+      router.replace((next ?? '/') as never);
+    }
   };
 
   return (

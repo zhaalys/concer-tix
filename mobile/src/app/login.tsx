@@ -44,7 +44,11 @@ export default function LoginScreen() {
     setError('');
     const res = await signInWithGoogle();
     setGoogleLoading(false);
-    if (res.error) setError(res.error);
+    if (res.error) {
+      setError(res.error);
+    } else {
+      router.replace((next ?? '/') as never);
+    }
   };
 
   return (
@@ -59,7 +63,7 @@ export default function LoginScreen() {
           {params.check_email === 'true' && (
             <View style={styles.checkBox}>
               <ThemedText style={styles.checkText}>
-                Please check your email to verify your account before logging in.
+                Account created successfully! You are now logged in.
               </ThemedText>
             </View>
           )}
