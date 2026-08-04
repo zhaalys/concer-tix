@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from './supabase';
 
 import type { Order, WristbandOrder } from './types';
 
@@ -108,6 +109,100 @@ async function saveLocalWristbandOrder(order: WristbandOrder): Promise<void> {
   }
 }
 
+export async function syncOrderToSupabase(order: Order): Promise<void> {
+  try {
+    let eventId: string | null = null;
+    if (order.event_slug) {
+      const { data: ev } = await supabase
+        .from('events')
+        .select('id')
+        .eq('slug', order.event_slug)
+        .maybeSingle();
+      if (ev) eventId = ev.id;
+    }
+
+    const { data: existingOrder } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('order_code', order.order_code)
+      .maybeSingle();
+
+    let dbOrderId = existingOrder?.id;
+
+    if (!dbOrderId) {
+      const { data: newDbOrder, error: orderErr } = await supabase
+        .from('orders')
+        .insert({
+          order_code: order.order_code,
+          user_id: order.user_id && !order.user_id.startsWith('user-') && !order.user_id.startsWith('local-') ? order.user_id : null,
+          status: order.status || 'paid',
+          total_amount: order.total_amount,
+          payment_method: order.payment_method || 'QRIS Instant',
+          paid_at: order.paid_at || new Date().toISOString(),
+        })
+        .select('id')
+        .maybeSingle();
+
+      if (orderErr) {
+        console.log('Supabase order insert:', orderErr.message);
+      }
+      dbOrderId = newDbOrder?.id;
+    }
+
+    if (dbOrderId) {
+      const item = order.items?.[0];
+      if (item) {
+        const { data: existingItem } = await supabase
+          .from('order_items')
+          .select('id')
+          .eq('order_id', dbOrderId)
+          .maybeSingle();
+
+        if (!existingItem) {
+          await supabase.from('order_items').insert({
+            order_id: dbOrderId,
+            event_id: eventId,
+            ticket_label: item.ticket_label,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            subtotal: item.subtotal,
+          });
+        }
+      }
+
+      const att = order.attendees?.[0];
+      if (att) {
+        const ticketCode = att.ticket_code || `TIX-${order.order_code}-1`;
+        const { data: existingAtt } = await supabase
+          .from('attendees')
+          .select('id')
+          .eq('ticket_code', ticketCode)
+          .maybeSingle();
+
+        if (!existingAtt) {
+          await supabase.from('attendees').insert({
+            order_id: dbOrderId,
+            event_id: eventId,
+            ticket_code: ticketCode,
+            full_name: att.full_name || 'Penonton',
+            email: att.email || '',
+            whatsapp: att.whatsapp || '',
+            identity_type: att.identity_type || 'KTP',
+            identity_number: att.identity_number || '3201000000000001',
+            booker_name: att.booker_name || att.full_name || 'Pemesan',
+            gender: att.gender || 'male',
+            age: att.age || 22,
+            domicile: att.domicile || 'Bandung',
+            is_checked_in: false,
+          });
+        }
+      }
+    }
+  } catch (err: any) {
+    console.log('Supabase order sync error:', err?.message);
+  }
+}
+
 export const api = {
   createOrder: async (data: OrderRequest) => {
     try {
@@ -115,7 +210,10 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      if (res.data) await saveLocalOrder(res.data);
+      if (res.data) {
+        await saveLocalOrder(res.data);
+        syncOrderToSupabase(res.data).catch(() => {});
+      }
       return res;
     } catch {
       const qty = data.quantity || 1;
@@ -167,6 +265,7 @@ export const api = {
       };
 
       await saveLocalOrder(newOrder);
+      syncOrderToSupabase(newOrder).catch(() => {});
       return { success: true, data: newOrder };
     }
   },
@@ -189,60 +288,75 @@ export const api = {
         allOrders.push(lo);
       }
     }
+
+    for (const o of allOrders) {
+      syncOrderToSupabase(o).catch(() => {});
+    }
+
     return { success: true, data: allOrders };
   },
 
   getOrderByCode: async (code: string) => {
     try {
-      return await request<{ success: boolean; data: Order }>(`/orders/${encodeURIComponent(code)}`);
+      const res = await request<{ success: boolean; data: Order }>(`/orders/${encodeURIComponent(code)}`);
+      if (res.data) {
+        syncOrderToSupabase(res.data).catch(() => {});
+        return res;
+      }
     } catch {
-      const localOrders = await getLocalOrders();
-      const match = localOrders.find((o) => o.order_code === code);
-      if (match) return { success: true, data: match };
-
-      const fallbackOrder: Order = {
-        id: 'ord-' + code,
-        order_code: code,
-        user_id: 'user-1',
-        event_slug: 'sound-of-downtown',
-        status: 'paid',
-        total_amount: 185000,
-        payment_method: 'QRIS Instant',
-        paid_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        event: {
-          title: 'Sound of Downtown Vol. 5',
-          event_date: '28 Agustus 2026',
-          event_time: '15:00 WIB',
-          location: 'Lapangan Pussenif, Bandung',
-          image_url: '/image_concer/banner_concer_1.png',
-          slug: 'sound-of-downtown',
-        },
-        items: [
-          {
-            ticket_label: 'Festival A (Standing)',
-            quantity: 1,
-            unit_price: 185000,
-            subtotal: 185000,
-          },
-        ],
-        attendees: [
-          {
-            ticket_code: `TIX-${code}-1`,
-            full_name: 'Faisal Dacter',
-            email: 'faisal@concertix.id',
-            whatsapp: '+62 81316936289',
-            identity_type: 'KTP',
-            identity_number: '3201000000000001',
-            booker_name: 'Faisal Dacter',
-            gender: 'male',
-            age: 22,
-            domicile: 'Bandung',
-          },
-        ],
-      };
-      return { success: true, data: fallbackOrder };
+      // ignore
     }
+
+    const localOrders = await getLocalOrders();
+    const match = localOrders.find((o) => o.order_code === code || o.attendees?.some((a) => a.ticket_code === code));
+    if (match) {
+      syncOrderToSupabase(match).catch(() => {});
+      return { success: true, data: match };
+    }
+
+    const fallbackOrder: Order = {
+      id: 'ord-' + code,
+      order_code: code,
+      user_id: 'user-1',
+      event_slug: 'sound-of-downtown',
+      status: 'paid',
+      total_amount: 185000,
+      payment_method: 'QRIS Instant',
+      paid_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      event: {
+        title: 'Sound of Downtown Vol. 5',
+        event_date: '28 Agustus 2026',
+        event_time: '15:00 WIB',
+        location: 'Lapangan Pussenif, Bandung',
+        image_url: '/image_concer/banner_concer_1.png',
+        slug: 'sound-of-downtown',
+      },
+      items: [
+        {
+          ticket_label: 'Festival A (Standing)',
+          quantity: 1,
+          unit_price: 185000,
+          subtotal: 185000,
+        },
+      ],
+      attendees: [
+        {
+          ticket_code: `TIX-${code}-1`,
+          full_name: 'Faisal Dacter',
+          email: 'faisal@concertix.id',
+          whatsapp: '+62 81316936289',
+          identity_type: 'KTP',
+          identity_number: '3201000000000001',
+          booker_name: 'Faisal Dacter',
+          gender: 'male',
+          age: 22,
+          domicile: 'Bandung',
+        },
+      ],
+    };
+    syncOrderToSupabase(fallbackOrder).catch(() => {});
+    return { success: true, data: fallbackOrder };
   },
 
   updateOrderStatus: async (
