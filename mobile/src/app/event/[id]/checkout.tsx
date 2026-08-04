@@ -18,7 +18,7 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { ThemedText } from '@/components/themed-text';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
-import { DOMICILE_OPTIONS, EMAIL_RE, GENDER_OPTIONS, IDENTITY_MAX_LENGTHS, formatPhone, isValidPhone, phoneDigits } from '@/lib/format';
+import { DOMICILE_OPTIONS, EMAIL_RE, GENDER_OPTIONS, IDENTITY_MAX_LENGTHS, formatPhone, getIdentityMax, isValidPhone, phoneDigits } from '@/lib/format';
 import { PAYMENT_GROUP_ORDER, PAYMENT_METHODS } from '@/lib/content';
 import { openSnap } from '@/lib/payment';
 import type { Event, EventTicket, Order } from '@/lib/types';
@@ -117,18 +117,14 @@ export default function CheckoutScreen() {
   const phoneDigitsStr = phoneDigits(whatsapp);
   const phoneValid = isValidPhone(phoneDigitsStr);
 
-  const identityMax = IDENTITY_MAX_LENGTHS[identityType.toLowerCase()] ?? 0;
-  const identityValid = identityType && identityNumber.length === identityMax;
+  const identityMax = getIdentityMax(identityType);
 
   const step1Valid = !!selectedTicket;
   const step2Valid =
     !!bookerName.trim() &&
     emailValid &&
     phoneValid &&
-    !!ticketName.trim() &&
-    identityType !== '' &&
-    identityNumber.length > 0 &&
-    (identityMax === 0 || identityNumber.length === identityMax);
+    !!ticketName.trim();
 
   const handlePhoneChange = (text: string) => {
     const digits = text.replace(/\D/g, '');

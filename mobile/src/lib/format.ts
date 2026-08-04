@@ -118,6 +118,15 @@ export const IDENTITY_MAX_LENGTHS: Record<string, number> = {
   passport: 9,
 };
 
+export function getIdentityMax(type: string): number {
+  if (!type) return 16;
+  const t = type.toLowerCase();
+  if (t.includes('ktp')) return 16;
+  if (t.includes('sim')) return 12;
+  if (t.includes('passport') || t.includes('paspor')) return 9;
+  return 16;
+}
+
 export const GENDER_OPTIONS = [
   { id: 'male', label: 'Laki-laki' },
   { id: 'female', label: 'Perempuan' },
