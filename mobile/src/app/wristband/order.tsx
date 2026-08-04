@@ -214,7 +214,7 @@ export default function WristbandOrderScreen() {
 
         <View style={styles.actions}>
           <AppButton label="Place Order" variant="dark" disabled={!canSubmit} onPress={handlePlaceOrder} />
-          <Pressable onPress={() => router.back()} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+          <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
             <ThemedText style={styles.backText}>Back</ThemedText>
           </Pressable>
         </View>

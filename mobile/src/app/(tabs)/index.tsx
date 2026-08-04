@@ -38,7 +38,7 @@ export default function HomeScreen() {
       ) : events.length === 0 ? (
         <ThemedText style={styles.empty}>Belum ada event untuk ditampilkan.</ThemedText>
       ) : (
-        <View style={styles.eventsColumn}>
+        <View style={styles.grid}>
           {topEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
@@ -132,17 +132,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 24,
   },
-  eventsColumn: {
-    gap: 14,
-  },
-  promo: {
-    width: '100%',
-    height: 140,
-  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
+  },
+  promo: {
+    width: '100%',
+    aspectRatio: 2126 / 409,
   },
   seruCard: {
     width: '48.5%',

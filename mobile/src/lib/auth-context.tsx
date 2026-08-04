@@ -12,6 +12,7 @@ import {
 import { Platform } from 'react-native';
 
 import type { Profile } from './types';
+import { extractAuthCodeParams } from './auth-url';
 import { supabase } from './supabase';
 
 export interface AuthUser {
@@ -100,12 +101,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
-      applySession(data.session).then(() => setLoading(false));
+      applySession(data.session)
+        .catch(() => {})
+        .then(() => setLoading(false));
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       if (!active) return;
-      applySession(sess);
+      applySession(sess).catch(() => {});
       setLoading(false);
     });
 
@@ -119,7 +122,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     async (email: string, password: string) => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return { error: error.message === 'Invalid login credentials' ? 'Email atau password salah' : error.message };
-      if (data.user) await applySession(data.session);
+      if (data.user) {
+        try {
+          await applySession(data.session);
+        } catch {
+          return { error: 'Gagal memuat profil akun' };
+        }
+      }
       return {};
     },
     [applySession]
@@ -182,8 +191,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (data?.url) {
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type === 'success' && result.url) {
-        const { error: exErr } = await supabase.auth.exchangeCodeForSession(result.url);
-        if (exErr) return { error: exErr.message };
+        const params = extractAuthCodeParams(result.url);
+        if (params) {
+          const { error: exErr } = await supabase.auth.exchangeCodeForSession(
+            params.code,
+            params.flowId ? { flowId: params.flowId } : undefined
+          );
+          if (exErr) return { error: exErr.message };
+        } else {
+          return {
+            error:
+              'Login Google tidak dikembalikan ke aplikasi. Pastikan URL redirect `exp://**` sudah ditambahkan di Supabase (Auth → URL Configuration).',
+          };
+        }
       }
     }
     return {};

@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   slide: {
     width: '100%',
-    height: 210,
+    aspectRatio: 1870 / 841,
   },
   dots: {
     position: 'absolute',

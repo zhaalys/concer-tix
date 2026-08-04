@@ -9,34 +9,37 @@ import {
 } from 'expo-router/ui';
 import { Pressable, View, StyleSheet } from 'react-native';
 
+import { Header } from './Header';
 import { ThemedText } from './themed-text';
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function AppTabs() {
   return (
-    <Tabs>
-      <TabSlot style={{ height: '100%' }} />
-      <TabList asChild>
-        <CustomTabList>
-          <TabTrigger name="beranda" href={'/' as never} asChild>
-            <TabButton icon="home">Beranda</TabButton>
-          </TabTrigger>
-          <TabTrigger name="jelajah" href={'/explore' as never} asChild>
-            <TabButton icon="explore">Jelajah</TabButton>
-          </TabTrigger>
-          <TabTrigger name="tiket" href={'/tickets' as never} asChild>
-            <TabButton icon="confirmation-number">Tiket</TabButton>
-          </TabTrigger>
-          <TabTrigger name="gelang" href={'/wristband' as never} asChild>
-            <TabButton icon="style">Gelang</TabButton>
-          </TabTrigger>
-          <TabTrigger name="profil" href={'/profile' as never} asChild>
-            <TabButton icon="account-circle">Profil</TabButton>
-          </TabTrigger>
-        </CustomTabList>
-      </TabList>
-    </Tabs>
+    <View style={styles.root}>
+      <Header />
+      <View style={styles.body}>
+        <Tabs>
+          <TabSlot style={{ height: '100%' }} />
+          <TabList asChild>
+            <CustomTabList>
+              <TabTrigger name="beranda" href={'/' as never} asChild>
+                <TabButton icon="home">Beranda</TabButton>
+              </TabTrigger>
+              <TabTrigger name="jelajah" href={'/explore' as never} asChild>
+                <TabButton icon="explore">Jelajah</TabButton>
+              </TabTrigger>
+              <TabTrigger name="tiket" href={'/tickets' as never} asChild>
+                <TabButton icon="confirmation-number">Tiket</TabButton>
+              </TabTrigger>
+              <TabTrigger name="gelang" href={'/wristband' as never} asChild>
+                <TabButton icon="style">Gelang</TabButton>
+              </TabTrigger>
+            </CustomTabList>
+          </TabList>
+        </Tabs>
+      </View>
+    </View>
   );
 }
 
@@ -58,18 +61,21 @@ export function TabButton({
         {icon && (
           <MaterialIcons
             name={icon}
-            size={20}
+            size={26}
             color={isFocused ? '#0E9375' : theme.textSecondary}
           />
         )}
-        <ThemedText
-          type="labelMd"
-          style={{
-            color: isFocused ? '#0E9375' : theme.textSecondary,
-            fontWeight: isFocused ? '700' : '500',
-          }}>
-          {children}
-        </ThemedText>
+        {isFocused && (
+          <ThemedText
+            type="labelMd"
+            style={{
+              fontSize: 14,
+              color: '#0E9375',
+              fontWeight: '700',
+            }}>
+            {children}
+          </ThemedText>
+        )}
       </View>
     </Pressable>
   );
@@ -88,22 +94,31 @@ export function CustomTabList(props: TabListProps) {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  body: {
+    flex: 1,
+  },
   tabListContainer: {
     position: 'absolute',
     bottom: 0,
-    width: '100%',
+    left: 0,
+    right: 0,
     paddingBottom: Spacing.two,
     paddingHorizontal: Spacing.three,
     justifyContent: 'center',
     alignItems: 'center',
   },
   innerContainer: {
-    paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
     borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    gap: 6,
     width: '100%',
     maxWidth: MaxContentWidth,
     shadowColor: '#000000',
@@ -118,13 +133,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabButtonView: {
-    flexDirection: 'column',
+    height: 40,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
-    gap: 2,
+    gap: 6,
+    minWidth: 52,
   },
   pressed: {
     opacity: 0.7,

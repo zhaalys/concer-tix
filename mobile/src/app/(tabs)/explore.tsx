@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -52,6 +53,11 @@ export default function ExploreScreen() {
     return list;
   }, [events, category, cityId, city, query, sortBy]);
 
+  const cityOptions = [
+    { id: 'semua', label: 'All Cities' },
+    ...CITIES.map((c) => ({ id: c.id, label: c.name })),
+  ];
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -77,55 +83,29 @@ export default function ExploreScreen() {
           </View>
         </View>
 
-        {/* Category chips */}
-        <View style={styles.chipsRow}>
-          {EXPLORE_CATEGORIES.map((cat) => {
-            const active = category === cat;
-            return (
-              <Pressable
-                key={cat}
-                onPress={() => setCategory(cat)}
-                style={[styles.chip, active && styles.chipActive]}>
-                <ThemedText style={[styles.chipText, active && styles.chipTextActive]}>
-                  {cat}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* City chips */}
-        <View style={styles.cityRow}>
-          {[{ id: 'semua', name: 'All Cities', label: '' } as any, ...CITIES].map((c: any) => {
-            const active = cityId === c.id;
-            return (
-              <Pressable
-                key={c.id}
-                onPress={() => setCityId(c.id)}
-                style={[styles.cityChip, active && styles.cityChipActive]}>
-                <ThemedText style={[styles.cityChipText, active && styles.cityChipTextActive]}>
-                  {c.name}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* Sort */}
-        <View style={styles.sortRow}>
-          <ThemedText style={styles.sortLabel}>Urutkan:</ThemedText>
-          <View style={styles.sortPills}>
-            {SORT_OPTIONS.map((opt) => (
-              <Pressable
-                key={opt.id}
-                onPress={() => setSortBy(opt.id)}
-                style={[styles.sortPill, sortBy === opt.id && styles.sortPillActive]}>
-                <ThemedText style={[styles.sortPillText, sortBy === opt.id && styles.sortPillTextActive]}>
-                  {opt.label}
-                </ThemedText>
-              </Pressable>
-            ))}
-          </View>
+        {/* Filter dropdowns */}
+        <View style={styles.filterRow}>
+          <FilterButton
+            label={category}
+            active={category !== 'All'}
+            options={EXPLORE_CATEGORIES}
+            value={category}
+            onChange={setCategory}
+          />
+          <FilterButton
+            label={cityOptions.find((o) => o.id === cityId)?.label ?? 'All Cities'}
+            active={cityId !== 'semua'}
+            options={cityOptions}
+            value={cityId}
+            onChange={setCityId}
+          />
+          <FilterButton
+            label={SORT_OPTIONS.find((o) => o.id === sortBy)?.label ?? 'Urutkan'}
+            active={sortBy !== 'popular'}
+            options={[...SORT_OPTIONS]}
+            value={sortBy}
+            onChange={(id) => setSortBy(id as SortOption)}
+          />
         </View>
 
         {/* Header */}
@@ -150,6 +130,57 @@ export default function ExploreScreen() {
         )}
       </ScrollView>
     </View>
+  );
+}
+
+interface FilterButtonProps {
+  label: string;
+  active: boolean;
+  options: { id: string; label: string }[] | string[];
+  value: string;
+  onChange: (id: string) => void;
+}
+
+function FilterButton({ label, active, options, value, onChange }: FilterButtonProps) {
+  const [open, setOpen] = useState(false);
+  const list = options.map((opt) =>
+    typeof opt === 'string' ? { id: opt, label: opt } : opt
+  );
+
+  return (
+    <>
+      <Pressable
+        onPress={() => setOpen(true)}
+        style={({ pressed }) => [styles.filterBtn, active && styles.filterBtnActive, pressed && styles.pressed]}>
+        <ThemedText numberOfLines={1} style={[styles.filterText, active && styles.filterTextActive]}>
+          {label}
+        </ThemedText>
+        <MaterialIcons name="keyboard-arrow-down" size={16} color={active ? '#0E9375' : '#495057'} />
+      </Pressable>
+
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setOpen(false)}>
+          <View style={styles.menu}>
+            <ScrollView style={styles.menuList} keyboardShouldPersistTaps="handled">
+              {list.map((opt) => (
+                <Pressable
+                  key={opt.id}
+                  onPress={() => {
+                    onChange(opt.id);
+                    setOpen(false);
+                  }}
+                  style={[styles.menuItem, value === opt.id && styles.menuItemActive]}>
+                  <ThemedText style={[styles.menuText, value === opt.id && styles.menuTextActive]}>
+                    {opt.label}
+                  </ThemedText>
+                  {value === opt.id && <MaterialIcons name="check" size={16} color="#0E9375" />}
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
 
@@ -197,87 +228,73 @@ const styles = StyleSheet.create({
     color: '#1A1D2E',
     paddingVertical: 0,
   },
-  chipsRow: {
+  filterRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 8,
   },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#DEE2E6',
-  },
-  chipActive: {
-    backgroundColor: '#0E9375',
-    borderColor: '#0E9375',
-  },
-  chipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#495057',
-  },
-  chipTextActive: {
-    color: '#FFFFFF',
-  },
-  cityRow: {
+  filterBtn: {
+    flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  cityChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+    height: 40,
+    paddingHorizontal: 10,
     borderRadius: 10,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#DEE2E6',
   },
-  cityChipActive: {
-    backgroundColor: '#E6F7F4',
+  filterBtnActive: {
     borderColor: '#0E9375',
+    backgroundColor: '#E6F7F4',
   },
-  cityChipText: {
-    fontSize: 12,
+  filterText: {
+    flex: 1,
+    fontSize: 11,
     fontWeight: '600',
     color: '#495057',
   },
-  cityChipTextActive: {
+  filterTextActive: {
     color: '#0E9375',
   },
-  sortRow: {
-    gap: 8,
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sortLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#495057',
-  },
-  sortPills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  sortPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 10,
+  menu: {
+    width: '80%',
+    maxWidth: 320,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#DEE2E6',
+    borderRadius: 14,
+    overflow: 'hidden',
+    paddingVertical: 4,
   },
-  sortPillActive: {
-    backgroundColor: '#1A1D2E',
-    borderColor: '#1A1D2E',
+  menuList: {
+    flexGrow: 0,
+    maxHeight: 320,
   },
-  sortPillText: {
-    fontSize: 12,
-    color: '#495057',
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F3F5',
   },
-  sortPillTextActive: {
-    color: '#FFFFFF',
+  menuItemActive: {
+    backgroundColor: '#F7FDFB',
+  },
+  menuText: {
+    fontSize: 13,
+    color: '#1A1D2E',
+  },
+  menuTextActive: {
+    color: '#0E9375',
+    fontWeight: '700',
   },
   header: {
     marginTop: 4,
@@ -298,8 +315,7 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12,
+    gap: 10,
   },
   empty: {
     alignItems: 'center',
@@ -325,5 +341,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 19,
     paddingHorizontal: 24,
+  },
+  pressed: {
+    opacity: 0.8,
   },
 });

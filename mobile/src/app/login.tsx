@@ -75,7 +75,7 @@ export default function LoginScreen() {
       {step === 'password' && (
         <View style={styles.changeRow}>
           <ThemedText style={styles.changeEmailLabel}>Email</ThemedText>
-          <AuthLink text="Change Email" onPress={() => setStep('email')} style={{ marginTop: 0 }} />
+          <AuthLink text="Change Email" onPress={() => setStep('email')} />
         </View>
       )}
       <FormInput
@@ -88,15 +88,13 @@ export default function LoginScreen() {
         autoFocus={step === 'password'}
       />
       {step === 'password' && (
-        <View style={styles.passwordField}>
-          <FormInput
-            label="Password"
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
+        <FormInput
+          label="Password"
+          placeholder="••••••••"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
       )}
       <AppButton
         label={loading ? 'Processing...' : step === 'email' ? 'Continue' : 'Log In'}
@@ -111,9 +109,8 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   submit: {
-    height: 42,
-    borderRadius: 8,
-    marginTop: 16,
+    height: 46,
+    borderRadius: 10,
   },
   changeRow: {
     flexDirection: 'row',
@@ -125,14 +122,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#374151',
   },
-  passwordField: {
-    marginTop: 16,
-  },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
+    marginTop: 8,
   },
   footerText: {
     fontSize: 13,

@@ -1,10 +1,9 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton } from '../AppButton';
-import { FormInput } from '../FormInput';
 import { ThemedText } from '../themed-text';
 import { resolveImage } from '@/lib/assets';
 
@@ -27,7 +26,7 @@ export function AuthScreen({ heading, subtitle, error, children, googleLoading, 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
         style={styles.flex}
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 32, paddingBottom: 40 }]}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 24, paddingBottom: 32 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.inner}>
@@ -39,8 +38,10 @@ export function AuthScreen({ heading, subtitle, error, children, googleLoading, 
             </View>
           </View>
 
-          <ThemedText style={styles.heading}>{heading}</ThemedText>
-          <ThemedText style={styles.subtitle}>{subtitle}</ThemedText>
+          <View style={styles.headerBlock}>
+            <ThemedText style={styles.heading}>{heading}</ThemedText>
+            <ThemedText style={styles.subtitle}>{subtitle}</ThemedText>
+          </View>
 
           {error ? (
             <View style={styles.errorBox}>
@@ -53,10 +54,15 @@ export function AuthScreen({ heading, subtitle, error, children, googleLoading, 
           <Divider />
 
           <AppButton
-            label={googleLoading ? 'Processing...' : 'Google'}
+            label={googleLoading ? 'Processing...' : 'Continue with Google'}
             variant="outline"
             loading={googleLoading}
             onPress={onGoogle}
+            iconNode={
+              !googleLoading ? (
+                <FontAwesome name="google" size={18} color="#4285F4" />
+              ) : undefined
+            }
             style={styles.googleBtn}
           />
 
@@ -99,17 +105,17 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 380,
     alignSelf: 'center',
-    gap: 6,
+    gap: 16,
   },
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 28,
+    marginBottom: 8,
   },
   logo: {
-    width: 130,
-    height: 50,
+    width: 120,
+    height: 46,
   },
   idPill: {
     flexDirection: 'row',
@@ -131,16 +137,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#374151',
   },
+  headerBlock: {
+    gap: 6,
+  },
   heading: {
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: 26,
+    fontWeight: '800',
     color: '#0F172A',
     letterSpacing: -0.02,
   },
   subtitle: {
     fontSize: 14,
     color: '#64748B',
-    marginBottom: 20,
+    lineHeight: 20,
   },
   errorBox: {
     backgroundColor: '#FEF2F2',
@@ -148,7 +157,6 @@ const styles = StyleSheet.create({
     borderColor: '#FECACA',
     borderRadius: 8,
     padding: 10,
-    marginBottom: 14,
   },
   errorText: {
     fontSize: 13,
@@ -158,7 +166,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginVertical: 18,
+    marginVertical: 6,
   },
   dividerLine: {
     flex: 1,
@@ -170,19 +178,19 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   googleBtn: {
-    height: 42,
-    borderRadius: 8,
+    height: 46,
+    borderRadius: 10,
     borderColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
   },
   footerLink: {
     alignItems: 'center',
-    marginTop: 18,
+    marginTop: 8,
   },
   footerLinkText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#0F766E',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0E9375',
   },
   pressed: {
     opacity: 0.7,

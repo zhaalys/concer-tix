@@ -19,7 +19,7 @@ const MENU_ITEMS = [
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, loading, signOut, updateDisplayName } = useAuth();
-  const [name, setName] = useState(user?.display_name ?? '');
+  const [name] = useState(user?.display_name ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -55,66 +55,85 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    router.replace('/' as never);
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={styles.identity}>
-        {user?.avatar_url ? (
-          <AppImage src={user.avatar_url} style={styles.avatar} radius={36} />
-        ) : (
-          <View style={styles.avatarFallback}>
-            <ThemedText style={styles.avatarLetter}>{initial}</ThemedText>
-          </View>
-        )}
-        <ThemedText style={styles.name}>{user?.display_name || 'User'}</ThemedText>
-        <ThemedText style={styles.email}>{user?.email}</ThemedText>
-        <ThemedText style={styles.provider}>Signed in with {provider}</ThemedText>
-      </View>
-
-      <View style={styles.card}>
-        <ThemedText style={styles.cardLabel}>Display Name</ThemedText>
-        <View style={styles.inputWrap}>
-          <ThemedText style={styles.inputText}>{name}</ThemedText>
+    <View style={styles.root}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.identity}>
+          {user?.avatar_url ? (
+            <AppImage src={user.avatar_url} style={styles.avatar} radius={36} />
+          ) : (
+            <View style={styles.avatarFallback}>
+              <ThemedText style={styles.avatarLetter}>{initial}</ThemedText>
+            </View>
+          )}
+          <ThemedText style={styles.name}>{user?.display_name || 'User'}</ThemedText>
+          <ThemedText style={styles.email}>{user?.email}</ThemedText>
+          <ThemedText style={styles.provider}>Signed in with {provider}</ThemedText>
         </View>
-        <AppButton
-          label={saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
-          disabled={!name.trim() || name.trim() === user?.display_name}
-          onPress={handleSave}
-          style={styles.saveBtn}
-        />
-      </View>
 
-      <View style={styles.divider} />
+        <View style={styles.card}>
+          <ThemedText style={styles.cardLabel}>Display Name</ThemedText>
+          <View style={styles.inputWrap}>
+            <ThemedText style={styles.inputText}>{name}</ThemedText>
+          </View>
+          <AppButton
+            label={saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
+            disabled={!name.trim() || name.trim() === user?.display_name}
+            onPress={handleSave}
+            style={styles.saveBtn}
+          />
+        </View>
 
-      <View style={styles.menu}>
-        {MENU_ITEMS.map((item) => (
+        <View style={styles.divider} />
+
+        <View style={styles.menu}>
+          {MENU_ITEMS.map((item) => (
+            <Pressable
+              key={item.label}
+              onPress={() => router.push(item.href as never)}
+              style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}>
+              <MaterialIcons name={item.icon} size={20} color="#0E9375" />
+              <ThemedText style={styles.menuLabel}>{item.label}</ThemedText>
+              <MaterialIcons name="chevron-right" size={20} color="#ADB5BD" />
+            </Pressable>
+          ))}
+        </View>
+
+        <AppButton label="Log out" variant="outline" onPress={handleLogout} style={styles.logout} />
+      </ScrollView>
+
+      {user ? (
+        <View style={styles.topRight}>
+          {user.avatar_url ? (
+            <AppImage src={user.avatar_url} style={styles.topAvatar} radius={16} />
+          ) : (
+            <View style={styles.topAvatarFallback}>
+              <ThemedText style={styles.topAvatarLetter}>{initial}</ThemedText>
+            </View>
+          )}
           <Pressable
-            key={item.label}
-            onPress={() => router.push(item.href as never)}
-            style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}>
-            <MaterialIcons name={item.icon} size={20} color="#0E9375" />
-            <ThemedText style={styles.menuLabel}>{item.label}</ThemedText>
-            <MaterialIcons name="chevron-right" size={20} color="#ADB5BD" />
+            onPress={handleLogout}
+            style={({ pressed }) => [styles.logoutBtn, pressed && styles.pressed]}>
+            <MaterialIcons name="logout" size={20} color="#EF4444" />
           </Pressable>
-        ))}
-      </View>
-
-      <AppButton
-        label="Log out"
-        variant="outline"
-        onPress={async () => {
-          await signOut();
-          router.replace('/' as never);
-        }}
-        style={styles.logout}
-      />
-    </ScrollView>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
     backgroundColor: '#F7F9FB',
+  },
+  container: {
+    flex: 1,
   },
   content: {
     padding: 20,
@@ -252,6 +271,41 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     height: 46,
+  },
+  topRight: {
+    position: 'absolute',
+    top: 8,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  topAvatar: {
+    width: 32,
+    height: 32,
+  },
+  topAvatarFallback: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#1ABC9C',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topAvatarLetter: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  logoutBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F1F3F5',
   },
   pressed: {
     opacity: 0.8,

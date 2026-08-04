@@ -5,6 +5,9 @@ const IMAGE_MAP: Record<string, number> = {
   '/image_concer/banner_concer_1.png': require('../../assets/public/image_concer/banner_concer_1.png'),
   // Brand / organizer
   '/logo/tix_logo.png': require('../../assets/public/logo/tix_logo.png'),
+  // Backgrounds
+  '/background/bg.png': require('../../assets/public/background/bg.png'),
+  '/background/tix_bg.png': require('../../assets/public/background/tix_bg.png'),
   // Banners
   '/banner/banner_1.png': require('../../assets/public/banner/banner_1.png'),
   '/banner/banner_2.png': require('../../assets/public/banner/banner_2.png'),

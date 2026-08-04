@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton } from '@/components/AppButton';
 import { AppImage } from '@/components/AppImage';
@@ -10,45 +9,74 @@ import { WRISTBAND_DESCRIPTION, WRISTBAND_PRODUCTION_TIME, WRISTBAND_UNIT_PRICE,
 
 export default function WristbandScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [variant, setVariant] = useState<WristbandVariant>('without_qr');
+  const [thumb, setThumb] = useState(0);
   const [qty, setQty] = useState(1);
 
   const v = WRISTBAND_VARIANTS[variant];
   const total = qty * WRISTBAND_UNIT_PRICE;
 
+  const selectVariant = (key: WristbandVariant) => {
+    if (key !== variant) {
+      setVariant(key);
+      setThumb(0);
+    }
+  };
+
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.content, { paddingBottom: 40 + insets.bottom }]}
+      contentContainerStyle={[styles.content, { paddingBottom: 100 }]}
       showsVerticalScrollIndicator={false}>
-      <AppImage src="/banner/banner_4.png" style={styles.banner} radius={20} />
+      <AppImage src="/banner/banner_4.png" style={styles.banner} radius={16} />
 
-      <View style={styles.body}>
-        <ThemedText style={styles.sectionLabel}>QR CODE</ThemedText>
-        <View style={styles.variantRow}>
-          {(Object.keys(WRISTBAND_VARIANTS) as WristbandVariant[]).map((key) => {
-            const active = variant === key;
-            return (
-              <Pressable
-                key={key}
-                onPress={() => setVariant(key)}
-                style={[styles.variantPill, active && styles.variantPillActive]}>
-                <ThemedText style={[styles.variantText, active && styles.variantTextActive]}>
-                  {WRISTBAND_VARIANTS[key].label}
-                </ThemedText>
-              </Pressable>
-            );
-          })}
+      {/* Product card */}
+      <View style={styles.card}>
+        {/* Main preview */}
+        <View style={styles.preview}>
+          <AppImage src={v.images[thumb]} style={styles.previewImg} contentFit="contain" />
         </View>
 
-        <View style={styles.imageRow}>
-          {v.images.map((img) => (
-            <AppImage key={img} src={img} style={styles.variantImg} contentFit="contain" />
+        {/* Thumbnails */}
+        <View style={styles.thumbRow}>
+          {v.images.map((img, i) => (
+            <Pressable
+              key={img}
+              onPress={() => setThumb(i)}
+              style={({ pressed }) => [
+                styles.thumbWrap,
+                i === thumb && styles.thumbWrapActive,
+                pressed && styles.pressed,
+              ]}>
+              <AppImage src={img} style={styles.thumbImg} contentFit="cover" />
+            </Pressable>
           ))}
         </View>
 
-        <ThemedText style={styles.sectionLabel}>Description</ThemedText>
+        {/* QR variant */}
+        <View style={styles.variantBlock}>
+          <ThemedText style={styles.label}>QR Code</ThemedText>
+          <View style={styles.variantRow}>
+            {(Object.keys(WRISTBAND_VARIANTS) as WristbandVariant[]).map((key) => {
+              const active = variant === key;
+              return (
+                <Pressable
+                  key={key}
+                  onPress={() => selectVariant(key)}
+                  style={[styles.variantPill, active && styles.variantPillActive]}>
+                  <ThemedText style={[styles.variantText, active && styles.variantTextActive]}>
+                    {WRISTBAND_VARIANTS[key].label}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+
+      {/* Description */}
+      <View style={styles.card}>
+        <ThemedText style={styles.label}>Description</ThemedText>
         <View style={styles.bulletList}>
           {WRISTBAND_DESCRIPTION.map((item) => (
             <View key={item} style={styles.bulletRow}>
@@ -57,40 +85,49 @@ export default function WristbandScreen() {
             </View>
           ))}
         </View>
+      </View>
 
-        <ThemedText style={styles.sectionLabel}>Print Quantity</ThemedText>
+      {/* Quantity + Summary */}
+      <View style={styles.card}>
         <View style={styles.qtyRow}>
-          <Pressable
-            onPress={() => setQty((q) => Math.max(1, q - 1))}
-            style={({ pressed }) => [styles.qtyBtn, pressed && styles.pressed]}>
-            <ThemedText style={styles.qtyBtnText}>−</ThemedText>
-          </Pressable>
-          <ThemedText style={styles.qtyValue}>{qty}</ThemedText>
-          <Pressable
-            onPress={() => setQty((q) => q + 1)}
-            style={({ pressed }) => [styles.qtyBtn, pressed && styles.pressed]}>
-            <ThemedText style={styles.qtyBtnText}>+</ThemedText>
-          </Pressable>
-        </View>
-
-        <View style={styles.infoGrid}>
-          <View style={styles.infoBox}>
-            <ThemedText style={styles.infoLabel}>Production Time</ThemedText>
-            <ThemedText style={styles.infoValue}>{WRISTBAND_PRODUCTION_TIME}</ThemedText>
-          </View>
-          <View style={styles.infoBox}>
-            <ThemedText style={styles.infoLabel}>Price per Wristband</ThemedText>
-            <ThemedText style={styles.infoValue}>Rp{WRISTBAND_UNIT_PRICE.toLocaleString('id-ID')}/pcs</ThemedText>
+          <ThemedText style={styles.label}>Print Quantity</ThemedText>
+          <View style={styles.qtyControl}>
+            <Pressable
+              onPress={() => setQty((q) => Math.max(1, q - 1))}
+              style={({ pressed }) => [styles.qtyBtn, pressed && styles.pressed]}>
+              <ThemedText style={styles.qtyBtnText}>−</ThemedText>
+            </Pressable>
+            <ThemedText style={styles.qtyValue}>{qty}</ThemedText>
+            <Pressable
+              onPress={() => setQty((q) => q + 1)}
+              style={({ pressed }) => [styles.qtyBtn, pressed && styles.pressed]}>
+              <ThemedText style={styles.qtyBtnText}>+</ThemedText>
+            </Pressable>
           </View>
         </View>
 
-        <View style={styles.totalRow}>
+        <View style={styles.divider} />
+
+        <View style={styles.summaryRow}>
+          <ThemedText style={styles.summaryLabel}>Production Time</ThemedText>
+          <ThemedText style={styles.summaryValue}>{WRISTBAND_PRODUCTION_TIME}</ThemedText>
+        </View>
+        <View style={styles.summaryRow}>
+          <ThemedText style={styles.summaryLabel}>Price per Wristband</ThemedText>
+          <ThemedText style={styles.summaryValue}>Rp{WRISTBAND_UNIT_PRICE.toLocaleString('id-ID')}/pcs</ThemedText>
+        </View>
+      </View>
+
+      <View style={styles.totalRow}>
+        <View style={{ flex: 1 }}>
           <ThemedText style={styles.totalLabel}>Total Price</ThemedText>
-          <ThemedText style={styles.totalValue}>Rp{total.toLocaleString('id-ID')}</ThemedText>
+          <ThemedText style={styles.totalHint}>Rp{WRISTBAND_UNIT_PRICE.toLocaleString('id-ID')} × {qty} pcs</ThemedText>
         </View>
-
+        <ThemedText style={styles.totalValue}>Rp{total.toLocaleString('id-ID')}</ThemedText>
         <AppButton
           label="Order Now"
+          icon="shopping-cart"
+          style={{ marginLeft: 10, height: 38, paddingHorizontal: 14 }}
           onPress={() => router.push(`/wristband/order?variant=${variant}&qty=${qty}` as never)}
         />
       </View>
@@ -101,25 +138,61 @@ export default function WristbandScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F7F9FB',
   },
   content: {
     padding: 16,
-    gap: 16,
+    gap: 14,
   },
   banner: {
     width: '100%',
-    height: 160,
+    aspectRatio: 2103 / 748,
   },
-  body: {
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
     gap: 14,
   },
-  sectionLabel: {
+  label: {
     fontSize: 11,
     fontWeight: '700',
     color: '#495057',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  preview: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: 10,
+    backgroundColor: '#F7F9FB',
+    overflow: 'hidden',
+  },
+  previewImg: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  thumbWrap: {
+    width: 68,
+    height: 68,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#E9ECEF',
+    overflow: 'hidden',
+  },
+  thumbWrapActive: {
+    borderColor: '#0E9375',
+  },
+  thumbImg: {
+    width: '100%',
+    height: '100%',
+  },
+  variantBlock: {
+    gap: 10,
   },
   variantRow: {
     flexDirection: 'row',
@@ -145,41 +218,40 @@ const styles = StyleSheet.create({
   variantTextActive: {
     color: '#0E9375',
   },
-  imageRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  variantImg: {
-    flex: 1,
-    aspectRatio: 1,
-  },
   bulletList: {
-    gap: 6,
+    gap: 8,
   },
   bulletRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   bullet: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#0E9375',
   },
   bulletText: {
+    flex: 1,
     fontSize: 13,
     color: '#495057',
+    lineHeight: 19,
   },
   qtyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    justifyContent: 'space-between',
+  },
+  qtyControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   qtyBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#DEE2E6',
     alignItems: 'center',
@@ -187,51 +259,56 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   qtyBtnText: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#0E9375',
     fontWeight: '700',
   },
   qtyValue: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
     color: '#1A1D2E',
-    minWidth: 30,
+    minWidth: 24,
     textAlign: 'center',
   },
-  infoGrid: {
+  divider: {
+    height: 1,
+    backgroundColor: '#F1F3F5',
+  },
+  summaryRow: {
     flexDirection: 'row',
-    gap: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  infoBox: {
-    flex: 1,
-    backgroundColor: '#F7F9FB',
-    borderRadius: 10,
-    padding: 12,
-    gap: 4,
-  },
-  infoLabel: {
-    fontSize: 11,
+  summaryLabel: {
+    fontSize: 12,
     color: '#868E96',
   },
-  infoValue: {
-    fontSize: 12,
+  summaryValue: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#1A1D2E',
   },
   totalRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 4,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
   },
   totalLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#495057',
   },
+  totalHint: {
+    fontSize: 10,
+    color: '#868E96',
+    marginTop: 2,
+  },
   totalValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
     color: '#0E9375',
+    marginLeft: 10,
   },
   pressed: {
     opacity: 0.7,

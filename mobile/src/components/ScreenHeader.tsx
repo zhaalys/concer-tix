@@ -19,7 +19,7 @@ export function ScreenHeader({ title, subtitle, onBack, right }: ScreenHeaderPro
   return (
     <View style={[styles.header, { paddingTop: Math.max(insets.top, 12) }]}>
       <Pressable
-        onPress={onBack ?? (() => router.back())}
+        onPress={onBack ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
         style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
         hitSlop={8}>
         <MaterialIcons name="arrow-back" size={22} color="#1A1D2E" />

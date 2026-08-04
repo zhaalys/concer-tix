@@ -65,7 +65,7 @@ export default function RegisterScreen() {
         <>
           <View style={styles.changeRow}>
             <ThemedText style={styles.changeLabel}>Password</ThemedText>
-            <AuthLink text="Change Email" onPress={() => setStep('register')} style={{ marginTop: 0 }} />
+            <AuthLink text="Change Email" onPress={() => setStep('register')} />
           </View>
           <FormInput
             label="Password"
@@ -85,7 +85,6 @@ export default function RegisterScreen() {
       ) : (
         <>
           <FormInput label="Name" placeholder="Your name" value={name} onChangeText={setName} />
-          <View style={styles.fieldGap} />
           <FormInput
             label="Email"
             placeholder="Email"
@@ -108,12 +107,8 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   submit: {
-    height: 42,
-    borderRadius: 8,
-    marginTop: 16,
-  },
-  fieldGap: {
-    height: 14,
+    height: 46,
+    borderRadius: 10,
   },
   changeRow: {
     flexDirection: 'row',
@@ -130,6 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
+    marginTop: 8,
   },
   footerText: {
     fontSize: 13,

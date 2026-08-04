@@ -1,9 +1,10 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { extractAuthCodeParams } from '@/lib/auth-url';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthCallbackScreen() {
@@ -15,7 +16,12 @@ export default function AuthCallbackScreen() {
     let active = true;
     const finalize = async (url: string) => {
       if (!url) return;
-      const { error: exErr } = await supabase.auth.exchangeCodeForSession(url);
+      const authParams = extractAuthCodeParams(url);
+      if (!authParams) return;
+      const { error: exErr } = await supabase.auth.exchangeCodeForSession(
+        authParams.code,
+        authParams.flowId ? { flowId: authParams.flowId } : undefined
+      );
       if (!active) return;
       if (exErr) {
         setError(exErr.message);

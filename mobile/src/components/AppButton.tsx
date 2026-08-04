@@ -12,6 +12,7 @@ interface AppButtonProps {
   disabled?: boolean;
   loading?: boolean;
   icon?: keyof typeof MaterialIcons.glyphMap;
+  iconNode?: React.ReactNode;
   style?: ViewStyle | ViewStyle[];
 }
 
@@ -29,6 +30,7 @@ export function AppButton({
   disabled,
   loading,
   icon,
+  iconNode,
   style,
 }: AppButtonProps) {
   const v = VARIANTS[variant];
@@ -48,7 +50,8 @@ export function AppButton({
         <ActivityIndicator color={variant === 'outline' ? '#1A1D2E' : '#FFFFFF'} size="small" />
       ) : (
         <View style={styles.content}>
-          {icon && <MaterialIcons name={icon} size={18} color={v.text} />}
+          {iconNode ??
+            (icon && <MaterialIcons name={icon} size={18} color={v.text} />)}
           <ThemedText style={[styles.label, { color: isDisabled ? '#FFFFFF' : v.text }]}>
             {label}
           </ThemedText>
