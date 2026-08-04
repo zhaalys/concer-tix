@@ -58,14 +58,14 @@ export function TabButton({
           styles.tabButtonView,
           isFocused ? { backgroundColor: 'rgba(14, 147, 117, 0.12)' } : { backgroundColor: 'transparent' },
         ]}>
-        {icon && (
+        {icon ? (
           <MaterialIcons
             name={icon}
             size={26}
             color={isFocused ? '#0E9375' : theme.textSecondary}
           />
-        )}
-        {isFocused && (
+        ) : null}
+        {isFocused ? (
           <ThemedText
             type="labelMd"
             style={{
@@ -75,7 +75,7 @@ export function TabButton({
             }}>
             {children}
           </ThemedText>
-        )}
+        ) : null}
       </View>
     </Pressable>
   );

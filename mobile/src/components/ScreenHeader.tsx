@@ -25,16 +25,16 @@ export function ScreenHeader({ title, subtitle, onBack, right }: ScreenHeaderPro
         <MaterialIcons name="arrow-back" size={22} color="#1A1D2E" />
       </Pressable>
       <View style={styles.titles}>
-        {title && (
+        {!!title ? (
           <ThemedText style={styles.title} numberOfLines={1}>
             {title}
           </ThemedText>
-        )}
-        {subtitle && (
+        ) : null}
+        {!!subtitle ? (
           <ThemedText style={styles.subtitle} numberOfLines={1}>
             {subtitle}
           </ThemedText>
-        )}
+        ) : null}
       </View>
       <View style={styles.right}>{right}</View>
     </View>

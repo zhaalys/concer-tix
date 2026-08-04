@@ -343,11 +343,11 @@ export default function CheckoutScreen() {
             <View style={styles.formCard}>
               <View style={styles.ticketTitleRow}>
                 <ThemedText style={styles.formCardTitle}>Detail Tiket - 1</ThemedText>
-                {selectedTicket && (
+                {selectedTicket ? (
                   <View style={styles.ticketChip}>
                     <ThemedText style={styles.ticketChipText}>{selectedTicket.label}</ThemedText>
                   </View>
-                )}
+                ) : null}
               </View>
               <FormInput
                 label="Nama Lengkap"
@@ -367,7 +367,7 @@ export default function CheckoutScreen() {
                 }}
                 required={false}
               />
-              {identityType && (
+              {identityType ? (
                 <FormInput
                   label={`Nomor Identitas (maks ${identityMax} digit)`}
                   placeholder={`${identityMax} digit`}
@@ -381,7 +381,7 @@ export default function CheckoutScreen() {
                       : undefined
                   }
                 />
-              )}
+              ) : null}
               <FormSelect
                 label="Jenis Kelamin"
                 placeholder="Pilih jenis kelamin"
@@ -420,11 +420,11 @@ export default function CheckoutScreen() {
               </View>
             </View>
 
-            {orderError && (
+            {orderError ? (
               <View style={styles.errorBox}>
                 <ThemedText style={styles.errorText}>{orderError}</ThemedText>
               </View>
-            )}
+            ) : null}
           </>
         )}
 
@@ -463,11 +463,11 @@ export default function CheckoutScreen() {
               </View>
             </View>
 
-            {payError && (
+            {payError ? (
               <View style={styles.errorBox}>
                 <ThemedText style={styles.errorText}>{payError}</ThemedText>
               </View>
-            )}
+            ) : null}
           </>
         )}
 

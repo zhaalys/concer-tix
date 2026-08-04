@@ -128,36 +128,36 @@ export default function OrderNotaScreen() {
               </View>
             </Section>
 
-            {order.payment_method && (
+            {order.payment_method ? (
               <Section label="Payment">
                 <ThemedText style={styles.eventMeta}>{order.payment_method}</ThemedText>
-                {order.paid_at && <ThemedText style={styles.createdAt}>{formatDateFull(order.paid_at)}</ThemedText>}
+                {order.paid_at ? <ThemedText style={styles.createdAt}>{formatDateFull(order.paid_at)}</ThemedText> : null}
               </Section>
-            )}
+            ) : null}
 
-            {attendee && (
+            {attendee ? (
               <Section label="Detail Tiket">
-                {attendee.full_name && <DetailRow label="Nama" value={attendee.full_name} />}
-                {attendee.booker_name && <DetailRow label="Pemesan" value={attendee.booker_name} />}
-                {attendee.email && <DetailRow label="Email" value={attendee.email} />}
-                {attendee.whatsapp && <DetailRow label="WhatsApp" value={attendee.whatsapp} />}
-                {attendee.identity_type && (
+                {attendee.full_name ? <DetailRow label="Nama" value={attendee.full_name} /> : null}
+                {attendee.booker_name ? <DetailRow label="Pemesan" value={attendee.booker_name} /> : null}
+                {attendee.email ? <DetailRow label="Email" value={attendee.email} /> : null}
+                {attendee.whatsapp ? <DetailRow label="WhatsApp" value={attendee.whatsapp} /> : null}
+                {attendee.identity_type ? (
                   <DetailRow
                     label="Identitas"
                     value={`${attendee.identity_type.toUpperCase()} — ${attendee.identity_number}`}
                   />
-                )}
-                {attendee.gender && <DetailRow label="Gender" value={attendee.gender === 'male' ? 'Laki-laki' : 'Perempuan'} />}
-                {attendee.age != null && <DetailRow label="Usia" value={String(attendee.age)} />}
-                {attendee.domicile && <DetailRow label="Domisili" value={attendee.domicile} />}
+                ) : null}
+                {attendee.gender ? <DetailRow label="Gender" value={attendee.gender === 'male' ? 'Laki-laki' : 'Perempuan'} /> : null}
+                {attendee.age != null ? <DetailRow label="Usia" value={String(attendee.age)} /> : null}
+                {attendee.domicile ? <DetailRow label="Domisili" value={attendee.domicile} /> : null}
               </Section>
-            )}
+            ) : null}
 
-            {payError && (
+            {payError ? (
               <View style={styles.errorBox}>
                 <ThemedText style={styles.errorText}>{payError}</ThemedText>
               </View>
-            )}
+            ) : null}
 
             <View style={styles.actions}>
               {isPaid ? (

@@ -97,12 +97,12 @@ export default function WristbandNotaScreen() {
               <ThemedText style={styles.totalValue}>Rp{order.total_amount.toLocaleString('id-ID')}</ThemedText>
             </View>
 
-            {order.payment_method && (
+            {order.payment_method ? (
               <Section label="Payment">
                 <ThemedText style={styles.metaText}>{order.payment_method}</ThemedText>
-                {order.paid_at && <ThemedText style={styles.createdAt}>{formatDateFull(order.paid_at)}</ThemedText>}
+                {order.paid_at ? <ThemedText style={styles.createdAt}>{formatDateFull(order.paid_at)}</ThemedText> : null}
               </Section>
-            )}
+            ) : null}
 
             <Section label="Shipping">
               <DetailRow label="Nama" value={order.customer_name} />
