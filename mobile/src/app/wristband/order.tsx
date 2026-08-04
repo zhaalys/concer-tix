@@ -1,3 +1,4 @@
+import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -11,16 +12,18 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton } from '@/components/AppButton';
+import { AppImage } from '@/components/AppImage';
 import { FormInput } from '@/components/FormInput';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { ThemedText } from '@/components/themed-text';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
-import { WRISTBAND_INVOICE_MSG, WRISTBAND_UNIT_PRICE, WRISTBAND_VARIANTS } from '@/lib/content';
+import { PAYMENT_GROUP_ORDER, PAYMENT_METHODS, WRISTBAND_UNIT_PRICE, WRISTBAND_VARIANTS } from '@/lib/content';
 import { formatPhone, isValidPhone, phoneDigits } from '@/lib/format';
+import { openSnap } from '@/lib/payment';
 import type { WristbandOrder } from '@/lib/types';
 
-type Stage = 'form' | 'creating' | 'done';
+type Stage = 'form' | 'payment' | 'creating' | 'done';
 
 export default function WristbandOrderScreen() {
   const params = useLocalSearchParams<{ variant?: string; qty?: string }>();
@@ -32,6 +35,7 @@ export default function WristbandOrderScreen() {
   const qty = Math.max(1, parseInt(params.qty ?? '1', 10) || 1);
 
   const [stage, setStage] = useState<Stage>('form');
+  const [paymentMethod, setPaymentMethod] = useState<string>('bca_va');
   const [order, setOrder] = useState<WristbandOrder | null>(null);
   const [name, setName] = useState(user?.display_name ?? '');
   const [whatsapp, setWhatsapp] = useState('');
@@ -41,7 +45,7 @@ export default function WristbandOrderScreen() {
   const total = useMemo(() => qty * WRISTBAND_UNIT_PRICE, [qty]);
   const phoneDigitsStr = phoneDigits(whatsapp);
   const phoneValid = isValidPhone(phoneDigitsStr);
-  const canSubmit = !!name.trim() && phoneValid && !!address.trim();
+  const canSubmitForm = !!name.trim() && phoneValid && !!address.trim();
 
   useEffect(() => {
     if (!user) {
@@ -60,6 +64,7 @@ export default function WristbandOrderScreen() {
     setStage('creating');
     setError('');
     try {
+      const selectedMethod = PAYMENT_METHODS.find((m) => m.id === paymentMethod) ?? PAYMENT_METHODS[0];
       const res = await api.createWristbandOrder({
         variant,
         quantity: qty,
@@ -68,11 +73,20 @@ export default function WristbandOrderScreen() {
         shipping_address: address.trim(),
         user_id: user?.id ?? null,
       });
-      setOrder(res.data);
+
+      // Handle Midtrans Snap Payment
+      const tokenRes = await api.createWristbandPaymentToken(res.data.order_code);
+      await openSnap(tokenRes.token);
+      const paid = await api.updateWristbandOrderStatus(res.data.order_code, {
+        status: 'paid',
+        payment_method: selectedMethod.label,
+      });
+
+      setOrder(paid.data);
       setStage('done');
     } catch (e: any) {
-      setError(e?.message || 'Terjadi kesalahan');
-      setStage('form');
+      setError(e?.message || 'Terjadi kesalahan saat memproses pesanan.');
+      setStage('payment');
     }
   };
 
@@ -80,8 +94,8 @@ export default function WristbandOrderScreen() {
     return (
       <View style={styles.container}>
         <ScreenHeader title="Order Wristband" />
-        <ActivityIndicator color="#0E9375" style={{ marginTop: 60 }} />
-        <ThemedText style={styles.loadingText}>Creating order...</ThemedText>
+        <ActivityIndicator color="#0E9375" size="large" style={{ marginTop: 60 }} />
+        <ThemedText style={styles.loadingText}>Processing order & payment...</ThemedText>
       </View>
     );
   }
@@ -106,55 +120,58 @@ export default function WristbandOrderScreen() {
         <ScrollView
           contentContainerStyle={[styles.content, { paddingBottom: 60 + insets.bottom }]}
           showsVerticalScrollIndicator={false}>
-          <View style={styles.headerRow}>
-            <ThemedText style={styles.mono}>{order.order_code}</ThemedText>
-            <View
-              style={[
-                styles.statusBadge,
-                order.status === 'paid' ? styles.statusPaid : styles.statusPending,
-              ]}>
-              <ThemedText
-                style={[
-                  styles.statusText,
-                  order.status === 'paid' ? styles.statusTextPaid : styles.statusTextPending,
-                ]}>
-                {order.status === 'paid' ? 'Paid' : 'Pending'}
-              </ThemedText>
+          <View style={styles.successWrap}>
+            <View style={styles.lanyardContainer}>
+              <AppImage src="/history_lanyard/lanyard_accept.png" style={styles.lanyardImgLarge} contentFit="contain" />
+              <View style={styles.badgeTextOverlay}>
+                <View style={styles.badgeSuccessHeader}>
+                  <MaterialIcons name="check-circle" size={20} color="#0E9375" />
+                  <ThemedText style={styles.badgeSuccessTitle}>PAYMENT SUCCESSFUL</ThemedText>
+                </View>
+
+                <View style={styles.badgeDivider} />
+
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Variant</ThemedText>
+                  <ThemedText numberOfLines={1} style={styles.badgeValue}>
+                    {WRISTBAND_VARIANTS[order.variant].label}
+                  </ThemedText>
+                </View>
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Order Code</ThemedText>
+                  <ThemedText style={[styles.badgeValue, { fontFamily: 'monospace' }]}>
+                    {order.order_code}
+                  </ThemedText>
+                </View>
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Quantity</ThemedText>
+                  <ThemedText style={styles.badgeValue}>{order.quantity} pcs</ThemedText>
+                </View>
+                <View style={styles.badgeRow}>
+                  <ThemedText style={styles.badgeLabel}>Total</ThemedText>
+                  <ThemedText style={styles.badgeValueBold}>
+                    Rp{order.total_amount.toLocaleString('id-ID')}
+                  </ThemedText>
+                </View>
+              </View>
             </View>
+
+            <Section label="Shipping Info">
+              <DetailRow label="Nama" value={order.customer_name} />
+              <DetailRow label="No. WhatsApp" value={order.customer_whatsapp} />
+              <DetailRow label="Alamat" value={order.shipping_address} />
+            </Section>
+
+            <AppButton
+              label="Send Invoice to WhatsApp"
+              variant="dark"
+              style={{ width: '100%' }}
+              onPress={() => {
+                Linking.openURL(`https://wa.me/6281316936289?text=${waMsg}`);
+              }}
+            />
+            <AppButton label="My Orders" variant="outline" style={{ width: '100%' }} onPress={() => router.push('/tickets' as never)} />
           </View>
-          <ThemedText style={styles.createdAt}>{new Date(order.created_at).toLocaleString()}</ThemedText>
-
-          <Section label="Order Detail">
-            <DetailRow label="Variant" value={WRISTBAND_VARIANTS[order.variant].label} />
-            <DetailRow label="Quantity" value={String(order.quantity)} />
-            {order.payment_method && <DetailRow label="Payment" value={order.payment_method} />}
-          </Section>
-
-          <View style={styles.totalRow}>
-            <ThemedText style={styles.totalLabel}>Total</ThemedText>
-            <ThemedText style={styles.totalValue}>Rp{order.total_amount.toLocaleString('id-ID')}</ThemedText>
-          </View>
-
-          <Section label="Shipping">
-            <DetailRow label="Nama" value={order.customer_name} />
-            <DetailRow label="No. WhatsApp" value={order.customer_whatsapp} />
-            <DetailRow label="Alamat" value={order.shipping_address} />
-          </Section>
-
-          <ThemedText style={styles.doneMsg}>
-            {order.status === 'paid'
-              ? 'Payment confirmed. We will process your order shortly.'
-              : 'Please complete your payment using the instructions shown. Status will update once confirmed.'}
-          </ThemedText>
-
-          <AppButton
-            label="Send Invoice to WhatsApp"
-            variant="dark"
-            onPress={() => {
-              Linking.openURL(`https://wa.me/6281316936289?text=${waMsg}`);
-            }}
-          />
-          <AppButton label="My Orders" variant="outline" onPress={() => router.push('/tickets' as never)} />
         </ScrollView>
       </View>
     );
@@ -162,73 +179,129 @@ export default function WristbandOrderScreen() {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="Order Wristband" />
+      <ScreenHeader title="Order Wristband" subtitle={stage === 'payment' ? 'Pilih Metode Pembayaran' : 'Isi Data Pengiriman'} />
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: 120 + insets.bottom }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
-        <ThemedText style={styles.subtitle}>Complete your wristband order</ThemedText>
+        {stage === 'form' ? (
+          <>
+            <ThemedText style={styles.subtitle}>Complete your wristband order</ThemedText>
 
-        <Section label="Order Detail">
-          <DetailRow label="Variant" value={WRISTBAND_VARIANTS[variant].label} />
-          <DetailRow label="Quantity" value={String(qty)} />
-        </Section>
+            <Section label="Order Detail">
+              <DetailRow label="Variant" value={WRISTBAND_VARIANTS[variant].label} />
+              <DetailRow label="Quantity" value={`${qty} pcs`} />
+              <DetailRow label="Unit Price" value={`Rp${WRISTBAND_UNIT_PRICE.toLocaleString('id-ID')}/pcs`} />
+            </Section>
 
-        <View style={styles.totalRow}>
-          <ThemedText style={styles.totalLabel}>Total</ThemedText>
-          <ThemedText style={styles.totalValue}>Rp{total.toLocaleString('id-ID')}</ThemedText>
-        </View>
+            <View style={styles.totalRow}>
+              <ThemedText style={styles.totalLabel}>Total</ThemedText>
+              <ThemedText style={styles.totalValue}>Rp{total.toLocaleString('id-ID')}</ThemedText>
+            </View>
 
-        <ThemedText style={styles.shipTitle}>Shipping Information</ThemedText>
-        <View style={styles.form}>
-          <FormInput
-            label="Nama Lengkap"
-            placeholder="e.g. John Doe"
-            value={name}
-            onChangeText={setName}
-            required
-          />
-          <FormInput
-            label="No. WhatsApp *"
-            placeholder="+62 8xxxxxxxxx"
-            value={whatsapp}
-            onChangeText={handlePhoneChange}
-            keyboardType="phone-pad"
-            error={
-              whatsapp
-                ? phoneValid
-                  ? undefined
-                  : 'Nomor tidak valid, minimal 10 digit setelah +62'
-                : undefined
-            }
-            valid={phoneValid ? `Tersimpan sebagai ${formatPhone(phoneDigitsStr)}` : undefined}
-          />
-          <FormInput
-            label="Alamat Pengiriman"
-            placeholder="e.g. Jl. Merdeka No. 1, Jakarta"
-            value={address}
-            onChangeText={setAddress}
-            multiline
-            numberOfLines={3}
-            required
-            style={styles.textarea}
-          />
-        </View>
+            <ThemedText style={styles.shipTitle}>Shipping Information</ThemedText>
+            <View style={styles.form}>
+              <FormInput
+                label="Nama Lengkap"
+                placeholder="e.g. John Doe"
+                value={name}
+                onChangeText={setName}
+                required
+              />
+              <FormInput
+                label="No. WhatsApp *"
+                placeholder="+62 8xxxxxxxxx"
+                value={whatsapp}
+                onChangeText={handlePhoneChange}
+                keyboardType="phone-pad"
+                error={
+                  whatsapp
+                    ? phoneValid
+                      ? undefined
+                      : 'Nomor tidak valid, minimal 10 digit setelah +62'
+                    : undefined
+                }
+                valid={phoneValid ? `Tersimpan sebagai ${formatPhone(phoneDigitsStr)}` : undefined}
+              />
+              <FormInput
+                label="Alamat Pengiriman"
+                placeholder="e.g. Jl. Merdeka No. 1, Jakarta"
+                value={address}
+                onChangeText={setAddress}
+                multiline
+                numberOfLines={3}
+                required
+                style={styles.textarea}
+              />
+            </View>
 
-        {error ? (
-          <View style={styles.errorBox}>
-            <ThemedText style={styles.errorText}>{error}</ThemedText>
-          </View>
-        ) : null}
+            {error ? (
+              <View style={styles.errorBox}>
+                <ThemedText style={styles.errorText}>{error}</ThemedText>
+              </View>
+            ) : null}
 
-        <View style={styles.actions}>
-          <AppButton label="Place Order" variant="dark" disabled={!canSubmit} onPress={handlePlaceOrder} />
-          <Pressable
-            onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-            style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
-            <ThemedText style={styles.backText}>Back</ThemedText>
-          </Pressable>
-        </View>
+            <View style={styles.actions}>
+              <AppButton
+                label="Lanjutkan ke Pembayaran"
+                variant="dark"
+                disabled={!canSubmitForm}
+                onPress={() => setStage('payment')}
+              />
+              <Pressable
+                onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
+                style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+                <ThemedText style={styles.backText}>Back</ThemedText>
+              </Pressable>
+            </View>
+          </>
+        ) : (
+          <>
+            <ThemedText style={styles.payTitle}>Metode Pembayaran</ThemedText>
+            {PAYMENT_GROUP_ORDER.map((group) => (
+              <View key={group} style={styles.payGroup}>
+                <ThemedText style={styles.payGroupTitle}>{group}</ThemedText>
+                <View style={styles.payGrid}>
+                  {PAYMENT_METHODS.filter((m) => m.group === group).map((m) => {
+                    const selected = paymentMethod === m.id;
+                    return (
+                      <Pressable
+                        key={m.id}
+                        onPress={() => setPaymentMethod(m.id)}
+                        style={[styles.payCard, selected && styles.payCardSelected]}>
+                        <AppImage src={m.image} style={styles.payLogo} contentFit="contain" />
+                        <ThemedText style={[styles.payLabel, selected && styles.payLabelSelected]} numberOfLines={2}>
+                          {m.label}
+                        </ThemedText>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+            <ThemedText style={styles.payFootnote}>Semua metode pembayaran tersedia melalui Midtrans Snap.</ThemedText>
+
+            <View style={styles.totalCard}>
+              <View style={styles.totalRow}>
+                <ThemedText style={styles.totalLabel}>Total Bayar</ThemedText>
+                <ThemedText style={styles.totalValue}>Rp{total.toLocaleString('id-ID')}</ThemedText>
+              </View>
+            </View>
+
+            {error ? (
+              <View style={styles.errorBox}>
+                <ThemedText style={styles.errorText}>{error}</ThemedText>
+              </View>
+            ) : null}
+
+            <View style={styles.actions}>
+              <AppButton label="Bayar Sekarang" variant="dark" onPress={handlePlaceOrder} />
+              <Pressable onPress={() => setStage('form')} style={({ pressed }) => [styles.back, pressed && styles.pressed]}>
+                <ThemedText style={styles.backText}>Kembali ke Form</ThemedText>
+              </Pressable>
+            </View>
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -348,45 +421,133 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9B9B9B',
   },
-  headerRow: {
+  payTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A1D2E',
+  },
+  payGroup: {
+    gap: 10,
+  },
+  payGroupTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#9B9B9B',
+    textTransform: 'uppercase',
+  },
+  payGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  payCard: {
+    width: '31%',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EBEBEB',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    gap: 6,
+  },
+  payCardSelected: {
+    borderColor: '#0E9375',
+    borderWidth: 1.5,
+    backgroundColor: '#F0FAF7',
+  },
+  payLogo: {
+    width: 48,
+    height: 28,
+  },
+  payLabel: {
+    fontSize: 11,
+    color: '#495057',
+    textAlign: 'center',
+  },
+  payLabelSelected: {
+    fontWeight: '700',
+    color: '#0E9375',
+  },
+  payFootnote: {
+    fontSize: 12,
+    color: '#BDBDBD',
+  },
+  totalCard: {
+    borderWidth: 1,
+    borderColor: '#EBEBEB',
+    borderRadius: 8,
+    padding: 16,
+  },
+  successWrap: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  lanyardContainer: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: 420,
+    aspectRatio: 1,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lanyardImgLarge: {
+    width: '100%',
+    height: '100%',
+  },
+  badgeTextOverlay: {
+    position: 'absolute',
+    top: '47%',
+    bottom: '7%',
+    left: '11%',
+    right: '11%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    gap: 5,
+  },
+  badgeSuccessHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  badgeSuccessTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1A1D2E',
+    textAlign: 'center',
+    letterSpacing: 0.4,
+  },
+  badgeDivider: {
+    borderTopWidth: 1,
+    borderTopColor: '#EBEBEB',
+    borderStyle: 'dashed',
+    marginVertical: 3,
+  },
+  badgeRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
-  mono: {
-    fontFamily: 'monospace',
-    fontSize: 14,
-    color: '#1A1D2E',
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  statusPaid: {
-    backgroundColor: '#EEEEEE',
-  },
-  statusPending: {
-    backgroundColor: '#FFF3D6',
-  },
-  statusText: {
+  badgeLabel: {
     fontSize: 12,
-    textTransform: 'capitalize',
+    color: '#868E96',
   },
-  statusTextPaid: {
-    color: '#37352F',
+  badgeValue: {
+    fontSize: 12,
+    color: '#1A1D2E',
+    fontWeight: '600',
+    flexShrink: 1,
+    textAlign: 'right',
   },
-  statusTextPending: {
-    color: '#B45309',
-  },
-  createdAt: {
+  badgeValueBold: {
     fontSize: 13,
-    color: '#A0A0A0',
-  },
-  doneMsg: {
-    fontSize: 13,
-    color: '#6B6B6B',
-    lineHeight: 19,
+    color: '#0E9375',
+    fontWeight: '800',
   },
   pressed: {
     opacity: 0.8,
