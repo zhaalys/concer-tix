@@ -118,7 +118,25 @@ export async function syncOrderToSupabase(order: Order): Promise<void> {
         .select('id')
         .eq('slug', order.event_slug)
         .maybeSingle();
-      if (ev) eventId = ev.id;
+      if (ev) {
+        eventId = ev.id;
+      } else {
+        const searchPattern = order.event_slug.replace(/-/g, '%');
+        const { data: evTitle } = await supabase
+          .from('events')
+          .select('id')
+          .ilike('title', `%${searchPattern}%`)
+          .limit(1);
+        if (evTitle?.[0]) eventId = evTitle[0].id;
+      }
+    }
+
+    if (!eventId) {
+      const { data: anyEv } = await supabase
+        .from('events')
+        .select('id')
+        .limit(1);
+      if (anyEv?.[0]) eventId = anyEv[0].id;
     }
 
     const { data: existingOrder } = await supabase

@@ -46,13 +46,13 @@ export default function ETicketScreen() {
   }, [code, user]);
 
   const attendee = order?.attendees?.[0];
-  const ticketCode = attendee?.ticket_code || order?.order_code || code;
+  const ticketCode = attendee?.ticket_code || (order?.order_code ? `TIX-${order.order_code}-1` : (code ?? 'TIX-ORD-DEMO-1'));
   const qrSize = Math.min(winWidth * 0.38, 140);
   const qrData = JSON.stringify({
     code: ticketCode,
-    event: order?.event?.title,
-    holder: attendee?.full_name,
-    category: order?.items?.[0]?.ticket_label,
+    event: order?.event?.title || 'Sound of Downtown Vol. 5',
+    holder: attendee?.full_name || 'Penonton',
+    category: order?.items?.[0]?.ticket_label || 'Festival A (Standing)',
   });
 
   return (
