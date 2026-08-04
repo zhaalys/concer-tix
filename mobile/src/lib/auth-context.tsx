@@ -343,31 +343,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
       provider: 'google',
     };
 
-    if (isPlaceholderSupabase) {
-      setUser(mockGoogleUser);
-      setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
-      return {};
-    }
-
     try {
       const redirectTo = getRedirectUri();
-      if (Platform.OS === 'web') {
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
-        if (error) {
-          setUser(mockGoogleUser);
-          setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
-        }
-        return {};
-      }
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo, skipBrowserRedirect: true },
       });
-      if (error || !data?.url) {
+
+      if (error || !data?.url || data.url.includes('demo-placeholder') || isPlaceholderSupabase) {
         setUser(mockGoogleUser);
         setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
         return {};
       }
+
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.location.href = data.url;
+        return {};
+      }
+
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type === 'success' && result.url) {
         const params = extractAuthCodeParams(result.url);
@@ -377,6 +370,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
             params.flowId ? { flowId: params.flowId } : undefined
           );
         }
+      } else {
+        setUser(mockGoogleUser);
+        setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
       }
       return {};
     } catch {
