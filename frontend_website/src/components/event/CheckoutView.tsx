@@ -428,7 +428,7 @@ function Step3({ category, form, orderCode, onSuccess, onBack }: {
   }, {} as Record<string, typeof PAYMENT_METHODS>);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: "32px", alignItems: "start" }}>
+    <div className="checkout-step-grid">
       <div>
         {error && (
           <div style={{ backgroundColor: "#FFF0F0", border: "1px solid #FFB3B3", borderRadius: "8px", padding: "12px 16px", marginBottom: "16px", fontSize: "13px", color: "#E03131" }}>
@@ -448,11 +448,12 @@ function Step3({ category, form, orderCode, onSuccess, onBack }: {
                     border: selected === m.id ? "1.5px solid #000000" : "1px solid #EBEBEB",
                     backgroundColor: "#fff", borderRadius: "8px",
                     cursor: "pointer", justifyContent: "flex-start",
+                    minWidth: 0,
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={m.img} alt={m.label} style={{ width: "32px", height: "32px", objectFit: "contain" }} />
-                  <span style={{ fontSize: "12px", fontWeight: selected === m.id ? 700 : 500, color: selected === m.id ? "#000000" : "#6B6B6B" }}>{m.label}</span>
+                  <img src={m.img} alt={m.label} style={{ width: "32px", height: "32px", objectFit: "contain", flexShrink: 0 }} />
+                  <span style={{ fontSize: "12px", fontWeight: selected === m.id ? 700 : 500, color: selected === m.id ? "#000000" : "#6B6B6B", textAlign: "left", lineHeight: "1.35", flex: 1, minWidth: 0 }}>{m.label}</span>
                 </button>
               ))}
             </div>
