@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: ./backend
+    container_name: concer-tix-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend_website
+    container_name: concer-tix-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend_website/.env.local
+    depends_on:
+      - backend
+    restart: unless-stopped
