@@ -488,6 +488,16 @@ export default function Navbar() {
               );
             })}
             <div style={{ height: "1px", backgroundColor: "#EEEEEE", margin: "8px 20px" }} />
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 20px", textDecoration: "none", fontSize: "14px", fontWeight: 500, color: "#37352F" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "20px", color: "#6C757D" }}>dashboard</span>
+                Admin Panel
+              </Link>
+            )}
             {user ? (
               <Link
                 href="/profile"
@@ -549,6 +559,7 @@ export default function Navbar() {
               { label: "Beranda", href: "/", icon: "home" },
               { label: "Jelajahi", href: "/explore", icon: "explore" },
               { label: "Tiket", href: "/my-tickets", icon: "confirmation_number" },
+              ...(isAdmin ? [{ label: "Admin", href: "/admin", icon: "dashboard" }] : []),
               { label: "Gelang", href: "/wristband", icon: "style" },
               { label: "Profil", href: "/profile", icon: "person" },
             ].map((link) => {
