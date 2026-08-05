@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
 import 'react-native-url-polyfill/auto';
 
 const supabaseUrl =
@@ -13,11 +14,19 @@ export const isPlaceholderSupabase =
   supabaseUrl.includes('demo-placeholder') ||
   supabaseUrl.includes('placeholder');
 
+const memoryStorage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
+};
+
+const authStorage = Platform.OS === 'web' && typeof window === 'undefined' ? memoryStorage : AsyncStorage;
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: authStorage,
     autoRefreshToken: true,
-    persistSession: false,
+    persistSession: true,
     detectSessionInUrl: false,
     flowType: 'pkce',
   },

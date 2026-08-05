@@ -33,7 +33,7 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateDisplayName: (name: string) => Promise<{ error?: string }>;
-  signInWithGoogle: () => Promise<{ error?: string }>;
+  signInWithGoogle: () => Promise<{ error?: string; redirecting?: boolean }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -319,7 +319,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (error) {
           return { error: 'Gagal membuka Google. ' + error.message };
         }
-        return {};
+        return { redirecting: true };
       }
 
       const { data, error } = await supabase.auth.signInWithOAuth({

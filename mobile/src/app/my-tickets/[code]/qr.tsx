@@ -2,7 +2,6 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   Modal,
   Pressable,
   ScrollView,
@@ -19,7 +18,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 import type { Order } from '@/lib/types';
 
-const { width: winWidth } = Dimensions.get('window');
+const qrSize = 140;
 
 export default function ETicketScreen() {
   const { code } = useLocalSearchParams<{ code: string }>();
@@ -47,7 +46,6 @@ export default function ETicketScreen() {
 
   const attendee = order?.attendees?.[0];
   const ticketCode = attendee?.ticket_code || (order?.order_code ? `TIX-${order.order_code}-1` : (code ?? 'TIX-ORD-DEMO-1'));
-  const qrSize = Math.min(winWidth * 0.38, 140);
   const qrData = JSON.stringify({
     code: ticketCode,
     event: order?.event?.title || 'Sound of Downtown Vol. 5',
@@ -66,7 +64,7 @@ export default function ETicketScreen() {
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 60 + insets.bottom }]} showsVerticalScrollIndicator={false}>
           <View style={styles.lanyardWrap}>
             <AppImage src="/history_lanyard/lanyard_history.png" style={styles.lanyard} contentFit="contain" />
-            <View style={[styles.qrOverlay, { top: winWidth * 0.52 }]}>
+            <View style={styles.qrOverlay}>
               <View style={styles.qrBox}>
                 <QRCode value={qrData} size={qrSize} backgroundColor="transparent" />
               </View>
@@ -128,7 +126,7 @@ const styles = StyleSheet.create({
   },
   qrOverlay: {
     position: 'absolute',
-    top: '50%',
+    top: '52%',
     alignSelf: 'center',
   },
   qrBox: {

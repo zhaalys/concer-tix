@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { AppGate } from '@/components/gate/AppGate';
 import { AuthProvider } from '@/lib/auth-context';
@@ -31,32 +31,49 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <StatusBar style="dark" />
-        <AppGate>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: '#FFFFFF' },
-            }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="event/[id]" />
-            <Stack.Screen name="event/[id]/checkout" />
-            <Stack.Screen name="event/[id]/checkout/success" />
-            <Stack.Screen name="my-tickets/[code]" />
-            <Stack.Screen name="my-tickets/[code]/qr" />
-            <Stack.Screen name="my-tickets/wristband/[code]" />
-            <Stack.Screen name="wristband/order" />
-            <Stack.Screen name="login" />
-            <Stack.Screen name="register" />
-            <Stack.Screen name="auth/callback" />
-            <Stack.Screen name="about" />
-            <Stack.Screen name="our-journey" />
-            <Stack.Screen name="pricing" />
-            <Stack.Screen name="faq" />
-          </Stack>
-        </AppGate>
+      <View style={styles.backdrop}>
+        <View style={styles.app}>
+          <StatusBar style="dark" />
+          <AppGate>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: '#FFFFFF' },
+              }}>
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="profile" />
+              <Stack.Screen name="event/[id]" />
+              <Stack.Screen name="event/[id]/checkout" />
+              <Stack.Screen name="event/[id]/checkout/success" />
+              <Stack.Screen name="my-tickets/[code]" />
+              <Stack.Screen name="my-tickets/[code]/qr" />
+              <Stack.Screen name="my-tickets/wristband/[code]" />
+              <Stack.Screen name="wristband/order" />
+              <Stack.Screen name="login" />
+              <Stack.Screen name="register" />
+              <Stack.Screen name="auth/callback" />
+              <Stack.Screen name="about" />
+              <Stack.Screen name="our-journey" />
+              <Stack.Screen name="pricing" />
+              <Stack.Screen name="faq" />
+            </Stack>
+          </AppGate>
+        </View>
       </View>
     </AuthProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: Platform.OS === 'web' ? '#334155' : '#FFFFFF',
+  },
+  app: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 480,
+    backgroundColor: '#FFFFFF',
+  },
+});

@@ -1,11 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from './themed-text';
-import { useAuth } from '@/lib/auth-context';
 import { resolveImage } from '@/lib/assets';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -13,18 +12,12 @@ export function Header() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const router = useRouter();
-  const { user } = useAuth();
 
   const handleProfilePress = () => {
     try {
       router.push('/profile' as never);
     } catch {
       // fallback
-    }
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      if (window.location.pathname !== '/profile') {
-        window.location.href = '/profile';
-      }
     }
   };
 

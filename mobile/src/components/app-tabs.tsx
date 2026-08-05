@@ -66,7 +66,6 @@ export default function AppTabs() {
             tabBarIcon: ({ color }) => <MaterialIcons name="style" size={28} color={color} />,
           }}
         />
-        <Tabs.Screen name="profile" options={{ title: 'Profil', href: null }} />
       </Tabs>
     </View>
   );

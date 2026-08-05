@@ -19,6 +19,7 @@ export function AppGate({ children }: { children: ReactNode }) {
   const onAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
   const showTerms = splashDone && !authLoading && !user && !termsAccepted && !onAuthRoute;
   const shouldRedirect = splashDone && !authLoading && !user && termsAccepted && !onAuthRoute;
+  const renderApp = splashDone && !showTerms && !shouldRedirect && !(authLoading && !user && !onAuthRoute);
 
   useEffect(() => {
     if (shouldRedirect) {
@@ -28,12 +29,12 @@ export function AppGate({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {children}
+      {renderApp ? children : null}
       {!splashDone ? (
         <SplashOverlay onDone={() => setSplashDone(true)} />
       ) : showTerms ? (
         <TermsOverlay onAccept={() => setTermsAccepted(true)} />
-      ) : authLoading || shouldRedirect ? (
+      ) : !renderApp ? (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator color="#0E9375" size="large" />
         </View>

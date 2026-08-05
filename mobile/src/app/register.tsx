@@ -47,7 +47,7 @@ export default function RegisterScreen() {
     setGoogleLoading(false);
     if (res.error) {
       setError(res.error);
-    } else {
+    } else if (!res.redirecting) {
       router.replace((next ?? '/') as never);
     }
   };

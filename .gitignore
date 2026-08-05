@@ -46,3 +46,6 @@ frontend_website/netlify/functions/api/backend/
 
 # Local Netlify folder
 .netlify
+
+# Playwright MCP artifacts
+.playwright-mcp
