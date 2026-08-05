@@ -1,4 +1,11 @@
 const supabase = require("../lib/supabase");
+const midtransClient = require('midtrans-client');
+const config = require('../config');
+
+const coreApi = new midtransClient.CoreApi({
+  isProduction: config.midtrans.isProduction,
+  serverKey: config.midtrans.serverKey,
+});
 
 function generateOrderCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -227,6 +234,59 @@ exports.updateOrderStatus = async (req, res, next) => {
     const enriched = await enrichOrder(data);
 
     res.json({ success: true, data: enriched });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.verifyOrderPayment = async (req, res, next) => {
+  try {
+    const normalized = String(req.params.code || "").trim();
+    if (!normalized) {
+      return res.status(400).json({ success: false, message: "Order code required" });
+    }
+
+    const { data: order, error } = await supabase
+      .from("orders")
+      .select("order_code, status, paid_at")
+      .eq("order_code", normalized)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    if (order.status === "paid") {
+      return res.json({ success: true, status: "paid" });
+    }
+
+    let status = order.status;
+    try {
+      const trx = await coreApi.transaction.status({ order_id: normalized });
+      const t = trx && trx.transaction_status;
+      if (t === "capture" || t === "settlement") {
+        status = "paid";
+      } else if (t === "pending") {
+        status = "pending";
+      } else if (["deny", "cancel", "expire"].includes(t)) {
+        status = "cancelled";
+      }
+    } catch (err) {
+      console.error("Midtrans status check error:", err.message);
+    }
+
+    if (status !== order.status) {
+      const { error: updErr } = await supabase
+        .from("orders")
+        .update({
+          status,
+          paid_at: status === "paid" ? new Date().toISOString() : order.paid_at,
+        })
+        .eq("order_code", normalized);
+      if (updErr) throw updErr;
+    }
+
+    res.json({ success: true, status });
   } catch (err) {
     next(err);
   }

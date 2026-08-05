@@ -17,7 +17,7 @@ exports.midtransNotification = async (req, res, next) => {
 
   try {
     const rawOrderId = notification.order_id;
-    const orderId = rawOrderId.replace(/\.retry\.\d+$/, "");
+    const orderId = rawOrderId.replace(/(?:\.retry\.\d+|\-\d+)$/, "");
     const transactionStatus = notification.transaction_status;
     const paymentType = notification.payment_type;
 

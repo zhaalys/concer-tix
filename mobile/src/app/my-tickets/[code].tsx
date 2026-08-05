@@ -60,9 +60,8 @@ export default function OrderNotaScreen() {
     setPaying(true);
     setPayError('');
     try {
-      const orderId = `${order.order_code}-${Date.now()}`;
       const tokenRes = await api.createPaymentToken({
-        orderId,
+        orderId: order.order_code,
         amount: order.total_amount,
         name: attendee?.booker_name || attendee?.full_name || user?.display_name || 'User',
         email: attendee?.email || user?.email || '',
@@ -70,11 +69,18 @@ export default function OrderNotaScreen() {
         enabledPayments: PAYMENT_METHODS.map((m) => m.snapKey),
       });
       await openSnap(tokenRes.token);
-      await api.updateOrderStatus(order.order_code, {
-        status: 'paid',
-        payment_method: 'midtrans',
-        payment_token: orderId,
-      });
+      if (tokenRes.token.startsWith('demo-snap-token-')) {
+        await api.updateOrderStatus(order.order_code, {
+          status: 'paid',
+          payment_method: 'midtrans',
+          payment_token: order.order_code,
+        });
+      } else {
+        const verify = await api.verifyOrderPayment(order.order_code);
+        if (verify.status !== 'paid') {
+          throw new Error('Pembayaran belum selesai. Silakan coba lagi atau cek status tiket Anda.');
+        }
+      }
       await load();
     } catch (e: any) {
       setPayError(e?.message || 'Pembayaran gagal. Silakan coba lagi.');

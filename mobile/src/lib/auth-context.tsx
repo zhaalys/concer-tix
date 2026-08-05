@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { makeRedirectUri } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import {
@@ -14,7 +13,7 @@ import { Platform } from 'react-native';
 
 import type { Profile } from './types';
 import { extractAuthCodeParams } from './auth-url';
-import { isPlaceholderSupabase, supabase, SUPABASE_URL } from './supabase';
+import { supabase } from './supabase';
 
 export interface AuthUser {
   id: string;
@@ -38,28 +37,6 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const LOCAL_USER_STORAGE_KEY = 'ARTATIX_LOCAL_AUTH_USER_V2';
-
-async function getStoredUser(): Promise<AuthUser | null> {
-  try {
-    const raw = await AsyncStorage.getItem(LOCAL_USER_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-async function persistStoredUser(user: AuthUser | null): Promise<void> {
-  try {
-    if (user) {
-      await AsyncStorage.setItem(LOCAL_USER_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      await AsyncStorage.removeItem(LOCAL_USER_STORAGE_KEY);
-    }
-  } catch {
-    // ignore
-  }
-}
 
 export function getRedirectUri(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -120,7 +97,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const setUser = useCallback((u: AuthUser | null) => {
     setUserState(u);
-    persistStoredUser(u);
   }, []);
 
   const applySession = useCallback(
@@ -137,14 +113,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     let active = true;
-
-    // Load cached local user first for instant load
-    getStoredUser().then((stored) => {
-      if (active && stored) {
-        setUserState(stored);
-        setLoading(false);
-      }
-    });
 
     supabase.auth
       .getSession()
@@ -334,28 +302,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const signInWithGoogle = useCallback(async () => {
-    const mockGoogleUser: AuthUser = {
-      id: 'google-user-' + Date.now(),
-      email: 'user.google@gmail.com',
-      display_name: 'Google User',
-      avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
-      role: 'user',
-      provider: 'google',
-    };
-
-    const isPlaceholder =
-      !isPlaceholderSupabase ||
-      isPlaceholderSupabase === true ||
-      !SUPABASE_URL ||
-      SUPABASE_URL.includes('demo-placeholder') ||
-      SUPABASE_URL.includes('placeholder');
-
-    if (isPlaceholder) {
-      setUser(mockGoogleUser);
-      setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
-      return {};
-    }
-
     try {
       const redirectTo = getRedirectUri();
 
@@ -371,8 +317,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           },
         });
         if (error) {
-          setUser(mockGoogleUser);
-          setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
+          return { error: 'Gagal membuka Google. ' + error.message };
         }
         return {};
       }
@@ -382,10 +327,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         options: { redirectTo, skipBrowserRedirect: true },
       });
 
-      if (error || !data?.url || data.url.includes('demo-placeholder')) {
-        setUser(mockGoogleUser);
-        setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
-        return {};
+      if (error || !data?.url) {
+        return { error: 'Gagal memulai login Google. Silakan coba lagi.' };
       }
 
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
@@ -396,18 +339,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
             params.code,
             params.flowId ? { flowId: params.flowId } : undefined
           );
+          return {};
         }
-      } else {
-        setUser(mockGoogleUser);
-        setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
+        return { error: 'Login Google tidak valid. Silakan coba lagi.' };
       }
-      return {};
-    } catch {
-      setUser(mockGoogleUser);
-      setSession({ user: { id: mockGoogleUser.id, email: mockGoogleUser.email } } as never);
-      return {};
+      return { error: 'Login Google tidak selesai. Silakan coba lagi.' };
+    } catch (err: any) {
+      return { error: err?.message || 'Terjadi kesalahan saat login Google. Silakan coba lagi.' };
     }
-  }, [setUser]);
+  }, []);
 
   const value = useMemo(
     () => ({ session, user, loading, signIn, signUp, signOut, refreshProfile, updateDisplayName, signInWithGoogle }),

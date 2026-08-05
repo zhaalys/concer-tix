@@ -173,9 +173,8 @@ export default function CheckoutScreen() {
     setPayError('');
     try {
       const method = PAYMENT_METHODS.find((m) => m.id === paymentMethod) ?? PAYMENT_METHODS[0];
-      const orderId = `${order.order_code}-${Date.now()}`;
       const tokenRes = await api.createPaymentToken({
-        orderId,
+        orderId: order.order_code,
         amount: order.total_amount,
         name: bookerName || user?.display_name || 'User',
         email: email || user?.email || '',
@@ -183,11 +182,20 @@ export default function CheckoutScreen() {
         enabledPayments: [method.snapKey],
       });
       await openSnap(tokenRes.token);
-      await api.updateOrderStatus(order.order_code, {
-        status: 'paid',
-        payment_method: method.label,
-        payment_token: orderId,
-      });
+      if (tokenRes.token.startsWith('demo-snap-token-')) {
+        await api.updateOrderStatus(order.order_code, {
+          status: 'paid',
+          payment_method: method.label,
+          payment_token: order.order_code,
+        });
+        setOrder({ ...order, status: 'paid', payment_method: method.label });
+        setStep(3);
+        return;
+      }
+      const verify = await api.verifyOrderPayment(order.order_code);
+      if (verify.status !== 'paid') {
+        throw new Error('Pembayaran belum selesai. Silakan coba lagi atau cek status tiket Anda.');
+      }
       setOrder({ ...order, status: 'paid', payment_method: method.label });
       setStep(3);
     } catch (e: any) {

@@ -147,12 +147,21 @@ export async function syncOrderToSupabase(order: Order): Promise<void> {
 
     let dbOrderId = existingOrder?.id;
 
+    let resolvedUserId: string | null = null;
+    const rawUid = order.user_id;
+    if (rawUid && !rawUid.startsWith('user-') && !rawUid.startsWith('local-')) {
+      resolvedUserId = rawUid;
+    } else {
+      const { data: { user } } = await supabase.auth.getUser();
+      resolvedUserId = user?.id || null;
+    }
+
     if (!dbOrderId) {
       const { data: newDbOrder, error: orderErr } = await supabase
         .from('orders')
         .insert({
           order_code: order.order_code,
-          user_id: order.user_id && !order.user_id.startsWith('user-') && !order.user_id.startsWith('local-') ? order.user_id : null,
+          user_id: resolvedUserId,
           status: order.status || 'paid',
           total_amount: order.total_amount,
           payment_method: order.payment_method || 'QRIS Instant',
@@ -396,9 +405,21 @@ export const api = {
         match.status = data.status;
         if (data.payment_method) match.payment_method = data.payment_method;
         await saveLocalOrder(match);
+        syncOrderToSupabase(match).catch(() => {});
         return { success: true, data: match };
       }
       throw new ApiError('Order not found', 404);
+    }
+  },
+
+  verifyOrderPayment: async (code: string) => {
+    try {
+      return await request<{ success: boolean; status: string }>(
+        `/orders/${encodeURIComponent(code)}/verify`,
+        { method: 'POST' }
+      );
+    } catch {
+      return { success: true, status: 'pending' };
     }
   },
 
