@@ -133,9 +133,11 @@ export default function AdminScannerPage() {
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
       setScannerReady(true);
+      const readerWidth = readerRef.current.offsetWidth || 320;
+      const qr = Math.max(160, Math.min(250, Math.floor(readerWidth * 0.72)));
       await scanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { fps: 10, qrbox: { width: qr, height: qr } },
         async (decodedText) => {
           if (processingRef.current) return;
           processingRef.current = true;
@@ -203,7 +205,7 @@ export default function AdminScannerPage() {
         subtitle="Pindai e-ticket pengunjung. QR palsu atau tidak terdaftar otomatis ditolak."
       />
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 16, alignItems: "start" }}>
+      <div className="scan-grid" style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 16, alignItems: "start" }}>
         {/* Scanner card */}
         <div style={{ border: `1px solid ${BORDER}`, borderRadius: 10, overflow: "hidden", background: "#fff" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderBottom: `1px solid ${BORDER}` }}>
@@ -265,6 +267,7 @@ export default function AdminScannerPage() {
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <input
+                className="scan-input"
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value)}
                 placeholder="Kode tiket / order (mis. AB12CD atau TIX-XXXXXX)"
@@ -272,7 +275,7 @@ export default function AdminScannerPage() {
                   flex: 1,
                   border: `1px solid ${BORDER}`,
                   borderRadius: 6,
-                  padding: "9px 11px",
+                  padding: "11px 12px",
                   fontSize: 13.5,
                   outline: "none",
                   color: TEXT,
@@ -381,7 +384,7 @@ export default function AdminScannerPage() {
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <table className="scan-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ textAlign: "left", color: TEXT_FAINT, fontSize: 12, borderBottom: `1px solid ${BORDER}` }}>
                   <th style={{ padding: "10px 16px", fontWeight: 600 }}>Waktu</th>
@@ -420,7 +423,15 @@ export default function AdminScannerPage() {
         )}
       </div>
 
-      <style>{`.admin-spin { animation: adminSpin 0.8s linear infinite; }`}</style>
+      <style>{`
+        .admin-spin { animation: adminSpin 0.8s linear infinite; }
+        @media (max-width: 860px) {
+          .scan-grid { grid-template-columns: 1fr !important; }
+          .scan-input { font-size: 16px !important; }
+          .scan-table th, .scan-table td { padding: 8px 10px !important; }
+          .scan-table { min-width: 620px; }
+        }
+      `}</style>
     </div>
   );
 }

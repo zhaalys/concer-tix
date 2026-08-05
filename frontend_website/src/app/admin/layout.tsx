@@ -316,6 +316,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         .admin-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .admin-scroll::-webkit-scrollbar-thumb { background: #D3D1CC; border-radius: 8px; }
         @media (max-width: 900px) { .admin-sidebar-desktop { display: none; } }
+        @media (max-width: 640px) { .admin-main { padding: 18px 14px 84px !important; } }
       `}</style>
 
       {/* Desktop sidebar */}
@@ -371,7 +372,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Content */}
-      <main style={{ padding: "36px 28px 80px", maxWidth: 1320, margin: "0 auto" }}>{children}</main>
+      <main className="admin-main" style={{ padding: "36px 28px 80px", maxWidth: 1320, margin: "0 auto" }}>{children}</main>
     </div>
   );
 }
